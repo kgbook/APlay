@@ -1,0 +1,77 @@
+# Local agent / tool state
+.codex/
+.agent/
+.agents/
+.ralph/
+.sisyphus/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# CMake / C / C++ build outputs
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+*.cmake.user
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+
+# Ninja / Make
+.ninja_deps
+.ninja_log
+*.ninja
+
+# Java / Gradle
+.gradle/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# Android / Android Studio
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.hprof
+app/android/.gradle/
+app/android/build/
+app/android/.idea/
+app/android/local.properties
+app/android/**/.cxx/
+app/android/**/build/
+
+# IntelliJ IDEA / Android Studio / CLion
+.idea/
+*.iml
+*.iws
+*.ipr
+.clion/
+
+# Logs
+*.log
+hs_err_pid*
+replay_pid*

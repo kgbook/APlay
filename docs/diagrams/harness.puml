@@ -1,0 +1,26 @@
+@startuml
+title Harness Validation Flow
+
+component "fixtures\nrequests / vectors / RTP summaries" as Fixtures
+component "protocol_replay" as ProtocolReplay
+component "crypto_vectors" as CryptoVectors
+component "rtp_replay" as RtpReplay
+component "smoke" as Smoke
+component "golden summaries" as Golden
+component "CTest" as CTest
+
+Fixtures --> ProtocolReplay
+Fixtures --> CryptoVectors
+Fixtures --> RtpReplay
+Smoke --> CTest
+ProtocolReplay --> Golden
+CryptoVectors --> Golden
+RtpReplay --> Golden
+Golden --> CTest
+
+note bottom
+Offline replay is mandatory.
+Real device capture is optional integration evidence.
+end note
+
+@enduml

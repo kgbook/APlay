@@ -1,0 +1,28 @@
+@startuml
+title AirPlay Session Sequence
+
+actor Client
+participant "ProtocolServer" as Protocol
+participant "SessionController" as Session
+participant "CryptoProvider" as Crypto
+participant "StreamingManager" as Streaming
+participant "OSAL Render/Codec" as OsalRender
+
+Client -> Protocol: RTSP/HTTP connection
+Protocol -> Session: classify connection
+Client -> Protocol: pair-setup / pair-verify
+Protocol -> Session: pairing request
+Session -> Crypto: derive and verify keys
+Crypto --> Session: session keys
+Client -> Protocol: fp-setup
+Session -> Crypto: FairPlay setup
+Client -> Protocol: SETUP / RECORD
+Session -> Streaming: create audio/video/timing streams
+Streaming -> OsalRender: start
+Client -> Streaming: RTP / mirror packets
+Streaming -> OsalRender: AudioFrame / VideoFrame
+Client -> Protocol: FLUSH / TEARDOWN
+Session -> Streaming: flush or stop
+Streaming -> OsalRender: flush or stop
+
+@enduml

@@ -1,0 +1,1 @@
+# Socket utility module placeholder.

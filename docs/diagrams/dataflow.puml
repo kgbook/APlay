@@ -1,0 +1,29 @@
+@startuml
+title Media Data Flow
+
+left to right direction
+
+rectangle "Client" as Client
+rectangle "RTSP/HTTP\ncontrol" as Control
+rectangle "Pairing/FairPlay\nkeys" as Keys
+rectangle "Audio RTP" as Audio
+rectangle "Mirror Video" as Video
+rectangle "NTP Timing" as Timing
+rectangle "Jitter Buffer" as Buffer
+rectangle "Frame Output" as Frames
+rectangle "OSAL Render/Codec\nor harness mock" as RenderCodec
+
+Client --> Control
+Control --> Keys
+Keys --> Audio
+Keys --> Video
+Client --> Audio
+Client --> Video
+Client --> Timing
+Timing --> Buffer
+Audio --> Buffer
+Video --> Buffer
+Buffer --> Frames
+Frames --> RenderCodec
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+title Session State Machine
+
+[*] --> Idle
+Idle --> Pairing: pair-setup
+Pairing --> Verified: pair-verify ok
+Pairing --> Error: auth failed
+Verified --> Configured: SETUP ok
+Configured --> Streaming: RECORD or play
+Streaming --> Flushing: FLUSH
+Flushing --> Streaming: flush complete
+Streaming --> TearingDown: TEARDOWN
+Configured --> TearingDown: TEARDOWN
+TearingDown --> Closed
+Error --> Closed
+Closed --> [*]
+
+@enduml

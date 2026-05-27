@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="504px" preserveAspectRatio="none" style="width:469px;height:504px;" version="1.1" viewBox="0 0 469 504" width="469px" zoomAndPan="magnify"><defs><filter height="300%" id="f18fdpkmpq4gok" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="204" x="136" y="19.2419">Harness Validation Flow</text><!--MD5=[9ccfbd43c71de649f793773c63482363]
+entity Fixtures--><rect fill="#FEFECE" filter="url(#f18fdpkmpq4gok)" height="58.1358" style="stroke: #A80036; stroke-width: 1.5;" width="257" x="94" y="32.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="89" y="37.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="89" y="80.6517"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="51" x="104" y="57.4818">fixtures</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="237" x="104" y="76.5497">requests / vectors / RTP summaries</text><!--MD5=[0c80f0100399596b2170a1aa48ba0df6]
+entity ProtocolReplay--><rect fill="#FEFECE" filter="url(#f18fdpkmpq4gok)" height="39.0679" style="stroke: #A80036; stroke-width: 1.5;" width="123" x="6" y="150.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="1" y="155.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="1" y="179.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="103" x="16" y="175.4818">protocol_replay</text><!--MD5=[c0643cc6e4e0b2354aa3b7ba9fdb41e4]
+entity CryptoVectors--><rect fill="#FEFECE" filter="url(#f18fdpkmpq4gok)" height="39.0679" style="stroke: #A80036; stroke-width: 1.5;" width="116" x="164.5" y="150.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="159.5" y="155.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="159.5" y="179.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="96" x="174.5" y="175.4818">crypto_vectors</text><!--MD5=[222291c442310e2f8ea89259b337c4c2]
+entity RtpReplay--><rect fill="#FEFECE" filter="url(#f18fdpkmpq4gok)" height="39.0679" style="stroke: #A80036; stroke-width: 1.5;" width="88" x="315.5" y="150.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="310.5" y="155.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="310.5" y="179.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="68" x="325.5" y="175.4818">rtp_replay</text><!--MD5=[2f61f70d2e67976b5d6a11f083287cc4]
+entity Smoke--><rect fill="#FEFECE" filter="url(#f18fdpkmpq4gok)" height="39.0679" style="stroke: #A80036; stroke-width: 1.5;" width="63" x="331" y="249.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="326" y="254.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="326" y="278.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="43" x="341" y="274.4818">smoke</text><!--MD5=[693de3e1b3651d3bb23293a07f317de5]
+entity Golden--><rect fill="#FEFECE" filter="url(#f18fdpkmpq4gok)" height="39.0679" style="stroke: #A80036; stroke-width: 1.5;" width="146" x="149.5" y="249.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="144.5" y="254.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="144.5" y="278.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="126" x="159.5" y="274.4818">golden summaries</text><!--MD5=[b86cec2d8989f26cc8b2c6c39aafdc76]
+entity CTest--><rect fill="#FEFECE" filter="url(#f18fdpkmpq4gok)" height="39.0679" style="stroke: #A80036; stroke-width: 1.5;" width="57" x="264" y="348.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="259" y="353.5158"/><rect fill="#FEFECE" height="5" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="259" y="377.5838"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="37" x="274" y="373.4818">CTest</text><path d="M127.5,447.5158 L127.5,492.9279 A0,0 0 0 0 127.5,492.9279 L457.5,492.9279 A0,0 0 0 0 457.5,492.9279 L457.5,457.5158 L447.5,447.5158 L296.5,447.5158 L292.5,387.8258 L288.5,447.5158 L127.5,447.5158 A0,0 0 0 0 127.5,447.5158 " fill="#FBFB77" filter="url(#f18fdpkmpq4gok)" style="stroke: #A80036; stroke-width: 1.0;"/><path d="M447.5,447.5158 L447.5,457.5158 L457.5,457.5158 L447.5,447.5158 " fill="#FBFB77" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="164" x="133.5" y="466.4129">Offline replay is mandatory.</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="309" x="133.5" y="484.1189">Real device capture is optional integration evidence.</text><!--MD5=[360734a227fd63913f37a42cb9538a5d]
+link Fixtures to ProtocolReplay--><path d="M181.37,90.7758 C155.53,108.5258 122.72,131.0758 98.97,147.3958 " fill="none" id="Fixtures-&gt;ProtocolReplay" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="94.64,150.3658,104.3225,148.5633,98.7602,147.5332,99.7903,141.9709,94.64,150.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[2d0a7f41c3528410d1dc30517fbddb01]
+link Fixtures to CryptoVectors--><path d="M222.5,90.7758 C222.5,107.7158 222.5,129.0258 222.5,145.1258 " fill="none" id="Fixtures-&gt;CryptoVectors" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="222.5,150.3658,226.5,141.3658,222.5,145.3658,218.5,141.3658,222.5,150.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[7cb9e147b2740146c2fdda6cf3d34139]
+link Fixtures to RtpReplay--><path d="M258.85,90.7758 C281.59,108.4558 310.45,130.8858 331.43,147.1958 " fill="none" id="Fixtures-&gt;RtpReplay" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="335.51,150.3658,330.8529,141.6876,331.5602,147.3001,325.9477,148.0074,335.51,150.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[842eb6e936bf799e6ae06ee4b0d157cb]
+link Smoke to CTest--><path d="M349,288.7158 C337.58,304.5558 321.16,327.3058 308.96,344.2058 " fill="none" id="Smoke-&gt;CTest" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="305.96,348.3658,314.4593,343.3898,308.877,344.3049,307.9619,338.7226,305.96,348.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[1a839ff0eab2535ae77e96dd454475d7]
+link ProtocolReplay to Golden--><path d="M97.39,189.7158 C123.44,206.0258 161.21,229.6658 188.43,246.6958 " fill="none" id="ProtocolReplay-&gt;Golden" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="192.71,249.3658,187.2054,241.1989,188.4724,246.712,182.9593,247.979,192.71,249.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[f71c062418705069dbb61c7439bb047c]
+link CryptoVectors to Golden--><path d="M222.5,189.7158 C222.5,205.2858 222.5,227.5358 222.5,244.3458 " fill="none" id="CryptoVectors-&gt;Golden" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="222.5,249.3658,226.5,240.3658,222.5,244.3658,218.5,240.3658,222.5,249.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[8dd36f1fe5b055a09e2e79ea051643d9]
+link RtpReplay to Golden--><path d="M333.09,189.7158 C310.25,205.8858 277.22,229.2758 253.21,246.2758 " fill="none" id="RtpReplay-&gt;Golden" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="248.83,249.3658,258.4812,247.4025,252.9025,246.4651,253.8399,240.8864,248.83,249.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[c75de222223bac62663510075fb88177]
+link Golden to CTest--><path d="M236,288.7158 C247.42,304.5558 263.84,327.3058 276.04,344.2058 " fill="none" id="Golden-&gt;CTest" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="279.04,348.3658,277.0381,338.7226,276.123,344.3049,270.5407,343.3898,279.04,348.3658" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[89ff7a7759f89132131dd00a544e6b07]
+@startuml
+title Harness Validation Flow
+
+component "fixtures\nrequests / vectors / RTP summaries" as Fixtures
+component "protocol_replay" as ProtocolReplay
+component "crypto_vectors" as CryptoVectors
+component "rtp_replay" as RtpReplay
+component "smoke" as Smoke
+component "golden summaries" as Golden
+component "CTest" as CTest
+
+Fixtures - -> ProtocolReplay
+Fixtures - -> CryptoVectors
+Fixtures - -> RtpReplay
+Smoke - -> CTest
+ProtocolReplay - -> Golden
+CryptoVectors - -> Golden
+RtpReplay - -> Golden
+Golden - -> CTest
+
+note bottom
+Offline replay is mandatory.
+Real device capture is optional integration evidence.
+end note
+
+@enduml
+
+PlantUML version 1.2020.02(Sun Mar 01 18:22:07 CST 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 21.0.11+10-1-deb13u2-Debian
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: null
+--></g></svg>

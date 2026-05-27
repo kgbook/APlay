@@ -1,0 +1,6 @@
+[submodule "third-party/xdebug"]
+	path = third-party/xdebug
+	url = https://github.com/kgbook/xdebug
+[submodule "third-party/SpdlogHelper"]
+	path = third-party/SpdlogHelper
+	url = https://github.com/kgbook/SpdlogHelper.git

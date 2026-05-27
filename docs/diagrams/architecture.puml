@@ -1,0 +1,40 @@
+@startuml
+title APlay Target Architecture
+
+skinparam componentStyle rectangle
+
+component "app/linux\nCLI / desktop lifecycle" as LinuxApp
+component "app/android\nActivity / Service lifecycle" as AndroidApp
+component "protocol\nRTSP / HTTP / mDNS" as Protocol
+component "streaming\nRAOP / mirror / HLS / timing" as Streaming
+component "crypto\nAES / FairPlay / SRP / Ed25519" as Crypto
+component "osal\nsocket / thread / codec / render" as Osal
+component "harness\nreplay / vectors / smoke" as Harness
+
+LinuxApp --> Protocol
+LinuxApp --> Streaming
+LinuxApp --> Osal
+AndroidApp --> Protocol
+AndroidApp --> Streaming
+AndroidApp --> Osal
+Protocol --> Crypto
+Protocol --> Streaming
+Protocol --> Osal
+Streaming --> Crypto
+Streaming --> Osal
+Harness --> Protocol
+Harness --> Streaming
+Harness --> Crypto
+Harness --> Osal
+
+note right of Protocol
+BLE discovery is TODO.
+mDNS/DNS-SD is first.
+end note
+
+note right of Osal
+OSAL owns platform capability adapters.
+UI and business lifecycle stay in app/linux and app/android.
+end note
+
+@enduml
