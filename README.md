@@ -44,18 +44,13 @@ Build requires Harmony toolchain. Two options:
 
 **Option 2 — Command Line Tools** (macOS/Linux/Windows): Download [Command Line Tools for HMOS](https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos) and extract.
 
-Configure either one with:
-
-```sh
-export DEVECO_SDK_HOME="/path/to/sdk"          # DevEco Studio: .../sdk   Command Line Tools: .../command-line-tools/sdk
-export PATH="/path/to/bin:/path/to/hvigor/bin:/path/to/ohpm/bin:$PATH"
-```
-
-Then run:
+By default the build script uses `${HOME}/tools/command-line-tools` as the Command Line Tools root. Override with the `HARMONY_COMMAND_LINE_TOOLS` environment variable if your installation differs.
 
 ```sh
 ./scripts/harmony_build.sh
 ```
+
+The script sets up `HARMONY_SDK_HOME`, `PATH` (including `hvigorw`, `ohpm`, and `node`), and `NODE_HOME` automatically. It then runs `assembleHar` to output the SDK HAR, followed by `assembleHap` to output the application HAP. `app/harmony` uses `appTasks` to coordinate the application project and its modules; `assembleHar` belongs to `sdk` which uses `harTasks`. Signing is not configured yet; Hvigor preserves the unsigned HAP output.
 
 ## Submodules
 

@@ -44,20 +44,13 @@ sdk/build/outputs/aar/APlaySdk-debug.aar
 
 **方式二 — Command Line Tools**（macOS/Linux/Windows 均有）：下载 [Command Line Tools for HMOS](https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos) 并解压。
 
-任选其一，配置环境变量：
-
-```sh
-export DEVECO_SDK_HOME="/path/to/sdk"          # DevEco Studio: .../sdk   Command Line Tools: .../command-line-tools/sdk
-export PATH="/path/to/bin:/path/to/hvigor/bin:/path/to/ohpm/bin:$PATH"
-```
-
-然后执行构建：
+默认情况下构建脚本使用 `${HOME}/tools/command-line-tools` 作为 Command Line Tools 根目录。如需指定其他路径，可通过 `HARMONY_COMMAND_LINE_TOOLS` 环境变量覆盖。
 
 ```sh
 ./scripts/harmony_build.sh
 ```
 
-该脚本会先执行 `assembleHar` 输出 SDK HAR，再执行 `assembleHap` 输出应用 HAP。`app/harmony` 根工程使用 `appTasks` 来协调应用工程及其模块；`assembleHar` 属于使用 `harTasks` 的 `sdk` 模块。当前暂不配置签名，Hvigor 会保留 unsigned HAP 输出。
+脚本会自动配置 `HARMONY_SDK_HOME`、`PATH`（包含 `hvigorw`、`ohpm` 和 `node`）以及 `NODE_HOME`，然后依次执行 `assembleHar` 输出 SDK HAR，再执行 `assembleHap` 输出应用 HAP。`app/harmony` 使用 `appTasks` 协调应用工程及其模块；`assembleHar` 属于使用 `harTasks` 的 `sdk` 模块。当前暂不配置签名，Hvigor 会保留 unsigned HAP 输出。
 
 ## 子模块
 
