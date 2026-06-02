@@ -29,5 +29,5 @@ popd > /dev/null
 hvigorw assembleHar assembleHap --no-daemon
 popd > /dev/null
 
-echo "Harmony HAR output: ${ROOT_DIR}/sdk/build/APlaySdk/outputs/default"
-echo "Harmony HAP output: ${HARMONY_DIR}/APlayReceiver/build/APlayReceiver/outputs/default"
+echo "Harmony HAR output: ${ROOT_DIR}/sdk/build/default/outputs/default"
+echo "Harmony HAP output: ${HARMONY_DIR}/APlayReceiver/build/default/outputs/default"

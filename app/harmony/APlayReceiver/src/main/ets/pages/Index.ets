@@ -1,4 +1,4 @@
-import APlaySdk from '@kgbook/aplay-sdk';
+import APlaySdk from 'APlaySdk';
 
 @Entry
 @Component

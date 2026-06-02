@@ -1,6 +1,6 @@
 {
-  "name": "@kgbook/aplay-sdk",
-  "version": "0.1.0",
+  "name": "APlaySdk",
+  "version": "1.0.0",
   "description": "APlay ETS SDK facade",
   "main": "Index.ets",
   "author": "kgbook",
