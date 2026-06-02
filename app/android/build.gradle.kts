@@ -1,7 +1,7 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 
 plugins {
-    id("com.android.application") version "8.7.3"
+    id("com.android.application") version "8.13.2"
 }
 
 android {
