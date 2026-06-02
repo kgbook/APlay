@@ -98,7 +98,7 @@ void print_help(std::ostream& out, std::string_view argv0) {
     out << "Usage: " << argv0 << " [--help] [--version] [--name NAME] --smoke-run [MS]\n"
         << "\n"
         << "APlay Linux app is the host UI/business entry for the UxPlay-compatible receiver.\n"
-        << "OSAL remains the platform abstraction for codec, render, sockets, files and timers.\n"
+        << "OSAL currently carries codec/render platform modules and native binding layout; utils carries cross-platform helpers.\n"
         << "\n"
         << "Options:\n"
         << "  -h, --help        Show this help.\n"

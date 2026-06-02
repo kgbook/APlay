@@ -10,7 +10,7 @@ component "app/harmony\nHAP / DevEco entry" as HarmonyApp
 component "protocol\nRTSP / HTTP / mDNS" as Protocol
 component "streaming\nRAOP / mirror / HLS / timing" as Streaming
 component "crypto\nAES / FairPlay / SRP / Ed25519" as Crypto
-component "osal\nsocket / thread / codec / render" as Osal
+component "osal\ncodec / render / bindings" as Osal
 component "harness\nreplay / vectors / smoke" as Harness
 
 LinuxApp --> Protocol
@@ -37,7 +37,7 @@ mDNS/DNS-SD is first.
 end note
 
 note right of Osal
-OSAL owns platform capability adapters.
+OSAL owns codec/render and native binding adapters.
 UI and business lifecycle stay in app/linux, app/android, and future app/harmony.
 end note
 

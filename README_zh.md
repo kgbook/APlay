@@ -9,20 +9,21 @@ APlay 是面向 UxPlay 兼容 AirPlay 接收端的分期重写工程。
 
 - Linux 由 `app/linux/CMakeLists.txt` 作为入口构建。
 - `sdk` 是共享 SDK module。
-- `sdk/src/main/cpp` 提供 C++ SDK，对外输出 `.so`。
+- `sdk/src/main/cpp` 提供 C++ SDK 对象源码，并输出共享的 `aplay_sdk` `.so`。
+- `sdk/src/main/cpp/utils` 提供跨平台工具辅助实现，例如 socket/thread/poll。
 - `sdk/src/main/cpp/third-party` 存放 SDK 使用的第三方 C/C++ 依赖子模块。
-- `sdk/src/main/cpp/jni` 提供 Java SDK native binding，对外输出 `libaplay_jni.so`。
-- `sdk/src/main/cpp/napi` 提供 ETS SDK native binding，未来对外输出 `libaplay_napi.so`。
+- `sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding，对外输出 `libaplay_jni.so`。
+- `sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，未来对外输出 `libaplay_napi.so`。
 - `sdk/src/main/java` 提供 Java SDK，对外输出 Android AAR。
 - `sdk/src/main/ets` 提供 ETS SDK 门面，并作为本地 Harmony HAR module 输出。
 - `app/android` 是 Android Gradle 入口，通过 `:aplay-sdk` 使用 Java SDK。
 - `app/harmony` 是 HarmonyOS/DevEco Studio 入口，通过本地 ETS SDK HAR 使用共享能力。
-- OSAL 作为 codec、render 接口的平台抽象层。
+- OSAL 作为 codec/render 接口的平台抽象层，并负责各平台 native binding 子模块。
 - BLE 服务发现首版暂不实现，作为 TODO 保留。
 
 ## Linux 构建
 
-`app/linux/CMakeLists.txt` 是 Linux 构建入口，从 `sdk/src/main/cpp` 导入共享 native 模块并构建 `aplay` 可执行文件和 `aplay_cpp_sdk` shared library。
+`app/linux/CMakeLists.txt` 是 Linux 构建入口，通过 `APLAY_BUILD_LINUX=ON` 从 `sdk/src/main/cpp` 导入共享 native 模块并构建 `aplay` 可执行文件和 `aplay_sdk` shared library。
 
 ```sh
 ./scripts/linux_build.sh
@@ -35,7 +36,7 @@ APlay 是面向 UxPlay 兼容 AirPlay 接收端的分期重写工程。
 
 ## Android 构建
 
-`app/android/build.gradle.kts` 是 Android app 入口，依赖 `:aplay-sdk` Java SDK。Java SDK 位于 `sdk/src/main/java`，native 接口通过 `sdk/src/main/cpp/jni` 的 JNI binding 调用 `aplay_cpp_sdk`。Android 构建时会通过 cmake 参数 `APLAY_BUILD_JNI_BINDING=ON` 编译 `aplay_jni`。
+`app/android/build.gradle.kts` 是 Android app 入口，依赖 `:aplay-sdk` Java SDK。Java SDK 位于 `sdk/src/main/java`，native 接口通过 `sdk/src/main/cpp/osal/android/jni` 的 JNI binding 连接 C++ SDK 对象库（`aplay_cpp_sdk`），运行时加载 `aplay_jni`。Android 构建时通过 `APLAY_BUILD_ANDROID=ON` 进入 `sdk/src/main/cpp/osal/CMakeLists.txt`，再启用 Android OSAL codec/render 模块并编译 `aplay_jni`。
 
 ```sh
 ./scripts/android_build.sh
@@ -49,7 +50,7 @@ sdk/build/outputs/aar/aplay-sdk-debug.aar
 
 ## Harmony 构建
 
-`app/harmony` 是 DevEco Studio 导入入口，构建 `entry` HAP，并依赖 `sdk/src/main/ets` 下的本地 `aplay_sdk` HAR module。ETS SDK native 接口通过 `aplay_napi` NAPI binding（cmake 参数 `APLAY_BUILD_NAPI_BINDING=ON` 编译）连接到 `aplay_cpp_sdk`。
+`app/harmony` 是 DevEco Studio 导入入口，构建 `entry` HAP，并依赖 `sdk/src/main/ets` 下的本地 `aplay_sdk` HAR module。ETS SDK native 接口通过 `aplay_napi` NAPI binding 连接 C++ SDK 对象库（`aplay_cpp_sdk`）。Harmony 构建时通过 `APLAY_BUILD_HARMONY=ON` 进入 `sdk/src/main/cpp/osal/CMakeLists.txt`，再启用 Harmony OSAL codec/render 模块并编译 `aplay_napi`。
 
 构建需要配置 Harmony 工具链，有两种方式：
 

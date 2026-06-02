@@ -6,8 +6,9 @@
 - C++ 对象拥有明确生命周期，禁止裸全局状态承载会话逻辑。
 - 加密和 RTP 处理可被 harness 离线调用。
 - Linux/Android/Harmony 的 UI 与生命周期差异存在于 `app/linux`、`app/android` 和后续 `app/harmony`。
-- SDK facade 位于 `sdk`：C++ SDK 在 `sdk/src/main/cpp` 并输出 `.so`，JNI binding 在 `sdk/src/main/cpp/jni`，NAPI binding 在 `sdk/src/main/cpp/napi`，Java SDK 在 `sdk/src/main/java` 并输出 AAR，ETS SDK 在 `sdk/src/main/ets` 并输出本地 HAR module。
-- `osal` 只抽象平台能力，包括 codec、render、socket、thread、timer、file、network interface。
+- SDK facade 位于 `sdk`：C++ SDK 源码在 `sdk/src/main/cpp`，Linux 输出 `aplay_sdk` 共享库，Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库；JNI binding 在 `sdk/src/main/cpp/osal/android/jni`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Java SDK 在 `sdk/src/main/java` 并输出 AAR，ETS SDK 在 `sdk/src/main/ets` 并输出本地 HAR module。
+- `utils` 当前承载 STL-based 的跨平台辅助实现，例如 socket/thread/poll。
+- `osal` 当前只落地 codec/render 平台模块和平台 native binding 子模块选择。`sdk/src/main/cpp/osal/CMakeLists.txt` 负责按 `APLAY_BUILD_LINUX`、`APLAY_BUILD_ANDROID`、`APLAY_BUILD_HARMONY` 选择当前平台子模块。
 - 每个阶段都必须可编译、可运行、可测试。
 
 ## 主要对象
@@ -48,9 +49,11 @@
 职责：
 
 - 提供 `sdk/src/main/cpp` 下的 C++ SDK API。
-- 输出 `aplay_cpp_sdk` `.so`。
+- 输出 `aplay_cpp_sdk` 对象库，被所有平台复用。
+- Linux 额外输出 `aplay_sdk` 共享库。
 - 承载 protocol、streaming、crypto、osal 等共享 native 子模块。
-- 被 Linux app、Java SDK AAR 和 ETS SDK HAR 复用。
+- 顶层 CMake 只声明平台开关并在 C++ SDK 对象目标创建后进入 `osal`；平台 binding 子模块由 OSAL 平台目录添加。
+- Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库，不依赖 `aplay_sdk` 共享库。
 
 边界：
 
@@ -61,9 +64,9 @@
 
 职责：
 
-- 提供 `sdk/src/main/cpp/jni` 下的 Java SDK native 接口。
+- 提供 `sdk/src/main/cpp/osal/android/jni` 下的 Java SDK native 接口。
 - 输出 `aplay_jni` `.so`。
-- 通过 `APLAY_BUILD_JNI_BINDING` 条件编译。
+- 通过 Android 平台构建开关 `APLAY_BUILD_ANDROID` 条件编译。
 - 只做 Java/JNI 与 C++ SDK 的参数和返回值桥接。
 
 边界：
@@ -75,9 +78,9 @@
 
 职责：
 
-- 提供 `sdk/src/main/cpp/napi` 下的 ETS SDK native 接口。
+- 提供 `sdk/src/main/cpp/osal/harmony/napi` 下的 ETS SDK native 接口。
 - 输出 `aplay_napi` `.so`。
-- 通过 `APLAY_BUILD_NAPI_BINDING` 条件编译。
+- 通过 Harmony 平台构建开关 `APLAY_BUILD_HARMONY` 条件编译。
 - 只做 ETS/NAPI 与 C++ SDK 的参数和返回值桥接。
 
 边界：
@@ -229,9 +232,9 @@ OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flus
 
 `sdk` 负责：
 
-- C++ SDK API 和 `.so` 输出。
-- JNI binding `.so` 输出。
-- NAPI binding `.so` 输出。
+- C++ SDK API，Linux 输出 `aplay_sdk` `.so`，Android/Harmony 输出 `aplay_cpp_sdk` 对象库。
+- JNI binding `.so` 输出（`aplay_jni`）。
+- NAPI binding `.so` 输出（`aplay_napi`）。
 - Java SDK API 和 Android AAR 输出。
 - ETS SDK API 和 Harmony HAR 输出。
 - JNI/native 桥接。
@@ -254,7 +257,7 @@ OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flus
 - `CodecFactory`
 - `RenderSinkFactory`
 
-Linux OSAL 首先实现真实 socket/thread/timer/GStreamer。Android OSAL 首版只要求接口稳定和 stub 可编译，后续接入 MediaCodec/AudioTrack/Surface。
+Linux OSAL 当前先保留 codec/render 层级，后续再实现 GStreamer。Android OSAL 当前保留 codec/render 与 JNI 层级，后续接入 MediaCodec/AudioTrack/Surface。通用 socket/thread/poll 逻辑由 `utils` 承担，不进入 OSAL。
 
 ## BLE TODO
 

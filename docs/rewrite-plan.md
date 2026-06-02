@@ -24,14 +24,15 @@
 
 - 完成 `app/linux` 的 CLI、Config、Logger、进程生命周期。
 - 建立 `sdk/src/main/cpp` C++ SDK 接口和 `.so` 输出。
-- 建立 `sdk/src/main/cpp/jni` Java SDK native binding 和条件编译。
-- 建立 `sdk/src/main/cpp/napi` ETS SDK native binding 占位和条件编译。
+- 建立 `sdk/src/main/cpp/osal/android/jni` Java SDK native binding 和条件编译。
+- 建立 `sdk/src/main/cpp/osal/harmony/napi` ETS SDK native binding 占位和条件编译。
 - 建立 `sdk/src/main/java` Java SDK 接口、JNI 入口和 Android AAR 构建。
 - 建立 `sdk/src/main/ets` ETS SDK 接口和 Harmony HAR module 配置。
 - 建立 `app/android` 的 Activity/Service/Foreground Service 设计与可编译入口，并通过 `:aplay-sdk` 使用 SDK。
 - 建立 `app/harmony` DevEco Studio/HAP 入口；HarmonyOS 电视等大屏业务支持作为 TODO。
-- 完成 Linux OSAL：socket、thread、timer、clock、file、network interface、GStreamer render/codec 适配接口。
-- Android OSAL 提供可编译 stub：socket/thread/timer/file/network interface、MediaCodec/AudioTrack/Surface render/codec 接口占位。
+- 完成 Linux OSAL codec/render 层级，后续再接入 GStreamer。
+- Android OSAL 提供可编译 codec/render 与 JNI 层级，后续再接入 MediaCodec/AudioTrack/Surface。
+- `utils` 承担 STL-based 的跨平台辅助实现，例如 socket/thread/poll。
 - 建立 service lifecycle：start、stop、reset、signal cleanup。
 
 验收：

@@ -7,11 +7,12 @@
 - `app/android/build.gradle.kts` is the Android app Gradle entrypoint.
 - `app/harmony` is the HarmonyOS/DevEco Studio entrypoint.
 - `sdk` is the shared SDK module.
-- `sdk/src/main/cpp` owns the C++ SDK and exports `.so` libraries.
+- `sdk/src/main/cpp` owns the C++ SDK object library and the exported `aplay_sdk` `.so`.
 - `sdk/src/main/cpp/third-party` owns third-party C/C++ dependency submodules used by the SDK.
 - `SpdlogHelper` is a third-party submodule and has its own `spdlog` submodule; initialize third-party dependencies recursively.
-- `sdk/src/main/cpp/jni` owns the Java SDK JNI binding `.so`; build with `APLAY_BUILD_JNI_BINDING`.
-- `sdk/src/main/cpp/napi` owns the ETS SDK NAPI binding `.so`; build with `APLAY_BUILD_NAPI_BINDING`.
+- `sdk/src/main/cpp/osal/android/jni` owns the Java SDK JNI binding `.so`; build with `APLAY_BUILD_ANDROID`.
+- `sdk/src/main/cpp/osal/harmony/napi` owns the ETS SDK NAPI binding `.so`; build with `APLAY_BUILD_HARMONY`.
+- `sdk/src/main/cpp/osal/CMakeLists.txt` owns platform subdirectory selection, including platform codec/render modules and native binding submodules.
 - `sdk/src/main/java` owns the Java SDK and exports Android AAR.
 - `sdk/src/main/ets` owns the ETS SDK facade and exports the local Harmony HAR module.
 - `app/android` is an Android application module that consumes `:aplay-sdk`; it must not own C/C++ code.
@@ -23,7 +24,8 @@
 - `app/android` owns Android UI/business logic: Activity, Service, Foreground Service, permissions, notifications, and Android lifecycle.
 - `sdk` owns CPP/Java/ETS SDK APIs and their `.so`/AAR/HAR packaging.
 - `app/harmony` owns Harmony-facing app lifecycle and imports the ETS SDK HAR.
-- `osal` is only the platform capability abstraction: socket, thread, timer, file, network interface, codec, and render.
+- `utils` owns the STL-based cross-platform helpers such as socket/thread/poll and related shared utility code.
+- `osal` currently owns platform codec/render modules and platform native binding submodules.
 - Linux GStreamer and Android MediaCodec/AudioTrack/Surface belong behind OSAL codec/render interfaces.
 
 ## Implementation Rules
@@ -43,7 +45,7 @@
 ## Validation
 
 - Linux: `./scripts/linux_build.sh`, or `cmake -S app/linux -B build/linux -G Ninja` then `cmake --build build/linux --target aplay`.
-- C++ SDK shared library is built by CMake target `aplay_cpp_sdk`.
+- C++ SDK object library is built by CMake target `aplay_cpp_sdk`; shared SDK library is built by CMake target `aplay_sdk`.
 - Java JNI binding is built by CMake target `aplay_jni`.
 - ETS NAPI binding is built by CMake target `aplay_napi` when Harmony native headers/toolchain are available.
 - Android Java SDK AAR: `./app/android/gradlew -p app/android :aplay-sdk:assembleDebug`.

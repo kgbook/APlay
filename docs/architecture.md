@@ -28,13 +28,14 @@ UxPlay 约 2 万行 C/C++：
 APlay 采用边界清晰的分层架构：
 
 - `app/linux`：Linux 平台 UI/业务逻辑，包括 CLI、配置文件、服务启动/停止、信号处理、桌面集成策略。
-- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK 并对外输出 `.so`，`sdk/src/main/cpp/jni` 提供 Java SDK native binding，`sdk/src/main/cpp/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 Android AAR，`sdk/src/main/ets` 提供 ETS SDK 门面并输出本地 Harmony HAR module。
+- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK 并对外输出 `.so`，`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding，`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 Android AAR，`sdk/src/main/ets` 提供 ETS SDK 门面并输出本地 Harmony HAR module。
 - `app/android`：Android 平台 UI/业务逻辑，包括前台服务、Activity/Service 生命周期、权限申请、网络/投屏状态展示、Android 媒体会话集成。它通过 `:aplay-sdk` 使用 Java SDK，不直接持有 C/C++ 代码。
 - `app/harmony`：HarmonyOS/DevEco Studio 导入入口，构建 entry HAP，依赖 `sdk/src/main/ets` 本地 ETS SDK HAR；电视、机顶盒等大屏业务适配仍为 TODO。
 - `protocol`：RTSP、HTTP、reverse HTTP、mDNS/DNS-SD、请求/响应模型和协议状态机。
 - `streaming`：RAOP 音频 RTP、AirPlay mirror video、HLS、jitter buffer、NTP 时间同步。
 - `crypto`：AES、FairPlay、Ed25519/X25519、SRP、digest auth、hash/base64。
-- `osal`：平台能力抽象层，只负责 socket、thread、timer、file、network interface、codec、render 等能力接口和平台实现，不承载 UI 或业务流程。
+- `utils`：跨平台辅助实现，当前承载 STL-based 的通用能力代码，例如 socket/thread/poll。
+- `osal`：平台能力抽象层，当前负责 codec/render 平台模块和平台 native binding 子模块选择，不承载 UI 或业务流程。
 - `harness`：离线回放、golden 对比、smoke run、真机增强验收。
 
 关键边界：
@@ -43,7 +44,7 @@ APlay 采用边界清晰的分层架构：
 - C++ SDK 位于 `sdk/src/main/cpp`，Linux app、Android Java SDK AAR 和 Harmony ETS SDK HAR 都从这里复用 native 能力。
 - JNI 与 NAPI 是独立 C++ binding 子模块，通过 CMake option 条件编译，不把 Java/ETS 绑定逻辑混入核心 C++ SDK。
 - `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议核心可被 harness 离线驱动。
-- `osal` 不主动调用业务逻辑，只提供平台能力；Linux 的 GStreamer render/codec 和 Android 的 MediaCodec/AudioTrack/Surface 都属于 OSAL 实现。
+- `osal` 不主动调用业务逻辑，只提供平台能力；当前落地范围是 codec/render 和平台 native binding，Linux 的 GStreamer render/codec 与 Android 的 MediaCodec/AudioTrack/Surface 属于后续 OSAL 实现方向。
 - `harness` 使用 mock OSAL 或 mock render/codec 能力验收协议和数据流，不依赖真实 UI。
 
 ## 核心数据流

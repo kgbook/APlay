@@ -24,10 +24,8 @@ android {
         externalNativeBuild {
             cmake {
                 arguments += listOf(
-                    "-DAPLAY_BUILD_LINUX_APP=OFF",
                     "-DAPLAY_BUILD_HARNESS=OFF",
-                    "-DAPLAY_BUILD_JNI_BINDING=ON",
-                    "-DAPLAY_BUILD_NAPI_BINDING=OFF"
+                    "-DAPLAY_BUILD_ANDROID=ON"
                 )
             }
         }
