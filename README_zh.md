@@ -22,7 +22,7 @@ APlay 是面向 UxPlay 兼容 AirPlay 接收端的分期重写工程。
 
 ## Linux 构建
 
-`app/linux/CMakeLists.txt` 是 Linux 构建入口，从 `sdk/src/main/cpp` 导入共享 native 模块并构建 `aplay` 可执行文件。
+`app/linux/CMakeLists.txt` 是 Linux 构建入口，从 `sdk/src/main/cpp` 导入共享 native 模块并构建 `aplay` 可执行文件和 `aplay_cpp_sdk` shared library。
 
 ```sh
 ./scripts/linux_build.sh
@@ -33,30 +33,12 @@ APlay 是面向 UxPlay 兼容 AirPlay 接收端的分期重写工程。
 ./build/linux/aplay --smoke-run 100
 ```
 
-## C++ SDK
+## Android 构建
 
-C++ SDK 位于 `sdk/src/main/cpp`，构建目标是 `aplay_cpp_sdk` shared library。
-
-```sh
-cmake -S sdk/src/main/cpp -B build/sdk-cpp -G Ninja
-cmake --build build/sdk-cpp --target aplay_cpp_sdk
-```
-
-JNI 和 NAPI 是独立的 C++ binding 子模块：
-
-```text
-sdk/src/main/cpp/jni   -> aplay_jni
-sdk/src/main/cpp/napi  -> aplay_napi
-```
-
-通过 `APLAY_BUILD_JNI_BINDING` 和 `APLAY_BUILD_NAPI_BINDING` 条件编译。
-
-## Java SDK AAR
-
-Java SDK 由 `sdk` module 构建，并作为 Android AAR 对外提供。面向 app 的 Java API 位于 `sdk/src/main/java`，native 接口调用 `sdk/src/main/cpp/jni`。
+`app/android/build.gradle.kts` 是 Android app 入口，依赖 `:aplay-sdk` Java SDK。Java SDK 位于 `sdk/src/main/java`，native 接口通过 `sdk/src/main/cpp/jni` 的 JNI binding 调用 `aplay_cpp_sdk`。Android 构建时会通过 cmake 参数 `APLAY_BUILD_JNI_BINDING=ON` 编译 `aplay_jni`。
 
 ```sh
-./app/android/gradlew -p app/android :aplay-sdk:assembleDebug
+./scripts/android_build.sh
 ```
 
 debug AAR 输出位置：
@@ -65,19 +47,24 @@ debug AAR 输出位置：
 sdk/build/outputs/aar/aplay-sdk-debug.aar
 ```
 
-## Android App
+## Harmony 构建
 
-`app/android/build.gradle.kts` 是 Android app 入口，依赖 `:aplay-sdk`，并通过 Java SDK 接口调用 native 能力，不直接加载 native library。
+`app/harmony` 是 DevEco Studio 导入入口，构建 `entry` HAP，并依赖 `sdk/src/main/ets` 下的本地 `aplay_sdk` HAR module。ETS SDK native 接口通过 `aplay_napi` NAPI binding（cmake 参数 `APLAY_BUILD_NAPI_BINDING=ON` 编译）连接到 `aplay_cpp_sdk`。
+
+构建需要配置 Harmony 工具链，有两种方式：
+
+**方式一 — DevEco Studio 配套 SDK**（仅 Windows/macOS）：使用 DevEco Studio IDE 自带的 SDK 和 bin 目录。
+
+**方式二 — Command Line Tools**（macOS/Linux/Windows 均有）：下载 [Command Line Tools for HMOS](https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos) 并解压。
+
+任选其一，配置环境变量：
 
 ```sh
-./scripts/android_build.sh
+export DEVECO_SDK_HOME="/path/to/sdk"          # DevEco Studio: .../sdk   Command Line Tools: .../command-line-tools/sdk
+export PATH="/path/to/bin:/path/to/hvigor/bin:/path/to/ohpm/bin:$PATH"
 ```
 
-## Harmony App 与 ETS SDK HAR
-
-`app/harmony` 是 DevEco Studio 导入入口，构建 `entry` HAP，并依赖 `sdk/src/main/ets` 下的本地 `aplay_sdk` HAR module。ETS SDK native 接口通过 `sdk/src/main/cpp/napi` 的 NAPI binding 连接到 `aplay_cpp_sdk`。
-
-执行脚本前需要确保 Harmony 工具链命令已在 `PATH` 中，例如 `ohpm` 和 `hvigorw`/`hvigor`。`DEVECO_SDK_HOME` 必须指向 DevEco SDK 根目录。
+然后执行构建：
 
 ```sh
 ./scripts/harmony_build.sh

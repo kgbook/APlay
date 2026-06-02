@@ -22,7 +22,7 @@ Current status: phase 0 engineering baseline.
 
 ## Linux Build
 
-`app/linux/CMakeLists.txt` is the Linux entrypoint. It imports shared native modules from `sdk/src/main/cpp` and builds the `aplay` executable.
+`app/linux/CMakeLists.txt` is the Linux entrypoint. It imports shared native modules from `sdk/src/main/cpp` and builds the `aplay` executable and `aplay_cpp_sdk` shared library.
 
 ```sh
 ./scripts/linux_build.sh
@@ -33,30 +33,12 @@ Current status: phase 0 engineering baseline.
 ./build/linux/aplay --smoke-run 100
 ```
 
-## C++ SDK
+## Android Build
 
-The C++ SDK lives under `sdk/src/main/cpp` and builds the `aplay_cpp_sdk` shared library.
-
-```sh
-cmake -S sdk/src/main/cpp -B build/sdk-cpp -G Ninja
-cmake --build build/sdk-cpp --target aplay_cpp_sdk
-```
-
-JNI and NAPI bindings are independent C++ submodules:
-
-```text
-sdk/src/main/cpp/jni   -> aplay_jni
-sdk/src/main/cpp/napi  -> aplay_napi
-```
-
-Use `APLAY_BUILD_JNI_BINDING` and `APLAY_BUILD_NAPI_BINDING` to select them.
-
-## Java SDK AAR
-
-The Java SDK is built from the `sdk` module and exported as an Android AAR. The app-facing Java API lives in `sdk/src/main/java` and calls the JNI binding in `sdk/src/main/cpp/jni`.
+`app/android/build.gradle.kts` is the Android app entrypoint. It depends on `:aplay-sdk` Java SDK which lives in `sdk/src/main/java` and calls native code through `sdk/src/main/cpp/jni` JNI binding, which links back to `aplay_cpp_sdk`. The Android build also compiles `aplay_jni` when `APLAY_BUILD_JNI_BINDING=ON` is set in cmake arguments.
 
 ```sh
-./app/android/gradlew -p app/android :aplay-sdk:assembleDebug
+./scripts/android_build.sh
 ```
 
 Debug AAR output:
@@ -65,19 +47,24 @@ Debug AAR output:
 sdk/build/outputs/aar/aplay-sdk-debug.aar
 ```
 
-## Android App
+## Harmony Build
 
-`app/android/build.gradle.kts` is the Android app entrypoint. It depends on `:aplay-sdk` and uses the Java SDK instead of loading native libraries directly.
+`app/harmony` is the DevEco Studio import entry. It builds the `entry` HAP and depends on the local `aplay_sdk` HAR module under `sdk/src/main/ets`. The ETS SDK native interface is routed through `aplay_napi` NAPI binding (compiled with `APLAY_BUILD_NAPI_BINDING=ON`), which links `aplay_cpp_sdk`.
+
+Build requires Harmony toolchain. Two options:
+
+**Option 1 — DevEco Studio SDK** (Windows/macOS only): Use the SDK and bin bundled with DevEco Studio IDE.
+
+**Option 2 — Command Line Tools** (macOS/Linux/Windows): Download [Command Line Tools for HMOS](https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos) and extract.
+
+Configure either one with:
 
 ```sh
-./scripts/android_build.sh
+export DEVECO_SDK_HOME="/path/to/sdk"          # DevEco Studio: .../sdk   Command Line Tools: .../command-line-tools/sdk
+export PATH="/path/to/bin:/path/to/hvigor/bin:/path/to/ohpm/bin:$PATH"
 ```
 
-## Harmony App and ETS SDK HAR
-
-`app/harmony` is the DevEco Studio import entry. It builds the `entry` HAP and depends on the local `aplay_sdk` HAR module under `sdk/src/main/ets`. The ETS SDK native interface is routed through the NAPI binding in `sdk/src/main/cpp/napi`, which links `aplay_cpp_sdk`.
-
-Make sure the Harmony toolchain commands are available in `PATH` before running the script. `DEVECO_SDK_HOME` must point at the DevEco SDK root directory.
+Then run:
 
 ```sh
 ./scripts/harmony_build.sh
