@@ -4,6 +4,9 @@ APlay is a Linux-compatible AirPlay receiver.
 
 Current status: phase 0 engineering baseline.
 
+> [!NOTE]
+> This document is the English version. For 中文版, see [README_zh.md](README_zh.md).
+
 - Linux is built from `app/linux/CMakeLists.txt`.
 - `sdk` is the shared SDK module.
 - `sdk/src/main/cpp` provides the C++ SDK and exports `.so`.
@@ -14,7 +17,7 @@ Current status: phase 0 engineering baseline.
 - `sdk/src/main/ets` provides the ETS SDK facade and exports the local Harmony HAR module.
 - `app/android` is the Android Gradle entry and consumes `:aplay-sdk`.
 - `app/harmony` is the HarmonyOS/DevEco Studio entry and consumes the local ETS SDK HAR.
-- OSAL is only the platform abstraction layer for codec, render, socket, thread, timer, file, and network interfaces.
+- OSAL is the platform abstraction layer for codec and render interfaces.
 - BLE service discovery is intentionally deferred as a TODO.
 
 ## Linux Build

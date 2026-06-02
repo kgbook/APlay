@@ -4,6 +4,9 @@ APlay 是面向 UxPlay 兼容 AirPlay 接收端的分期重写工程。
 
 当前状态：Phase 0 工程基线。
 
+> [!NOTE]
+> 本文档为中文版。英文版请参阅 [README.md](README.md)。
+
 - Linux 由 `app/linux/CMakeLists.txt` 作为入口构建。
 - `sdk` 是共享 SDK module。
 - `sdk/src/main/cpp` 提供 C++ SDK，对外输出 `.so`。
@@ -14,7 +17,7 @@ APlay 是面向 UxPlay 兼容 AirPlay 接收端的分期重写工程。
 - `sdk/src/main/ets` 提供 ETS SDK 门面，并作为本地 Harmony HAR module 输出。
 - `app/android` 是 Android Gradle 入口，通过 `:aplay-sdk` 使用 Java SDK。
 - `app/harmony` 是 HarmonyOS/DevEco Studio 入口，通过本地 ETS SDK HAR 使用共享能力。
-- OSAL 只作为 codec、render、socket、thread、timer、file、network interface 等平台能力抽象层。
+- OSAL 作为 codec、render 接口的平台抽象层。
 - BLE 服务发现首版暂不实现，作为 TODO 保留。
 
 ## Linux 构建
