@@ -28,9 +28,9 @@ UxPlay 约 2 万行 C/C++：
 APlay 采用边界清晰的分层架构：
 
 - `app/linux`：Linux 平台 UI/业务逻辑，包括 CLI、配置文件、服务启动/停止、信号处理、桌面集成策略。
-- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK 并对外输出 `.so`，`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding，`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 Android AAR，`sdk/src/main/ets` 提供 ETS SDK 门面并输出本地 Harmony HAR module。
+- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK，`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding，`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 Android AAR，`sdk` 根目录提供本地 Harmony HAR module 配置，`sdk/src/main/ets/com/kgbook/aplay` 提供 ETS SDK 门面，`sdk/src/main/ets/libaplay_napi` 提供 Harmony native module 类型声明包。
 - `app/android`：Android 平台 UI/业务逻辑，包括前台服务、Activity/Service 生命周期、权限申请、网络/投屏状态展示、Android 媒体会话集成。它通过 `:aplay-sdk` 使用 Java SDK，不直接持有 C/C++ 代码。
-- `app/harmony`：HarmonyOS/DevEco Studio 导入入口，构建 entry HAP，依赖 `sdk/src/main/ets` 本地 ETS SDK HAR；电视、机顶盒等大屏业务适配仍为 TODO。
+- `app/harmony`：HarmonyOS/DevEco Studio 导入入口，构建 `APlayReceiver` HAP target，依赖 `sdk` 本地 `APlaySdk` ETS SDK HAR target；电视、机顶盒等大屏业务适配仍为 TODO。
 - `protocol`：RTSP、HTTP、reverse HTTP、mDNS/DNS-SD、请求/响应模型和协议状态机。
 - `streaming`：RAOP 音频 RTP、AirPlay mirror video、HLS、jitter buffer、NTP 时间同步。
 - `crypto`：AES、FairPlay、Ed25519/X25519、SRP、digest auth、hash/base64。
@@ -43,6 +43,7 @@ APlay 采用边界清晰的分层架构：
 - `app/*` 可以依赖 SDK 或 runtime facade，负责把平台 UI/生命周期事件转换成服务控制动作。
 - C++ SDK 位于 `sdk/src/main/cpp`，Linux app、Android Java SDK AAR 和 Harmony ETS SDK HAR 都从这里复用 native 能力。
 - JNI 与 NAPI 是独立 C++ binding 子模块，通过 CMake option 条件编译，不把 Java/ETS 绑定逻辑混入核心 C++ SDK。
+- Harmony NAPI `.so` 的 ArkTS 可见接口由 `sdk/src/main/ets/<library>` 下的 native module `.d.ts` 包声明，并通过 HAR module 的 `oh-package.json5` 引用。
 - `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议核心可被 harness 离线驱动。
 - `osal` 不主动调用业务逻辑，只提供平台能力；当前落地范围是 codec/render 和平台 native binding，Linux 的 GStreamer render/codec 与 Android 的 MediaCodec/AudioTrack/Surface 属于后续 OSAL 实现方向。
 - `harness` 使用 mock OSAL 或 mock render/codec 能力验收协议和数据流，不依赖真实 UI。
@@ -78,4 +79,4 @@ APlay 采用边界清晰的分层架构：
 - mp4 录制：后续阶段。
 - DBus screensaver inhibition：后续阶段。
 - Android 完整 UI：后续阶段，首版保留 Java SDK AAR 与 `app/android` 可编译入口。
-- Harmony 大屏业务：TODO；首版保留可导入 DevEco Studio 的 `app/harmony` HAP、ETS SDK HAR facade 和 NAPI native binding 构建入口。
+- Harmony 大屏业务：TODO；首版保留可导入 DevEco Studio 的 `app/harmony` HAP、ETS SDK HAR facade、NAPI native binding 构建入口和对应 native module 类型声明。

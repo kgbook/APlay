@@ -6,7 +6,7 @@
 - C++ 对象拥有明确生命周期，禁止裸全局状态承载会话逻辑。
 - 加密和 RTP 处理可被 harness 离线调用。
 - Linux/Android/Harmony 的 UI 与生命周期差异存在于 `app/linux`、`app/android` 和后续 `app/harmony`。
-- SDK facade 位于 `sdk`：C++ SDK 源码在 `sdk/src/main/cpp`，Linux 输出 `aplay_sdk` 共享库，Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库；JNI binding 在 `sdk/src/main/cpp/osal/android/jni`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Java SDK 在 `sdk/src/main/java` 并输出 AAR，ETS SDK 在 `sdk/src/main/ets` 并输出本地 HAR module。
+- SDK facade 位于 `sdk`：C++ SDK 源码在 `sdk/src/main/cpp`，Linux 输出 `aplay_sdk` 共享库，Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库；JNI binding 在 `sdk/src/main/cpp/osal/android/jni`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Harmony NAPI 类型声明包在 `sdk/src/main/ets/libaplay_napi`，Java SDK 在 `sdk/src/main/java` 并输出 AAR，ETS SDK facade 在 `sdk/src/main/ets/com/kgbook/aplay`，Harmony HAR module 配置位于 `sdk` 根目录。
 - `utils` 当前承载 STL-based 的跨平台辅助实现，例如 socket/thread/poll。
 - `osal` 当前只落地 codec/render 平台模块和平台 native binding 子模块选择。`sdk/src/main/cpp/osal/CMakeLists.txt` 负责按 `APLAY_BUILD_LINUX`、`APLAY_BUILD_ANDROID`、`APLAY_BUILD_HARMONY` 选择当前平台子模块。
 - 每个阶段都必须可编译、可运行、可测试。
@@ -82,12 +82,14 @@
 - 输出 `aplay_napi` `.so`。
 - 通过 Harmony 平台构建开关 `APLAY_BUILD_HARMONY` 条件编译。
 - 只做 ETS/NAPI 与 C++ SDK 的参数和返回值桥接。
+- ArkTS 可见 API 必须在 `sdk/src/main/ets/libaplay_napi/index.d.ts` 中声明，并由同目录 `oh-package.json5` 以 `libaplay_napi.so` 包名暴露。
 
 边界：
 
 - 由 Harmony HAR native 构建入口启用。
 - 不承载 Harmony app 生命周期。
 - 不实现协议、流媒体、渲染业务。
+- 不把 native module `.d.ts` 声明放在 ETS facade 源目录或 C++/OSAL 目录。
 
 ### JavaSdk
 
@@ -106,10 +108,11 @@
 
 职责：
 
-- 提供 `sdk/src/main/ets` 下的 Harmony ETS SDK API。
+- 提供 `sdk/src/main/ets/com/kgbook/aplay` 下的 Harmony ETS SDK API。
 - 包装 NAPI binding library。
 - 对外输出本地 Harmony HAR module。
 - 复用 `sdk/src/main/cpp` 的 C++ SDK。
+- 通过 `sdk/oh-package.json5` 依赖 `sdk/src/main/ets/libaplay_napi` 中的 `libaplay_napi.so` 类型声明包。
 
 边界：
 
@@ -235,9 +238,10 @@ OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flus
 - C++ SDK API，Linux 输出 `aplay_sdk` `.so`，Android/Harmony 输出 `aplay_cpp_sdk` 对象库。
 - JNI binding `.so` 输出（`aplay_jni`）。
 - NAPI binding `.so` 输出（`aplay_napi`）。
+- Harmony NAPI native module 类型声明包（`sdk/src/main/ets/libaplay_napi`）。
 - Java SDK API 和 Android AAR 输出。
 - ETS SDK API 和 Harmony HAR 输出。
-- JNI/native 桥接。
+- JNI/NAPI native 桥接。
 
 `app/harmony` 负责：
 

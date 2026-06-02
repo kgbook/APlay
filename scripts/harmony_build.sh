@@ -11,30 +11,23 @@ if [[ -z "${DEVECO_SDK_HOME:-}" || ! -d "${DEVECO_SDK_HOME}/default" ]]; then
     exit 1
 fi
 
-if command -v hvigorw >/dev/null 2>&1; then
-    HVIGOR=(hvigorw)
-elif command -v hvigor >/dev/null 2>&1; then
-    HVIGOR=(hvigor)
-else
-    echo "Unable to find hvigorw or hvigor in PATH. Configure the Harmony toolchain path, then retry." >&2
+if ! command -v hvigorw >/dev/null 2>&1; then
+    echo "hvigorw not found in PATH. Configure the Harmony toolchain path, then retry." >&2
     exit 127
 fi
 
-if command -v ohpm >/dev/null 2>&1; then
-    OHPM=(ohpm)
-else
-    echo "Unable to find ohpm in PATH. Configure the Harmony toolchain path, then retry." >&2
+if ! command -v ohpm >/dev/null 2>&1; then
+    echo "ohpm not found in PATH. Configure the Harmony toolchain path, then retry." >&2
     exit 127
 fi
 
-(
-    cd "${HARMONY_DIR}"
-    "${OHPM[@]}" install
-    (
-        cd entry
-        "${OHPM[@]}" install
-    )
-    "${HVIGOR[@]}" assembleHap --no-daemon
-)
+pushd "${HARMONY_DIR}" > /dev/null
+ohpm install
+pushd entry > /dev/null
+ohpm install
+popd > /dev/null
+hvigorw assembleHar assembleHap --no-daemon
+popd > /dev/null
 
-echo "Harmony HAP output: ${HARMONY_DIR}/entry/build/default/outputs/default"
+echo "Harmony HAR output: ${ROOT_DIR}/sdk/build/APlaySdk/outputs/default"
+echo "Harmony HAP output: ${HARMONY_DIR}/entry/build/APlayReceiver/outputs/default"

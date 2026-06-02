@@ -7,16 +7,17 @@
 - `app/android/build.gradle.kts` is the Android app Gradle entrypoint.
 - `app/harmony` is the HarmonyOS/DevEco Studio entrypoint.
 - `sdk` is the shared SDK module.
-- `sdk/src/main/cpp` owns the C++ SDK object library and the exported `aplay_sdk` `.so`.
+- `sdk/src/main/cpp` owns the C++ SDK object library and the exported aplay_sdk.so.
 - `sdk/src/main/cpp/third-party` owns third-party C/C++ dependency submodules used by the SDK.
 - `SpdlogHelper` is a third-party submodule and has its own `spdlog` submodule; initialize third-party dependencies recursively.
 - `sdk/src/main/cpp/osal/android/jni` owns the Java SDK JNI binding `.so`; build with `APLAY_BUILD_ANDROID`.
 - `sdk/src/main/cpp/osal/harmony/napi` owns the ETS SDK NAPI binding `.so`; build with `APLAY_BUILD_HARMONY`.
 - `sdk/src/main/cpp/osal/CMakeLists.txt` owns platform subdirectory selection, including platform codec/render modules and native binding submodules.
 - `sdk/src/main/java` owns the Java SDK and exports Android AAR.
-- `sdk/src/main/ets` owns the ETS SDK facade and exports the local Harmony HAR module.
+- `sdk/src/main/ets` owns the ETS SDK and exports Harmony HAR.
+- `sdk/src/main/ets/libaplay_napi` owns the Harmony native module `.d.ts` package for `libaplay_napi.so`.
 - `app/android` is an Android application module that consumes `:aplay-sdk`; it must not own C/C++ code.
-- `app/harmony` is a Harmony app/HAP consumer entry. HarmonyOS TV/large-screen support remains TODO beyond the baseline shell.
+- `app/harmony` is a Harmony app/HAP consumer entry.
 
 ## Platform Responsibilities
 
@@ -26,21 +27,16 @@
 - `app/harmony` owns Harmony-facing app lifecycle and imports the ETS SDK HAR.
 - `utils` owns the STL-based cross-platform helpers such as socket/thread/poll and related shared utility code.
 - `osal` currently owns platform codec/render modules and platform native binding submodules.
-- Linux GStreamer and Android MediaCodec/AudioTrack/Surface belong behind OSAL codec/render interfaces.
 
 ## Implementation Rules
 
-- Do not put Android Java app code under root CMake targets.
-- Do not put Android native C/C++ under `app/android`; keep the C++ SDK under `sdk/src/main/cpp`.
-- Do not restore root CMake, root Gradle, root Gradle wrapper, or root Gradle settings as platform entrypoints.
-- Do not put third-party C/C++ dependency submodules at the repository root; keep them under `sdk/src/main/cpp/third-party`.
+- Do not put native C/C++ under `app`; keep the C++ SDK under `sdk/src/main/cpp`.
 - After changing third-party submodule paths, run `git submodule sync --recursive` and `git submodule update --init --recursive`.
-- Do not make `app/android` load native libraries directly; it should use the Java SDK in `sdk/src/main/java`.
-- Keep Harmony ETS SDK facade and HAR configuration under `sdk/src/main/ets`; Harmony app lifecycle belongs under `app/harmony`.
+- Keep Harmony ETS SDK under `sdk/src/main/ets/com/kgbook/aplay`; Harmony app lifecycle belongs under `app/harmony`.
+- Keep Harmony NAPI `.so` type declarations under `sdk/src/main/ets/<library>` with a matching `oh-package.json5`.
 - Do not put UI or business lifecycle logic in OSAL.
 - Keep protocol, streaming, and crypto independent from app platform code so harness can drive them offline.
 - BLE service discovery is TODO and should not be implemented in the first baseline.
-- Harmony large-screen business logic is TODO; the baseline may include importable DevEco/HAP/HAR configuration only.
 
 ## Validation
 

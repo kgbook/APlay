@@ -1,0 +1,6 @@
+{
+  "name": "libaplay_napi.so",
+  "types": "./index.d.ts",
+  "version": "0.1.0",
+  "description": "APlay Harmony NAPI type declarations"
+}

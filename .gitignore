@@ -68,9 +68,16 @@ app/android/**/build/
 # Harmony / DevEco Studio
 app/harmony/.hvigor/
 app/harmony/.idea/
+app/harmony/.clangd
+app/harmony/.clang-tidy
 app/harmony/oh_modules/
 app/harmony/**/oh_modules/
 app/harmony/**/build/
+sdk/.hvigor/
+sdk/.cxx/
+sdk/build/
+sdk/oh_modules/
+sdk/**/oh_modules/
 **/BuildProfile.ets
 
 # IntelliJ IDEA / Android Studio / CLion

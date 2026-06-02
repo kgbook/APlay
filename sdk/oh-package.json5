@@ -5,5 +5,7 @@
   "main": "Index.ets",
   "author": "kgbook",
   "license": "Apache-2.0",
-  "dependencies": {}
+  "dependencies": {
+    "libaplay_napi.so": "file:./src/main/ets/libaplay_napi"
+  }
 }

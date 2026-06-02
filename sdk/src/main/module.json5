@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "aplay_sdk",
+    "name": "APlaySdk",
     "type": "har",
     "deviceTypes": [
       "default",

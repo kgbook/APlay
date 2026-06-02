@@ -13,9 +13,11 @@ Current status: phase 0 engineering baseline.
 - `sdk/src/main/cpp/utils` provides cross-platform utility helpers such as socket/thread/poll.
 - `sdk/src/main/cpp/third-party` contains third-party C/C++ dependency submodules used by the SDK.
 - `sdk/src/main/cpp/osal/android/jni` provides the Java SDK native binding and exports `libaplay_jni.so`.
-- `sdk/src/main/cpp/osal/harmony/napi` provides the ETS SDK native binding and will export `libaplay_napi.so`.
+- `sdk/src/main/cpp/osal/harmony/napi` provides the ETS SDK native binding and exports `libaplay_napi.so`.
 - `sdk/src/main/java` provides the Java SDK and exports Android AAR.
-- `sdk/src/main/ets` provides the ETS SDK facade and exports the local Harmony HAR module.
+- `sdk` provides the local Harmony HAR module configuration.
+- `sdk/src/main/ets/com/kgbook/aplay` provides the ETS SDK facade.
+- `sdk/src/main/ets/libaplay_napi` provides the Harmony native module `.d.ts` package for `libaplay_napi.so`.
 - `app/android` is the Android Gradle entry and consumes `:aplay-sdk`.
 - `app/harmony` is the HarmonyOS/DevEco Studio entry and consumes the local ETS SDK HAR.
 - OSAL is the platform abstraction layer for codec/render interfaces and owns platform-specific native binding submodules.
@@ -27,11 +29,6 @@ Current status: phase 0 engineering baseline.
 
 ```sh
 ./scripts/linux_build.sh
-```
-
-```sh
-./build/linux/aplay --help
-./build/linux/aplay --smoke-run 100
 ```
 
 ## Android Build
@@ -50,7 +47,7 @@ sdk/build/outputs/aar/aplay-sdk-debug.aar
 
 ## Harmony Build
 
-`app/harmony` is the DevEco Studio import entry. It builds the `entry` HAP and depends on the local `aplay_sdk` HAR module under `sdk/src/main/ets`. The ETS SDK native interface is routed through `aplay_napi` NAPI binding, which links the C++ SDK object library (`aplay_cpp_sdk`). The Harmony build uses `APLAY_BUILD_HARMONY=ON`; `sdk/src/main/cpp/osal/CMakeLists.txt` then enables Harmony OSAL codec/render modules and `aplay_napi`.
+`app/harmony` is the DevEco Studio import entry. It builds the `APlayReceiver` HAP target and depends on the local `APlaySdk` HAR target rooted at `sdk`. The ETS SDK native interface is routed through the `aplay_napi` NAPI binding, which links the C++ SDK object library (`aplay_cpp_sdk`) into `libaplay_napi.so`. The `libaplay_napi.so` import is declared through the native module type package at `sdk/src/main/ets/libaplay_napi`, which is referenced by `sdk/oh-package.json5`. Harmony packaging should expose only `libaplay_napi.so`; the Harmony build uses `APLAY_BUILD_HARMONY=ON` and `OHOS_STL=c++_static`.
 
 Build requires Harmony toolchain. Two options:
 

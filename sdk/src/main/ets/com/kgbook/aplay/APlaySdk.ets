@@ -1,10 +1,12 @@
+import { defaultReceiverName, version } from 'libaplay_napi.so';
+
 export class APlaySdk {
   static version(): string {
-    return '0.1.0';
+    return version();
   }
 
   static defaultReceiverName(): string {
-    return 'APlay';
+    return defaultReceiverName();
   }
 
   static createRuntime(): never {

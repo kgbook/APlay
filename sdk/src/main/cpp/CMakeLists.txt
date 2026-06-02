@@ -38,13 +38,15 @@ target_link_libraries(aplay_cpp_sdk
 set_target_properties(aplay_cpp_sdk PROPERTIES
     POSITION_INDEPENDENT_CODE ON)
 
-add_library(aplay_sdk SHARED)
+if(APLAY_BUILD_LINUX)
+    add_library(aplay_sdk SHARED)
 
-target_link_libraries(aplay_sdk
-    PRIVATE
-        aplay_cpp_sdk)
+    target_link_libraries(aplay_sdk
+        PRIVATE
+            aplay_cpp_sdk)
 
-set_target_properties(aplay_sdk PROPERTIES
-    OUTPUT_NAME aplay_sdk)
+    set_target_properties(aplay_sdk PROPERTIES
+        OUTPUT_NAME aplay_sdk)
+endif()
 
 add_subdirectory(osal)
