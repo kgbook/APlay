@@ -5,28 +5,46 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 HARMONY_DIR="${ROOT_DIR}/app/harmony"
 
-if [[ -z "${DEVECO_SDK_HOME:-}" || ! -d "${DEVECO_SDK_HOME}/default" ]]; then
-    echo "Invalid or missing DEVECO_SDK_HOME: ${DEVECO_SDK_HOME:-<unset>}" >&2
-    echo "Set DEVECO_SDK_HOME to the DevEco SDK root directory, and ensure Harmony tools are in PATH." >&2
+HARMONY_COMMAND_LINE_TOOLS="${HARMONY_COMMAND_LINE_TOOLS:-${HOME}/tools/command-line-tools}"
+if [[ ! -d "${HARMONY_COMMAND_LINE_TOOLS}" ]]; then
+    echo "Invalid HARMONY_COMMAND_LINE_TOOLS: ${HARMONY_COMMAND_LINE_TOOLS}" >&2
+    echo "Set HARMONY_COMMAND_LINE_TOOLS to the DevEco command-line-tools directory." >&2
     exit 1
 fi
 
-if ! command -v hvigorw >/dev/null 2>&1; then
-    echo "hvigorw not found in PATH. Configure the Harmony toolchain path, then retry." >&2
+HARMONY_TOOLCHAINS_DIR="${HARMONY_TOOLCHAINS_DIR:-${HARMONY_COMMAND_LINE_TOOLS}/sdk/default/openharmony/toolchains}"
+export HARMONY_SDK_HOME="${HARMONY_SDK_HOME:-${HARMONY_COMMAND_LINE_TOOLS}/sdk}"
+if [[ -z "${NODE_HOME:-}" ]]; then
+    if NODE_BIN="$(command -v node 2>/dev/null)"; then
+        NODE_HOME="$(cd "$(dirname "${NODE_BIN}")/.." && pwd)"
+    else
+        NODE_HOME="${HARMONY_COMMAND_LINE_TOOLS}/tool/node"
+    fi
+fi
+export PATH="${HARMONY_COMMAND_LINE_TOOLS}/bin:${HARMONY_COMMAND_LINE_TOOLS}/ohpm/bin:${HARMONY_COMMAND_LINE_TOOLS}/hvigor/bin:${HARMONY_TOOLCHAINS_DIR}:${NODE_HOME}/bin:${PATH}"
+
+if [[ -z "${HARMONY_SDK_HOME:-}" || ! -d "${HARMONY_SDK_HOME}/default" ]]; then
+    echo "Invalid or missing HARMONY_SDK_HOME: ${HARMONY_SDK_HOME:-<unset>}" >&2
+    echo "Expected a DevEco SDK root with a default SDK under ${HARMONY_SDK_HOME}/default." >&2
+    exit 1
+fi
+
+if ! HVIGOR_BIN="$(command -v hvigorw 2>/dev/null)"; then
+    echo "hvigorw not found in PATH. Configure HARMONY_COMMAND_LINE_TOOLS, then retry." >&2
     exit 127
 fi
 
-if ! command -v ohpm >/dev/null 2>&1; then
-    echo "ohpm not found in PATH. Configure the Harmony toolchain path, then retry." >&2
+if ! OHPM_BIN="$(command -v ohpm 2>/dev/null)"; then
+    echo "ohpm not found in PATH. Configure HARMONY_COMMAND_LINE_TOOLS, then retry." >&2
     exit 127
 fi
 
 pushd "${HARMONY_DIR}" > /dev/null
-ohpm install
+"${OHPM_BIN}" install
 pushd APlayReceiver > /dev/null
-ohpm install
+"${OHPM_BIN}" install
 popd > /dev/null
-hvigorw assembleHar assembleHap --no-daemon
+"${HVIGOR_BIN}" assembleHar assembleHap --no-daemon
 popd > /dev/null
 
 echo "Harmony HAR output: ${ROOT_DIR}/sdk/build/default/outputs/default"
