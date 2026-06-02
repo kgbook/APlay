@@ -23,11 +23,11 @@ fi
 
 pushd "${HARMONY_DIR}" > /dev/null
 ohpm install
-pushd entry > /dev/null
+pushd APlayReceiver > /dev/null
 ohpm install
 popd > /dev/null
 hvigorw assembleHar assembleHap --no-daemon
 popd > /dev/null
 
 echo "Harmony HAR output: ${ROOT_DIR}/sdk/build/APlaySdk/outputs/default"
-echo "Harmony HAP output: ${HARMONY_DIR}/entry/build/APlayReceiver/outputs/default"
+echo "Harmony HAP output: ${HARMONY_DIR}/APlayReceiver/build/APlayReceiver/outputs/default"
