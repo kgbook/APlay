@@ -15,3 +15,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "APlayAndroid"
+
+include(":aplay-sdk")
+project(":aplay-sdk").projectDir = file("../../sdk")

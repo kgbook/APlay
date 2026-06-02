@@ -4,7 +4,9 @@ title APlay Target Architecture
 skinparam componentStyle rectangle
 
 component "app/linux\nCLI / desktop lifecycle" as LinuxApp
+component "sdk\nCPP .so / JNI / NAPI / AAR / HAR" as Sdk
 component "app/android\nActivity / Service lifecycle" as AndroidApp
+component "app/harmony\nHAP / DevEco entry" as HarmonyApp
 component "protocol\nRTSP / HTTP / mDNS" as Protocol
 component "streaming\nRAOP / mirror / HLS / timing" as Streaming
 component "crypto\nAES / FairPlay / SRP / Ed25519" as Crypto
@@ -14,9 +16,11 @@ component "harness\nreplay / vectors / smoke" as Harness
 LinuxApp --> Protocol
 LinuxApp --> Streaming
 LinuxApp --> Osal
-AndroidApp --> Protocol
-AndroidApp --> Streaming
-AndroidApp --> Osal
+AndroidApp --> Sdk
+HarmonyApp --> Sdk
+Sdk --> Protocol
+Sdk --> Streaming
+Sdk --> Osal
 Protocol --> Crypto
 Protocol --> Streaming
 Protocol --> Osal
@@ -34,7 +38,7 @@ end note
 
 note right of Osal
 OSAL owns platform capability adapters.
-UI and business lifecycle stay in app/linux and app/android.
+UI and business lifecycle stay in app/linux, app/android, and future app/harmony.
 end note
 
 @enduml

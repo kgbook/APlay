@@ -18,21 +18,9 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
-
-        externalNativeBuild {
-            cmake {
-                arguments += listOf(
-                    "-DAPLAY_BUILD_LINUX_APP=OFF",
-                    "-DAPLAY_BUILD_HARNESS=OFF",
-                    "-DAPLAY_BUILD_ANDROID_NATIVE=ON"
-                )
-            }
-        }
     }
+}
 
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-        }
-    }
+dependencies {
+    implementation(project(":aplay-sdk"))
 }

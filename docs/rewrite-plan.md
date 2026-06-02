@@ -6,12 +6,13 @@
 
 - 生成架构和详细设计文档。
 - 建立 PlantUML 图源和渲染产物。
-- 建立 CMake 工程、`aplay` 最小运行入口和 harness 目标。
+- 建立平台化构建入口、`aplay` 最小运行入口和 harness 目标。
+- 建立 `sdk` module，作为 C++ `.so`、Java AAR、ETS HAR 和共享 C/C++ 代码归档位置。
 - 建立 CTest 门禁。
 
 验收：
 
-- `cmake -S . -B /tmp/aplay-build -G Ninja`
+- `cmake -S app/linux -B /tmp/aplay-build -G Ninja`
 - `cmake --build /tmp/aplay-build`
 - `ctest --test-dir /tmp/aplay-build --output-on-failure`
 - `aplay --help`
@@ -22,7 +23,13 @@
 目标：
 
 - 完成 `app/linux` 的 CLI、Config、Logger、进程生命周期。
-- 建立 `app/android` 的 Activity/Service/Foreground Service 设计与可编译入口。
+- 建立 `sdk/src/main/cpp` C++ SDK 接口和 `.so` 输出。
+- 建立 `sdk/src/main/cpp/jni` Java SDK native binding 和条件编译。
+- 建立 `sdk/src/main/cpp/napi` ETS SDK native binding 占位和条件编译。
+- 建立 `sdk/src/main/java` Java SDK 接口、JNI 入口和 Android AAR 构建。
+- 建立 `sdk/src/main/ets` ETS SDK 接口和 Harmony HAR module 配置。
+- 建立 `app/android` 的 Activity/Service/Foreground Service 设计与可编译入口，并通过 `:aplay-sdk` 使用 SDK。
+- 建立 `app/harmony` DevEco Studio/HAP 入口；HarmonyOS 电视等大屏业务支持作为 TODO。
 - 完成 Linux OSAL：socket、thread、timer、clock、file、network interface、GStreamer render/codec 适配接口。
 - Android OSAL 提供可编译 stub：socket/thread/timer/file/network interface、MediaCodec/AudioTrack/Surface render/codec 接口占位。
 - 建立 service lifecycle：start、stop、reset、signal cleanup。
@@ -31,7 +38,11 @@
 
 - Linux 服务可启动监听本地端口。
 - smoke harness 能检查端口、发送最小请求、干净退出。
-- Android app/OSAL 目标至少通过 host stub 编译；正式 Android 构建后续接 Gradle/NDK。
+- C++ SDK `.so` 可由 CMake 构建。
+- JNI binding `.so` 可由 Android AAR 构建。
+- NAPI binding 保留 C++ 条件编译入口，由 Harmony HAR native 构建开启。
+- Java SDK AAR 和 Android app 目标至少通过 Gradle/NDK 编译。
+- ETS SDK/Harmony HAR 可作为本地 module 被 `app/harmony` 导入，不实现大屏业务。
 
 ## Phase 2: RTSP/HTTP 协议核心
 
@@ -97,6 +108,7 @@
 - mp4 mux/recording。
 - DBus screensaver inhibition，归属 `app/linux` 桌面集成策略。
 - Android 真实 `app/android`、Android OSAL 和 MediaCodec/AudioTrack/Surface render/codec。
+- HarmonyOS TV/large-screen runtime 和平台 OSAL 适配 TODO。
 - BLE beacon service discovery TODO。
 
 验收：

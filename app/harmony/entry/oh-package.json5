@@ -1,0 +1,11 @@
+{
+  "name": "entry",
+  "version": "0.1.0",
+  "description": "APlay Harmony HAP entry",
+  "main": "",
+  "author": "kgbook",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@kgbook/aplay-sdk": "file:../../../sdk/src/main/ets"
+  }
+}

@@ -5,7 +5,8 @@
 - 协议解析与业务状态分离。
 - C++ 对象拥有明确生命周期，禁止裸全局状态承载会话逻辑。
 - 加密和 RTP 处理可被 harness 离线调用。
-- Linux/Android 的 UI 与生命周期差异存在于 `app/linux` 和 `app/android`。
+- Linux/Android/Harmony 的 UI 与生命周期差异存在于 `app/linux`、`app/android` 和后续 `app/harmony`。
+- SDK facade 位于 `sdk`：C++ SDK 在 `sdk/src/main/cpp` 并输出 `.so`，JNI binding 在 `sdk/src/main/cpp/jni`，NAPI binding 在 `sdk/src/main/cpp/napi`，Java SDK 在 `sdk/src/main/java` 并输出 AAR，ETS SDK 在 `sdk/src/main/ets` 并输出本地 HAR module。
 - `osal` 只抽象平台能力，包括 codec、render、socket、thread、timer、file、network interface。
 - 每个阶段都必须可编译、可运行、可测试。
 
@@ -32,14 +33,98 @@
 
 - 管理 Android Activity/Service/Foreground Service 生命周期。
 - 处理权限、通知、网络状态、投屏状态展示和用户控制。
-- 创建 Android OSAL、protocol server、stream manager。
+- 通过 `:aplay-sdk` Java SDK 创建或控制 native runtime。
 - 将 Android UI/Service 事件转换为服务启动、停止、重置动作。
 
 边界：
 
 - 不直接实现 MediaCodec、AudioTrack、Surface 渲染细节。
 - 不直接解析 RTSP/RTP。
-- 通过 OSAL 使用 Android codec/render 能力。
+- 不直接加载 native library，不持有 C/C++ 代码。
+- 通过 SDK 和 OSAL 使用 Android codec/render 能力。
+
+### CppSdk
+
+职责：
+
+- 提供 `sdk/src/main/cpp` 下的 C++ SDK API。
+- 输出 `aplay_cpp_sdk` `.so`。
+- 承载 protocol、streaming、crypto、osal 等共享 native 子模块。
+- 被 Linux app、Java SDK AAR 和 ETS SDK HAR 复用。
+
+边界：
+
+- 不承载 Android 或 Harmony UI 生命周期。
+- 不直接暴露 Java/ETS API。
+
+### JniBinding
+
+职责：
+
+- 提供 `sdk/src/main/cpp/jni` 下的 Java SDK native 接口。
+- 输出 `aplay_jni` `.so`。
+- 通过 `APLAY_BUILD_JNI_BINDING` 条件编译。
+- 只做 Java/JNI 与 C++ SDK 的参数和返回值桥接。
+
+边界：
+
+- 不承载 Android app 生命周期。
+- 不实现协议、流媒体、渲染业务。
+
+### NapiBinding
+
+职责：
+
+- 提供 `sdk/src/main/cpp/napi` 下的 ETS SDK native 接口。
+- 输出 `aplay_napi` `.so`。
+- 通过 `APLAY_BUILD_NAPI_BINDING` 条件编译。
+- 只做 ETS/NAPI 与 C++ SDK 的参数和返回值桥接。
+
+边界：
+
+- 由 Harmony HAR native 构建入口启用。
+- 不承载 Harmony app 生命周期。
+- 不实现协议、流媒体、渲染业务。
+
+### JavaSdk
+
+职责：
+
+- 提供 `sdk/src/main/java` 下的 Android Java SDK API。
+- 包装 JNI binding library 加载和平台 SDK facade。
+- 对外输出 Android AAR。
+
+边界：
+
+- 不承载 Android Activity/Service/Foreground Service 业务生命周期。
+- 不把 app UI 状态塞进 JNI 或 OSAL。
+
+### EtsSdk
+
+职责：
+
+- 提供 `sdk/src/main/ets` 下的 Harmony ETS SDK API。
+- 包装 NAPI binding library。
+- 对外输出本地 Harmony HAR module。
+- 复用 `sdk/src/main/cpp` 的 C++ SDK。
+
+边界：
+
+- 不承载 Harmony 大屏 app 生命周期。
+- 不把 Harmony UI 状态塞进 OSAL。
+
+### HarmonyHarRuntime
+
+职责：
+
+- 预留 Harmony HAP/HAR API 和生命周期入口。
+- TODO：面向 HarmonyOS TV、机顶盒等大屏终端适配。
+- 通过 ETS SDK HAR 和 NAPI binding 复用 `sdk/src/main/cpp` 下 C++ SDK。
+
+边界：
+
+- 当前不实现 Harmony 业务逻辑。
+- 不把 Harmony 生命周期逻辑放入 OSAL。
 
 ### ProtocolServer
 
@@ -140,6 +225,21 @@ OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flus
 - 通知栏和权限流程。
 - Android 网络状态监听。
 - Android 媒体会话和 UI 状态展示。
+- 通过 Java SDK 调用 native 能力。
+
+`sdk` 负责：
+
+- C++ SDK API 和 `.so` 输出。
+- JNI binding `.so` 输出。
+- NAPI binding `.so` 输出。
+- Java SDK API 和 Android AAR 输出。
+- ETS SDK API 和 Harmony HAR 输出。
+- JNI/native 桥接。
+
+`app/harmony` 负责：
+
+- Harmony app/HAP 消费入口。
+- TODO：HarmonyOS 大屏终端生命周期和 API 绑定。
 
 `osal` 负责：
 

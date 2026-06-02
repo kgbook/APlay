@@ -108,7 +108,8 @@ void print_help(std::ostream& out, std::string_view argv0) {
 }
 
 void print_version(std::ostream& out) {
-    out << "APlay Linux app 0.1.0 phase0\n";
+    const aplay::core::RuntimeInfo info = aplay::core::runtime_info();
+    out << info.name << " Linux app " << info.version << " phase0\n";
 }
 
 } // namespace aplay::linux_app

@@ -1,6 +1,6 @@
 add_executable(aplay_harness_smoke
     smoke_main.cpp)
-target_link_libraries(aplay_harness_smoke PRIVATE aplay_core)
+target_link_libraries(aplay_harness_smoke PRIVATE aplay_linux_app)
 
 add_executable(aplay_harness_protocol_replay
     protocol_replay.cpp)

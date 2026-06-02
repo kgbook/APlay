@@ -1,0 +1,9 @@
+{
+  "name": "@kgbook/aplay-sdk",
+  "version": "0.1.0",
+  "description": "APlay ETS SDK facade",
+  "main": "Index.ets",
+  "author": "kgbook",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}

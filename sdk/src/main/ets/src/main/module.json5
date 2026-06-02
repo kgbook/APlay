@@ -1,0 +1,15 @@
+{
+  "module": {
+    "name": "aplay_sdk",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tv"
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET"
+      }
+    ]
+  }
+}

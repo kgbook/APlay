@@ -14,6 +14,7 @@ Thumbs.db
 
 # CMake / C / C++ build outputs
 build/
+build-check/
 cmake-build-*/
 CMakeFiles/
 CMakeCache.txt
@@ -63,6 +64,14 @@ app/android/.idea/
 app/android/local.properties
 app/android/**/.cxx/
 app/android/**/build/
+
+# Harmony / DevEco Studio
+app/harmony/.hvigor/
+app/harmony/.idea/
+app/harmony/oh_modules/
+app/harmony/**/oh_modules/
+app/harmony/**/build/
+**/BuildProfile.ets
 
 # IntelliJ IDEA / Android Studio / CLion
 .idea/

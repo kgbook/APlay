@@ -1,0 +1,15 @@
+{
+  "apiType": "stageMode",
+  "buildOption": {
+    "externalNativeOptions": {
+      "path": "../cpp/CMakeLists.txt",
+      "arguments": "-DAPLAY_BUILD_HARNESS=OFF -DAPLAY_BUILD_LINUX_APP=OFF -DAPLAY_BUILD_JNI_BINDING=OFF -DAPLAY_BUILD_NAPI_BINDING=ON",
+      "cppFlags": ""
+    }
+  },
+  "targets": [
+    {
+      "name": "default"
+    }
+  ]
+}

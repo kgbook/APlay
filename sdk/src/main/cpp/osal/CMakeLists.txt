@@ -1,0 +1,13 @@
+if(APLAY_BUILD_LINUX_APP)
+    set(APLAY_OSAL_PLATFORM_MODULES
+        linux)
+endif()
+
+if(APLAY_BUILD_ANDROID_NATIVE)
+    list(APPEND APLAY_OSAL_PLATFORM_MODULES
+        android)
+endif()
+
+foreach(APLAY_OSAL_PLATFORM_MODULE IN LISTS APLAY_OSAL_PLATFORM_MODULES)
+    add_subdirectory(${APLAY_OSAL_PLATFORM_MODULE})
+endforeach()

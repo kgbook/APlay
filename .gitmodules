@@ -1,6 +1,6 @@
-[submodule "third-party/xdebug"]
-	path = third-party/xdebug
+[submodule "sdk/src/main/cpp/third-party/xdebug"]
+	path = sdk/src/main/cpp/third-party/xdebug
 	url = https://github.com/kgbook/xdebug
-[submodule "third-party/SpdlogHelper"]
-	path = third-party/SpdlogHelper
+[submodule "sdk/src/main/cpp/third-party/SpdlogHelper"]
+	path = sdk/src/main/cpp/third-party/SpdlogHelper
 	url = https://github.com/kgbook/SpdlogHelper.git

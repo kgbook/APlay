@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "app_name",
+      "value": "APlay"
+    },
+    {
+      "name": "module_desc",
+      "value": "APlay Harmony entry module"
+    },
+    {
+      "name": "entry_ability_desc",
+      "value": "APlay Harmony entry ability"
+    }
+  ]
+}
