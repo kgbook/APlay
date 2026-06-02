@@ -1,6 +1,6 @@
 # APlay
 
-APlay is a Linux-compatible AirPlay receiver.
+APlay is a cross-platform AirPlay receiver that enables seamless media casting across Linux, Android, and HarmonyOS, with future plans to expand support to additional platforms such as RTOS.
 
 Current status: phase 0 engineering baseline.
 

@@ -1,6 +1,6 @@
 # APlay
 
-APlay 是面向 UxPlay 兼容 AirPlay 接收端的分期重写工程。
+APlay 是跨平台 AirPlay 接收端，实现 Linux、Android 与 HarmonyOS 间的跨生态投屏，未来规划扩展支持 RTOS 等更多平台。
 
 当前状态：Phase 0 工程基线。
 
