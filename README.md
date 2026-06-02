@@ -7,20 +7,9 @@ Current status: phase 0 engineering baseline.
 > [!NOTE]
 > This document is the English version. For 中文版, see [README_zh.md](README_zh.md).
 
-- Linux is built from `app/linux/CMakeLists.txt`.
-- `sdk` is the shared SDK module.
-- `sdk/src/main/cpp` provides the C++ SDK object sources and exports the shared `APlaySdk` `.so` on Linux.
-- `sdk/src/main/cpp/utils` provides cross-platform utility helpers such as socket/thread/poll.
-- `sdk/src/main/cpp/third-party` contains third-party C/C++ dependency submodules used by the SDK.
-- `sdk/src/main/cpp/osal/android/jni` provides the Java SDK native binding and exports `libAPlaySdk.so` for Android APK packaging.
-- `sdk/src/main/cpp/osal/harmony/napi` provides the ETS SDK native binding and exports `libaplay_napi.so`.
-- `sdk/src/main/java` provides the Java SDK and exports the Android `APlaySdk` AAR.
-- `sdk` provides the local Harmony HAR module configuration.
-- `sdk/src/main/ets/com/kgbook/aplay` provides the ETS SDK facade.
-- `sdk/src/main/ets/libaplay_napi` provides the Harmony native module `.d.ts` package for `libaplay_napi.so`.
-- `app/android` is the Android Gradle entry, exposes the `APlayReceiver` Gradle root, consumes the `:APlaySdk` module, and exports the `APlayReceiver` APK.
-- `app/harmony` is the HarmonyOS/DevEco Studio entry and consumes the local ETS SDK HAR.
-- OSAL is the platform abstraction layer for codec/render interfaces and owns platform-specific native binding submodules.
+- `app/linux` is the Linux entrypoint.
+- `app/android` is the Android Gradle entry, consumes the `:APlaySdk` module, and exports the `APlayReceiver` APK.
+- `app/harmony` is the HarmonyOS entry and consumes the local ETS SDK HAR.
 - BLE service discovery is intentionally deferred as a TODO.
 
 ## Linux Build
