@@ -2,6 +2,10 @@ plugins {
     id("com.android.library")
 }
 
+base {
+    archivesName.set("APlaySdk")
+}
+
 android {
     namespace = "com.kgbook.aplay.sdk"
     compileSdk = 35

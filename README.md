@@ -9,23 +9,23 @@ Current status: phase 0 engineering baseline.
 
 - Linux is built from `app/linux/CMakeLists.txt`.
 - `sdk` is the shared SDK module.
-- `sdk/src/main/cpp` provides the C++ SDK object sources and exports the shared `aplay_sdk` `.so`.
+- `sdk/src/main/cpp` provides the C++ SDK object sources and exports the shared `APlaySdk` `.so` on Linux.
 - `sdk/src/main/cpp/utils` provides cross-platform utility helpers such as socket/thread/poll.
 - `sdk/src/main/cpp/third-party` contains third-party C/C++ dependency submodules used by the SDK.
-- `sdk/src/main/cpp/osal/android/jni` provides the Java SDK native binding and exports `libaplay_jni.so`.
+- `sdk/src/main/cpp/osal/android/jni` provides the Java SDK native binding and exports `libAPlaySdk.so` for Android APK packaging.
 - `sdk/src/main/cpp/osal/harmony/napi` provides the ETS SDK native binding and exports `libaplay_napi.so`.
-- `sdk/src/main/java` provides the Java SDK and exports Android AAR.
+- `sdk/src/main/java` provides the Java SDK and exports the Android `APlaySdk` AAR.
 - `sdk` provides the local Harmony HAR module configuration.
 - `sdk/src/main/ets/com/kgbook/aplay` provides the ETS SDK facade.
 - `sdk/src/main/ets/libaplay_napi` provides the Harmony native module `.d.ts` package for `libaplay_napi.so`.
-- `app/android` is the Android Gradle entry and consumes `:aplay-sdk`.
+- `app/android` is the Android Gradle entry, exposes the `APlayReceiver` Gradle root, consumes the `:APlaySdk` module, and exports the `APlayReceiver` APK.
 - `app/harmony` is the HarmonyOS/DevEco Studio entry and consumes the local ETS SDK HAR.
 - OSAL is the platform abstraction layer for codec/render interfaces and owns platform-specific native binding submodules.
 - BLE service discovery is intentionally deferred as a TODO.
 
 ## Linux Build
 
-`app/linux/CMakeLists.txt` is the Linux entrypoint. It imports shared native modules from `sdk/src/main/cpp` with `APLAY_BUILD_LINUX=ON` and builds the `aplay` executable and `aplay_sdk` shared library.
+`app/linux/CMakeLists.txt` is the Linux entrypoint. It imports shared native modules from `sdk/src/main/cpp` with `APLAY_BUILD_LINUX=ON` and builds the `APlayReceiver` executable and `APlaySdk` shared library.
 
 ```sh
 ./scripts/linux_build.sh
@@ -33,7 +33,7 @@ Current status: phase 0 engineering baseline.
 
 ## Android Build
 
-`app/android/build.gradle.kts` is the Android app entrypoint. It depends on `:aplay-sdk` Java SDK which lives in `sdk/src/main/java` and calls native code through the `sdk/src/main/cpp/osal/android/jni` JNI binding, which links the C++ SDK object library (`aplay_cpp_sdk`) and loads `aplay_jni` at runtime. The Android build uses `APLAY_BUILD_ANDROID=ON`; `sdk/src/main/cpp/osal/CMakeLists.txt` then enables Android OSAL codec/render modules and `aplay_jni`.
+`app/android/build.gradle.kts` is the Android app entrypoint. The Android Gradle root is named `APlayReceiver`; it depends on the `:APlaySdk` Java SDK module which lives in `sdk/src/main/java` and calls native code through the `sdk/src/main/cpp/osal/android/jni` JNI binding, which links the C++ SDK object library (`aplay_cpp_sdk`) and loads `APlaySdk` at runtime. The Android build uses `APLAY_BUILD_ANDROID=ON`; `sdk/src/main/cpp/osal/CMakeLists.txt` then enables Android OSAL codec/render modules and the JNI binding.
 
 ```sh
 ./scripts/android_build.sh
@@ -42,7 +42,7 @@ Current status: phase 0 engineering baseline.
 Debug AAR output:
 
 ```text
-sdk/build/outputs/aar/aplay-sdk-debug.aar
+sdk/build/outputs/aar/APlaySdk-debug.aar
 ```
 
 ## Harmony Build

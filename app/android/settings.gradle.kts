@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "APlayAndroid"
+rootProject.name = "APlayReceiver"
 
-include(":aplay-sdk")
-project(":aplay-sdk").projectDir = file("../../sdk")
+include(":APlaySdk")
+project(":APlaySdk").projectDir = file("../../sdk")

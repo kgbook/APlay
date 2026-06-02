@@ -28,8 +28,8 @@ UxPlay 约 2 万行 C/C++：
 APlay 采用边界清晰的分层架构：
 
 - `app/linux`：Linux 平台 UI/业务逻辑，包括 CLI、配置文件、服务启动/停止、信号处理、桌面集成策略。
-- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK，`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding，`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 Android AAR，`sdk` 根目录提供本地 Harmony HAR module 配置，`sdk/src/main/ets/com/kgbook/aplay` 提供 ETS SDK 门面，`sdk/src/main/ets/libaplay_napi` 提供 Harmony native module 类型声明包。
-- `app/android`：Android 平台 UI/业务逻辑，包括前台服务、Activity/Service 生命周期、权限申请、网络/投屏状态展示、Android 媒体会话集成。它通过 `:aplay-sdk` 使用 Java SDK，不直接持有 C/C++ 代码。
+- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK，Linux 输出 `libAPlaySdk.so`；`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding 并为 Android 打包输出 `libAPlaySdk.so`；`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 `APlaySdk` Android AAR，`sdk` 根目录提供本地 `APlaySdk` Harmony HAR module 配置，`sdk/src/main/ets/com/kgbook/aplay` 提供 ETS SDK 门面，`sdk/src/main/ets/libaplay_napi` 提供 Harmony native module 类型声明包。
+- `app/android`：Android 平台 UI/业务逻辑，包括前台服务、Activity/Service 生命周期、权限申请、网络/投屏状态展示、Android 媒体会话集成；Gradle root 命名为 `APlayReceiver`，输出 `APlayReceiver` APK。它通过 `:APlaySdk` 使用 Java SDK，不直接持有 C/C++ 代码。
 - `app/harmony`：HarmonyOS/DevEco Studio 导入入口，构建 `APlayReceiver` HAP target，依赖 `sdk` 本地 `APlaySdk` ETS SDK HAR target；电视、机顶盒等大屏业务适配仍为 TODO。
 - `protocol`：RTSP、HTTP、reverse HTTP、mDNS/DNS-SD、请求/响应模型和协议状态机。
 - `streaming`：RAOP 音频 RTP、AirPlay mirror video、HLS、jitter buffer、NTP 时间同步。

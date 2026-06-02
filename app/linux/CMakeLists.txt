@@ -34,4 +34,5 @@ add_executable(aplay
 target_link_libraries(aplay PRIVATE aplay_linux_runtime)
 
 set_target_properties(aplay PROPERTIES
+    OUTPUT_NAME APlayReceiver
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

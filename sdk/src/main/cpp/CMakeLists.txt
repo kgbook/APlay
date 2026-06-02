@@ -46,7 +46,7 @@ if(APLAY_BUILD_LINUX)
             aplay_cpp_sdk)
 
     set_target_properties(aplay_sdk PROPERTIES
-        OUTPUT_NAME aplay_sdk)
+        OUTPUT_NAME APlaySdk)
 endif()
 
 add_subdirectory(osal)

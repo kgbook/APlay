@@ -8,4 +8,5 @@ GRADLEW="${ANDROID_DIR}/gradlew"
 
 "${GRADLEW}" -p "${ANDROID_DIR}" assembleDebug
 
-echo "Android APK: ${ANDROID_DIR}/build/outputs/apk/debug/android-debug.apk"
+echo "Android APK: ${ANDROID_DIR}/build/outputs/apk/debug/APlayReceiver-debug.apk"
+echo "Android AAR: ${ROOT_DIR}/sdk/build/outputs/aar/APlaySdk-debug.aar"

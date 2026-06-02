@@ -6,7 +6,7 @@
 - C++ 对象拥有明确生命周期，禁止裸全局状态承载会话逻辑。
 - 加密和 RTP 处理可被 harness 离线调用。
 - Linux/Android/Harmony 的 UI 与生命周期差异存在于 `app/linux`、`app/android` 和后续 `app/harmony`。
-- SDK facade 位于 `sdk`：C++ SDK 源码在 `sdk/src/main/cpp`，Linux 输出 `aplay_sdk` 共享库，Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库；JNI binding 在 `sdk/src/main/cpp/osal/android/jni`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Harmony NAPI 类型声明包在 `sdk/src/main/ets/libaplay_napi`，Java SDK 在 `sdk/src/main/java` 并输出 AAR，ETS SDK facade 在 `sdk/src/main/ets/com/kgbook/aplay`，Harmony HAR module 配置位于 `sdk` 根目录。
+- SDK facade 位于 `sdk`：C++ SDK 源码在 `sdk/src/main/cpp`，Linux 输出 `APlaySdk` 共享库，Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库；JNI binding 在 `sdk/src/main/cpp/osal/android/jni` 并为 Android 打包输出 `libAPlaySdk.so`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Harmony NAPI 类型声明包在 `sdk/src/main/ets/libaplay_napi`，Java SDK 在 `sdk/src/main/java` 并输出 `APlaySdk` AAR，ETS SDK facade 在 `sdk/src/main/ets/com/kgbook/aplay`，Harmony HAR module 配置位于 `sdk` 根目录并输出 `APlaySdk` HAR。
 - `utils` 当前承载 STL-based 的跨平台辅助实现，例如 socket/thread/poll。
 - `osal` 当前只落地 codec/render 平台模块和平台 native binding 子模块选择。`sdk/src/main/cpp/osal/CMakeLists.txt` 负责按 `APLAY_BUILD_LINUX`、`APLAY_BUILD_ANDROID`、`APLAY_BUILD_HARMONY` 选择当前平台子模块。
 - 每个阶段都必须可编译、可运行、可测试。
@@ -34,7 +34,7 @@
 
 - 管理 Android Activity/Service/Foreground Service 生命周期。
 - 处理权限、通知、网络状态、投屏状态展示和用户控制。
-- 通过 `:aplay-sdk` Java SDK 创建或控制 native runtime。
+- 通过 `:APlaySdk` Java SDK module 创建或控制 native runtime。
 - 将 Android UI/Service 事件转换为服务启动、停止、重置动作。
 
 边界：
@@ -50,10 +50,10 @@
 
 - 提供 `sdk/src/main/cpp` 下的 C++ SDK API。
 - 输出 `aplay_cpp_sdk` 对象库，被所有平台复用。
-- Linux 额外输出 `aplay_sdk` 共享库。
+- Linux 额外输出 `APlaySdk` 共享库。
 - 承载 protocol、streaming、crypto、osal 等共享 native 子模块。
 - 顶层 CMake 只声明平台开关并在 C++ SDK 对象目标创建后进入 `osal`；平台 binding 子模块由 OSAL 平台目录添加。
-- Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库，不依赖 `aplay_sdk` 共享库。
+- Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库，不依赖 Linux `APlaySdk` 共享库。
 
 边界：
 
@@ -65,7 +65,7 @@
 职责：
 
 - 提供 `sdk/src/main/cpp/osal/android/jni` 下的 Java SDK native 接口。
-- 输出 `aplay_jni` `.so`。
+- 输出 Android 打包用的 `libAPlaySdk.so`。
 - 通过 Android 平台构建开关 `APLAY_BUILD_ANDROID` 条件编译。
 - 只做 Java/JNI 与 C++ SDK 的参数和返回值桥接。
 
@@ -235,8 +235,8 @@ OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flus
 
 `sdk` 负责：
 
-- C++ SDK API，Linux 输出 `aplay_sdk` `.so`，Android/Harmony 输出 `aplay_cpp_sdk` 对象库。
-- JNI binding `.so` 输出（`aplay_jni`）。
+- C++ SDK API，Linux 输出 `libAPlaySdk.so`，Android/Harmony 输出 `aplay_cpp_sdk` 对象库。
+- JNI binding `.so` 输出（Android 打包为 `libAPlaySdk.so`）。
 - NAPI binding `.so` 输出（`aplay_napi`）。
 - Harmony NAPI native module 类型声明包（`sdk/src/main/ets/libaplay_napi`）。
 - Java SDK API 和 Android AAR 输出。

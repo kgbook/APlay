@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+
 plugins {
     id("com.android.application") version "8.7.3"
 }
@@ -21,6 +23,13 @@ android {
     }
 }
 
+android.applicationVariants.all {
+    val variantName = name
+    outputs.all {
+        (this as BaseVariantOutputImpl).outputFileName = "APlayReceiver-${variantName}.apk"
+    }
+}
+
 dependencies {
-    implementation(project(":aplay-sdk"))
+    implementation(project(":APlaySdk"))
 }
