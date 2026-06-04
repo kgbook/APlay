@@ -11,11 +11,11 @@ cmake \
     -S "${ROOT_DIR}/app/linux" \
     -B "${BUILD_DIR}" \
     -G "${GENERATOR}" \
-    -DAPLAY_BUILD_HARNESS=OFF \
+    -DAPLAY_BUILD_EXAMPLES=ON \
     -DAPLAY_BUILD_LINUX=ON \
     -DAPLAY_BUILD_ANDROID=OFF \
     -DAPLAY_BUILD_HARMONY=OFF
-cmake --build "${BUILD_DIR}" --target aplay aplay_sdk
+cmake --build "${BUILD_DIR}"
 
 SDK_LIBRARY="$(find "${BUILD_DIR}/sdk-cpp" -maxdepth 1 -type f \( -name 'libAPlaySdk.so' -o -name 'libAPlaySdk.dylib' \) -print -quit)"
 echo "Linux SDK library: ${SDK_LIBRARY}"

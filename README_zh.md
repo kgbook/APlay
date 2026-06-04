@@ -44,7 +44,7 @@ sdk/build/outputs/aar/APlaySdk-debug.aar
 
 **方式二 — Command Line Tools**（macOS/Linux/Windows 均有）：下载 [Command Line Tools for HMOS](https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos) 并解压。
 
-默认情况下构建脚本使用 `${HOME}/tools/command-line-tools` 作为 Command Line Tools 根目录。如需指定其他路径，可通过 `HARMONY_COMMAND_LINE_TOOLS` 环境变量覆盖。
+macOS 下如果已安装 DevEco Studio，构建脚本会自动使用 `/Applications/DevEco-Studio.app/Contents` 或 `/Applications/DevEco Studio.app/Contents`；否则回退到 `${HOME}/tools/command-line-tools` 作为 Command Line Tools 根目录。如需指定其他路径，可通过 `HARMONY_COMMAND_LINE_TOOLS` 环境变量覆盖。路径包含空格时需要加引号或使用反斜杠转义，例如 `HARMONY_COMMAND_LINE_TOOLS="/Applications/DevEco Studio.app/Contents"` 或 `HARMONY_COMMAND_LINE_TOOLS=/Applications/DevEco\ Studio.app/Contents`。
 
 ```sh
 ./scripts/harmony_build.sh

@@ -44,7 +44,7 @@ Build requires Harmony toolchain. Two options:
 
 **Option 2 — Command Line Tools** (macOS/Linux/Windows): Download [Command Line Tools for HMOS](https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos) and extract.
 
-By default the build script uses `${HOME}/tools/command-line-tools` as the Command Line Tools root. Override with the `HARMONY_COMMAND_LINE_TOOLS` environment variable if your installation differs.
+On macOS, the build script uses `/Applications/DevEco-Studio.app/Contents` or `/Applications/DevEco Studio.app/Contents` automatically when DevEco Studio is installed. Otherwise it falls back to `${HOME}/tools/command-line-tools` as the Command Line Tools root. Override with the `HARMONY_COMMAND_LINE_TOOLS` environment variable if your installation differs. Quote or escape paths that contain spaces, for example `HARMONY_COMMAND_LINE_TOOLS="/Applications/DevEco Studio.app/Contents"` or `HARMONY_COMMAND_LINE_TOOLS=/Applications/DevEco\ Studio.app/Contents`.
 
 ```sh
 ./scripts/harmony_build.sh
