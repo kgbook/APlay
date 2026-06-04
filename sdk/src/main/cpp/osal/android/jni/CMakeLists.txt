@@ -1,7 +1,9 @@
-add_library(aplay_jni SHARED
+include(${CLEAR_VARS})
+set(LOCAL_MODULE aplay_jni)
+set(LOCAL_SRC_FILES
     native_entry.cpp)
-
-target_compile_features(aplay_jni PRIVATE cxx_std_17)
-target_link_libraries(aplay_jni PRIVATE aplay_cpp_sdk)
-set_target_properties(aplay_jni PROPERTIES
-    OUTPUT_NAME APlaySdk)
+set(LOCAL_OBJECT_LIBRARIES
+    aplay_cpp_sdk)
+set(LOCAL_MODULE_FILENAME
+    APlaySdk)
+include(${BUILD_SHARED_LIBRARY})

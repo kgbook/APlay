@@ -4,3 +4,6 @@
 [submodule "sdk/src/main/cpp/third-party/SpdlogHelper"]
 	path = sdk/src/main/cpp/third-party/SpdlogHelper
 	url = https://github.com/kgbook/SpdlogHelper.git
+[submodule "cmake/CMakeHelper"]
+	path = cmake/CMakeHelper
+	url = https://github.com/kgbook/CMakeHelper.git

@@ -1,11 +1,13 @@
-add_library(aplay_core STATIC
+include(${CLEAR_VARS})
+set(LOCAL_MODULE aplay_core_objects)
+set(LOCAL_SRC_FILES
     runtime.cpp)
+set(LOCAL_EXPORT_C_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+include(${BUILD_OBJECT_LIBRARY})
 
-target_include_directories(aplay_core
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/../include)
-
-target_compile_features(aplay_core PUBLIC cxx_std_17)
-
-set_target_properties(aplay_core PROPERTIES
-    POSITION_INDEPENDENT_CODE ON)
+include(${CLEAR_VARS})
+set(LOCAL_MODULE aplay_core)
+set(LOCAL_OBJECT_LIBRARIES
+    aplay_core_objects)
+include(${BUILD_INTERFACE_LIBRARY})

@@ -1,10 +1,11 @@
-add_library(aplay_napi SHARED
+include(${CLEAR_VARS})
+set(LOCAL_MODULE aplay_napi)
+set(LOCAL_SRC_FILES
     napi_entry.cpp)
-
-target_compile_features(aplay_napi PRIVATE cxx_std_17)
-target_link_libraries(aplay_napi
-    PRIVATE
-        aplay_cpp_sdk
-        libace_napi.z.so)
-set_target_properties(aplay_napi PROPERTIES
-    OUTPUT_NAME aplay_napi)
+set(LOCAL_OBJECT_LIBRARIES
+    aplay_cpp_sdk)
+set(LOCAL_SHARED_LIBRARIES
+    libace_napi.z.so)
+set(LOCAL_MODULE_FILENAME
+    aplay_napi)
+include(${BUILD_SHARED_LIBRARY})
