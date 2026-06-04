@@ -2,17 +2,8 @@
 
 APlay is a cross-platform AirPlay receiver that enables seamless media casting across Linux, Android, and HarmonyOS, with future plans to expand support to additional platforms such as RTOS.
 
-Current status: phase 0 engineering baseline.
-
 > [!NOTE]
 > This document is the English version. For 中文版, see [README_zh.md](README_zh.md).
-
-- `app/linux` is the Linux entrypoint.
-- `app/android` is the Android Gradle entry, consumes the `:APlaySdk` module, and exports the `APlayReceiver` APK.
-- `app/harmony` is the HarmonyOS entry and consumes the local ETS SDK HAR.
-- Project-owned native C/C++ is kept C++11-compatible for embedded toolchains and uses POSIX APIs plus the C++ STL.
-- `harness` contains agent/CI validation scripts; `example` builds manually runnable example binaries.
-- BLE service discovery is intentionally deferred as a TODO.
 
 ## Linux Build
 
@@ -67,3 +58,7 @@ Third-party C/C++ dependencies are kept under `sdk/src/main/cpp/third-party` so 
 git submodule sync --recursive
 git submodule update --init --recursive
 ```
+
+## TODO
+
+- BLE service discovery.
