@@ -33,5 +33,5 @@
 ## C/C++
 
 - C++11 compatible
-- Logs: `sdk/src/main/cpp/third-party/SpdlogHelper/helper/ALog.h` only
+- Logs: `ALog.h` only
 - POSIX APIs + STL; no platform APIs outside platform modules
