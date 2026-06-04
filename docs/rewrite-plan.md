@@ -32,7 +32,7 @@
 - 建立 `app/harmony` DevEco Studio/HAP 入口；HarmonyOS 电视等大屏业务支持作为 TODO。
 - 完成 Linux OSAL codec/render 层级，后续再接入 GStreamer。
 - Android OSAL 提供可编译 codec/render 与 JNI 层级，后续再接入 MediaCodec/AudioTrack/Surface。
-- `utils` 承担 STL-based 的跨平台辅助实现，例如 socket/thread/poll。
+- `core` 承担通用可复用 C/C++ 实现和 STL-based 的跨平台辅助能力，例如 socket/thread/poll；`core/pattern` 承担可复用设计模式模板，例如 singleton；不再单独设置 `utils` 模块。
 - 建立 service lifecycle：start、stop、reset、signal cleanup。
 
 验收：

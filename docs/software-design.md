@@ -6,8 +6,8 @@
 - C++ 对象拥有明确生命周期，禁止裸全局状态承载会话逻辑。
 - 加密和 RTP 处理可被 harness 离线调用。
 - Linux/Android/Harmony 的 UI 与生命周期差异存在于 `app/linux`、`app/android` 和后续 `app/harmony`。
-- SDK facade 位于 `sdk`：C++ SDK 源码在 `sdk/src/main/cpp`，Linux 输出 `APlaySdk` 共享库，Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库；JNI binding 在 `sdk/src/main/cpp/osal/android/jni` 并为 Android 打包输出 `libAPlaySdk.so`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Harmony NAPI 类型声明包在 `sdk/src/main/ets/libaplay_napi`，Java SDK 在 `sdk/src/main/java` 并输出 `APlaySdk` AAR，ETS SDK facade 在 `sdk/src/main/ets/com/kgbook/aplay`，Harmony HAR module 配置位于 `sdk` 根目录并输出 `APlaySdk` HAR。
-- `utils` 当前承载 STL-based 的跨平台辅助实现，例如 socket/thread/poll。
+- SDK facade 位于 `sdk`：C++ SDK 公共 runtime 实现在 `sdk/src/main/cpp/core/runtime`，Linux 输出 `APlaySdk` 共享库，Android/Harmony 仅链接 `aplay_cpp_sdk` 对象库；JNI binding 在 `sdk/src/main/cpp/osal/android/jni` 并为 Android 打包输出 `libAPlaySdk.so`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Harmony NAPI 类型声明包在 `sdk/src/main/ets/libaplay_napi`，Java SDK 在 `sdk/src/main/java` 并输出 `APlaySdk` AAR，ETS SDK facade 在 `sdk/src/main/ets/com/kgbook/aplay`，Harmony HAR module 配置位于 `sdk` 根目录并输出 `APlaySdk` HAR。
+- `core` 当前承载通用可复用 C/C++ 实现和 STL-based 的跨平台辅助能力，例如 `network/interface`、`socket`、`poll`、`eventloop`、`thread`；`core/pattern` 承载可复用设计模式模板，例如 process-wide SDK 对象使用的 singleton；不再单独设置 `utils` 模块。
 - `osal` 当前只落地 codec/render 平台模块和平台 native binding 子模块选择。`sdk/src/main/cpp/osal/CMakeLists.txt` 负责按 `APLAY_BUILD_LINUX`、`APLAY_BUILD_ANDROID`、`APLAY_BUILD_HARMONY` 选择当前平台子模块。
 - 每个阶段都必须可编译、可运行、可测试。
 
@@ -261,7 +261,7 @@ OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flus
 - `CodecFactory`
 - `RenderSinkFactory`
 
-Linux OSAL 当前先保留 codec/render 层级，后续再实现 GStreamer。Android OSAL 当前保留 codec/render 与 JNI 层级，后续接入 MediaCodec/AudioTrack/Surface。通用 socket/thread/poll 逻辑由 `utils` 承担，不进入 OSAL。
+Linux OSAL 当前先保留 codec/render 层级，后续再实现 GStreamer。Android OSAL 当前保留 codec/render 与 JNI 层级，后续接入 MediaCodec/AudioTrack/Surface。通用 `network/interface`、socket、poll、eventloop、thread 和 `core/pattern` 设计模式模板由 `core` 承担，不进入 OSAL，也不再单独设置 `utils` 模块。
 
 ## BLE TODO
 

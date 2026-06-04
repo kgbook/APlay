@@ -9,7 +9,7 @@ if(CMAKE_HELPER_MODULE_DIR_INDEX EQUAL -1)
 endif()
 include(CMakeHelper)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -25,7 +25,6 @@ endif()
 
 set(APLAY_NATIVE_MODULES
     core
-    utils
     flow
     crypto
     protocol
@@ -37,11 +36,8 @@ endforeach()
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_native)
-set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(LOCAL_INTERFACE_LIBRARIES
     aplay_core
-    aplay_utils
     aplay_flow
     aplay_crypto
     aplay_protocol
@@ -51,9 +47,9 @@ include(${BUILD_INTERFACE_LIBRARY})
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_cpp_sdk)
 set(LOCAL_SRC_FILES
-    cpp_sdk.cpp)
+    core/runtime/runtime.cpp)
 set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
 set(LOCAL_INTERFACE_LIBRARIES
     aplay_native)
 include(${BUILD_OBJECT_LIBRARY})
@@ -75,7 +71,7 @@ set(LOCAL_PREBUILT_MODULE_TYPE
 set(LOCAL_PREBUILT_LOCATION
     $<TARGET_FILE:aplay_sdk_static>)
 set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
 include(${BUILD_PREBUILT})
 
 if(APLAY_BUILD_LINUX)

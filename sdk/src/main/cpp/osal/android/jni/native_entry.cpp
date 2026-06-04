@@ -1,4 +1,4 @@
-#include "aplay/sdk.h"
+#include "sdk.h"
 
 #include <jni.h>
 

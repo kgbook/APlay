@@ -3,6 +3,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+echo "=== Syncing and updating submodules ==="
+git -C "${ROOT_DIR}" submodule sync --recursive
+git -C "${ROOT_DIR}" submodule update --init --recursive
+
 BUILD_DIR="${APLAY_LINUX_BUILD_DIR:-${ROOT_DIR}/build/linux}"
 GENERATOR="${CMAKE_GENERATOR:-Ninja}"
 

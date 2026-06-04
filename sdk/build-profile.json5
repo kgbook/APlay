@@ -3,7 +3,7 @@
   "buildOption": {
     "externalNativeOptions": {
       "path": "src/main/cpp/CMakeLists.txt",
-      "arguments": "-DAPLAY_BUILD_HARNESS=OFF -DAPLAY_BUILD_HARMONY=ON -DOHOS_STL=c++_static",
+      "arguments": "-DAPLAY_BUILD_EXAMPLES=OFF -DAPLAY_BUILD_HARMONY=ON -DOHOS_STL=c++_static",
       "cppFlags": ""
     }
   },

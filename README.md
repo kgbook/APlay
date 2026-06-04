@@ -10,6 +10,8 @@ Current status: phase 0 engineering baseline.
 - `app/linux` is the Linux entrypoint.
 - `app/android` is the Android Gradle entry, consumes the `:APlaySdk` module, and exports the `APlayReceiver` APK.
 - `app/harmony` is the HarmonyOS entry and consumes the local ETS SDK HAR.
+- Project-owned native C/C++ is kept C++11-compatible for embedded toolchains and uses POSIX APIs plus the C++ STL.
+- `harness` contains agent/CI validation scripts; `example` builds manually runnable example binaries.
 - BLE service discovery is intentionally deferred as a TODO.
 
 ## Linux Build
@@ -19,6 +21,20 @@ Current status: phase 0 engineering baseline.
 ```sh
 ./scripts/linux_build.sh
 ```
+
+Agent/CI validation:
+
+```sh
+./harness/verify_linux.sh
+```
+
+Manual mDNS example after building:
+
+```sh
+build/linux/example/aplay_example_mdns_announce APlayExample
+```
+
+Add `--serve` to attempt live UDP 5353 multicast advertising. The default mode stays offline so the example runs even on development machines where the system mDNS service already owns UDP 5353. The mDNS public API is exported from `sdk/src/main/cpp/protocol/mdns/include/mdns.hpp`, and implementation files live under `sdk/src/main/cpp/protocol/mdns/src`.
 
 ## Android Build
 

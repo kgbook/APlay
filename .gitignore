@@ -91,3 +91,4 @@ sdk/**/oh_modules/
 *.log
 hs_err_pid*
 replay_pid*
+resources

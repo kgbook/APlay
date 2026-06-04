@@ -13,11 +13,12 @@ if(CMAKE_HELPER_MODULE_DIR_INDEX EQUAL -1)
 endif()
 include(CMakeHelper)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(APLAY_SDK_CPP_DIR "${TOP_DIR}/sdk/src/main/cpp")
+set(APLAY_LOG_INCLUDE_DIR "${APLAY_SDK_CPP_DIR}/third-party/SpdlogHelper/helper")
 
 if(NOT TARGET aplay_cpp_sdk)
     add_subdirectory("${APLAY_SDK_CPP_DIR}" "${CMAKE_BINARY_DIR}/sdk-cpp")
@@ -28,7 +29,9 @@ set(LOCAL_MODULE aplay_linux_runtime_objects)
 set(LOCAL_SRC_FILES
     runtime.cpp)
 set(LOCAL_EXPORT_C_INCLUDES
-    "${APLAY_SDK_CPP_DIR}/include")
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+set(LOCAL_C_INCLUDES
+    "${APLAY_LOG_INCLUDE_DIR}")
 set(LOCAL_INTERFACE_LIBRARIES
     aplay_native)
 include(${BUILD_OBJECT_LIBRARY})

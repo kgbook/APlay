@@ -28,7 +28,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments += listOf(
-                    "-DAPLAY_BUILD_HARNESS=OFF",
+                    "-DAPLAY_BUILD_EXAMPLES=OFF",
                     "-DAPLAY_BUILD_ANDROID=ON"
                 )
             }

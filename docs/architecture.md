@@ -34,7 +34,7 @@ APlay 采用边界清晰的分层架构：
 - `protocol`：RTSP、HTTP、reverse HTTP、mDNS/DNS-SD、请求/响应模型和协议状态机。
 - `streaming`：RAOP 音频 RTP、AirPlay mirror video、HLS、jitter buffer、NTP 时间同步。
 - `crypto`：AES、FairPlay、Ed25519/X25519、SRP、digest auth、hash/base64。
-- `utils`：跨平台辅助实现，当前承载 STL-based 的通用能力代码，例如 socket/thread/poll。
+- `core`：通用可复用 C/C++ 实现，承载 STL-based 的跨平台辅助能力，例如 socket/thread/poll，并在 `core/pattern` 承载可复用设计模式模板；不再单独设置 `utils` 模块。
 - `osal`：平台能力抽象层，当前负责 codec/render 平台模块和平台 native binding 子模块选择，不承载 UI 或业务流程。
 - `harness`：离线回放、golden 对比、smoke run、真机增强验收。
 

@@ -2,48 +2,30 @@
 
 ## Build Boundaries
 
-- There is no root CMake or root Gradle entrypoint.
-- `app/linux/CMakeLists.txt` is the Linux C/C++ executable entrypoint.
-- `app/android/build.gradle.kts` is the Android app Gradle entrypoint.
-- `app/harmony` is the HarmonyOS/DevEco Studio entrypoint.
-- `sdk` is the shared SDK module.
-- `sdk/src/main/cpp` owns the C++ SDK object library and the exported Linux libAPlaySdk.so.
-- `sdk/src/main/cpp/third-party` owns third-party C/C++ dependency submodules used by the SDK.
-- `SpdlogHelper` is a third-party submodule and has its own `spdlog` submodule; initialize third-party dependencies recursively.
-- `sdk/src/main/cpp/osal/android/jni` owns the Java SDK JNI binding `libAPlaySdk.so`; build with `APLAY_BUILD_ANDROID`.
-- `sdk/src/main/cpp/osal/harmony/napi` owns the ETS SDK NAPI binding `.so`; build with `APLAY_BUILD_HARMONY`.
-- `sdk/src/main/cpp/osal/CMakeLists.txt` owns platform subdirectory selection, including platform codec/render modules and native binding submodules.
-- `sdk/src/main/java` owns the Java SDK and exports the Android APlaySdk AAR.
-- `sdk/src/main/ets` owns the ETS SDK and exports Harmony HAR.
-- `sdk/src/main/ets/libaplay_napi` owns the Harmony native module `.d.ts` package for `libaplay_napi.so`.
-- `app/android` is an Android application module and Gradle root named `APlayReceiver`; it consumes `:APlaySdk` and must not own C/C++ code.
-- `app/harmony` is a Harmony app/HAP consumer entry.
+- `app` is a consumer entrypoint according to the target os.
+- `sdk` is the shared SDK module, including C++, Java and ETS SDK.
+- `harness` owns agent/CI validation orchestration only
+- `example` owns manually runnable example source code and binaries for humans to validate implemented behavior before confirming.
 
 ## Platform Responsibilities
 
 - `app/linux` owns Linux UI/business logic: CLI, config, process lifecycle, signal handling, and desktop integration.
 - `app/android` owns Android UI/business logic: Activity, Service, Foreground Service, permissions, notifications, and Android lifecycle.
-- `sdk` owns CPP/Java/ETS SDK APIs and their `.so`/AAR/HAR packaging.
 - `app/harmony` owns Harmony-facing app lifecycle and imports the ETS SDK HAR.
-- `utils` owns the STL-based cross-platform helpers such as socket/thread/poll and related shared utility code.
-- `osal` currently owns platform codec/render modules and platform native binding submodules.
-
+- `sdk` owns CPP/Java/ETS SDK APIs and their packaging.
+- `core` owns common reusable C/C++ code.
+- `osal` currently owns platform codec/render modules and native binding submodules.
+- 
 ## Implementation Rules
 
-- Do not put native C/C++ under `app`; keep the C++ SDK under `sdk/src/main/cpp`.
+- Follow `docs/code-style.md`
 - After changing third-party submodule paths, run `git submodule sync --recursive` and `git submodule update --init --recursive`.
-- Keep Harmony ETS SDK under `sdk/src/main/ets/com/kgbook/aplay`; Harmony app lifecycle belongs under `app/harmony`.
-- Keep Harmony NAPI `.so` type declarations under `sdk/src/main/ets/<library>` with a matching `oh-package.json5`.
-- Do not put UI or business lifecycle logic in OSAL.
-- Keep protocol, streaming, and crypto independent from app platform code so harness can drive them offline.
 - BLE service discovery is TODO and should not be implemented in the first baseline.
 
 ## Validation
 
-- Linux: `./scripts/linux_build.sh`, or `cmake -S app/linux -B build/linux -G Ninja -DAPLAY_BUILD_LINUX=ON` then `cmake --build build/linux --target aplay aplay_sdk`; outputs are `build/linux/APlayReceiver` and `build/linux/sdk-cpp/libAPlaySdk.so`.
-- C++ SDK object library is built by CMake target `aplay_cpp_sdk`; shared SDK library is built by CMake target `aplay_sdk` and outputs `libAPlaySdk.so`.
-- Java JNI binding is built by CMake target `aplay_jni` and outputs `libAPlaySdk.so` for Android packaging.
-- ETS NAPI binding is built by CMake target `aplay_napi` when Harmony native headers/toolchain are available.
-- Android Java SDK AAR: `./app/android/gradlew -p app/android :APlaySdk:assembleDebug`; debug output is `sdk/build/outputs/aar/APlaySdk-debug.aar`.
-- Android app: `./scripts/android_build.sh`; `app/android` is the `APlayReceiver` Gradle root, consumes `:APlaySdk`, and debug output is `app/android/build/outputs/apk/debug/APlayReceiver-debug.apk`.
-- Harmony HAP: `./scripts/harmony_build.sh` with `ohpm` and `hvigorw` or `hvigor` available in `PATH`; `DEVECO_SDK_HOME` must point at the DevEco SDK root.
+### Build validation
+- Linux build: `./scripts/linux_build.sh`.
+- Linux harness: `./harness/verify_linux.sh`
+- Android app: `./scripts/android_build.sh`.
+- Harmony HAP: `./scripts/harmony_build.sh`.
