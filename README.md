@@ -13,7 +13,7 @@ APlay is a cross-platform AirPlay receiver that enables seamless media casting a
 ./scripts/linux_build.sh
 ```
 
-Agent/CI validation:
+Agent validation:
 
 ```sh
 ./harness/verify_linux.sh

@@ -87,8 +87,10 @@ sdk/**/oh_modules/
 *.ipr
 .clion/
 
+# Local capture resources
+resources/pcap/
+
 # Logs
 *.log
 hs_err_pid*
 replay_pid*
-resources
