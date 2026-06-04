@@ -2,13 +2,13 @@
 
 ## 背景
 
-APlay 目标是以现代 C++ 分期重写 UxPlay 的 AirPlay 接收能力。UxPlay 当前可在本机完整编译，基线依赖包括 GStreamer、OpenSSL、libplist、DBus、X11、pthread、llhttp 和 playfair。APlay 首版以 Linux 可运行为硬门槛，同时保留共享 SDK、Android app、Harmony 大屏终端入口和 OSAL 适配边界。
+APlay 目标是以现代 C++ 分期实现 AirPlay 接收能力。APlay 首版以 Linux 可运行为硬门槛，同时保留共享 SDK、Android app、Harmony 大屏终端入口和 OSAL 适配边界。
 
 BLE 服务发现不进入首版实现，记录为 TODO。
 
-## UxPlay 现状
+## Legacy Baseline
 
-UxPlay 约 2 万行 C/C++：
+历史基线实现包含以下能力，需要在 APlay 中按模块重新实现并纳入 harness 验收：
 
 - `uxplay.cpp`：CLI、全局配置、生命周期、回调桥接、GStreamer/DBus 集成。
 - `lib/raop.c`：连接分类、RTSP/HTTP/HLS 分发、RAOP 会话上下文。

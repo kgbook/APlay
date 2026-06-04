@@ -15,18 +15,36 @@
 #include "ALog.h"
 
 #include <chrono>
+#include <csignal>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
 
+namespace {
+
+volatile std::sig_atomic_t g_should_stop = 0;
+
+void handle_signal(int) {
+    g_should_stop = 1;
+}
+
+} // namespace
+
 int main(int argc, char** argv) {
-    bool serve = false;
+    bool once = false;
     std::string receiver_name = "APlayExample";
+    int interval_ms = 1000;
     for (int i = 1; i < argc; ++i) {
         const std::string arg = argv[i];
-        if (arg == "--serve") {
-            serve = true;
+        if (arg == "--once") {
+            once = true;
+        } else if (arg == "--interval-ms" && i + 1 < argc) {
+            interval_ms = std::atoi(argv[++i]);
+            if (interval_ms <= 0) {
+                interval_ms = 1000;
+            }
         } else {
             receiver_name = arg;
         }
@@ -62,18 +80,25 @@ int main(int argc, char** argv) {
         std::cout << "packet[" << i << "] answers=" << summary.answers.size() << '\n';
     }
 
-    if (!serve) {
+    if (once) {
         return 0;
     }
+
+    std::signal(SIGINT, handle_signal);
+    std::signal(SIGTERM, handle_signal);
 
     if (responder.start() != 0) {
         LOGE("mdns_announce", "failed to start mDNS responder on UDP 5353");
         return 1;
     }
 
-    responder.announce();
-    LOGI("mdns_announce", "mDNS responder serving for 5 seconds; browse _airplay._tcp.local or _raop._tcp.local");
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    LOGI("mdns_announce",
+         "mDNS responder broadcasting every %d ms; browse _airplay._tcp.local or _raop._tcp.local",
+         interval_ms);
+    while (!g_should_stop) {
+        responder.announce();
+        std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
+    }
     responder.stop();
     return 0;
 }

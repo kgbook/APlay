@@ -20,6 +20,7 @@
 #include "ALog.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -32,6 +33,10 @@ using aplay::protocol::mdns::RecordSummary;
 using aplay::protocol::mdns::MdnsResponder;
 using aplay::protocol::mdns::ResponderConfig;
 
+const char kDefaultReceiverName[] = "APlayHarness";
+const char kDefaultDeviceId[] = "02:00:00:00:00:01";
+const char kDefaultIpv4Address[] = "127.0.0.1";
+
 bool require(bool condition, const char* message) {
     if (!condition) {
         LOGE("mdns_replay", "%s", message);
@@ -40,24 +45,24 @@ bool require(bool condition, const char* message) {
     return true;
 }
 
-ResponderConfig make_config() {
+ResponderConfig make_config(const std::string& receiver_name, const std::string& device_id) {
     ResponderConfig config;
-    config.host_name = "iMac.local";
-    if (!aplay::core::network::parse_ipv4_address("192.168.1.101", config.ipv4_address)) {
-        LOGE("mdns_replay", "failed to parse fixture IPv4 address");
+    config.host_name = receiver_name + ".local";
+    if (!aplay::core::network::parse_ipv4_address(kDefaultIpv4Address, config.ipv4_address)) {
+        LOGE("mdns_replay", "failed to parse harness IPv4 address");
     }
 
     aplay::streaming::airplay::ServiceProfile airplay_profile;
-    airplay_profile.receiver_name = "UxPlay@iMac";
-    airplay_profile.device_id = "B2:46:EE:39:57:63";
-    airplay_profile.model = "AppleTV3,2";
+    airplay_profile.receiver_name = receiver_name;
+    airplay_profile.device_id = device_id;
+    airplay_profile.model = "APlayHarness";
     airplay_profile.include_password_required = true;
     airplay_profile.port = 42609;
     config.airplay = aplay::streaming::airplay::make_airplay_service(airplay_profile);
 
     aplay::streaming::raop::ServiceProfile raop_profile;
-    raop_profile.receiver_name = "UxPlay@iMac";
-    raop_profile.device_id = "B2:46:EE:39:57:63";
+    raop_profile.receiver_name = receiver_name;
+    raop_profile.device_id = device_id;
     raop_profile.include_password_required = true;
     raop_profile.port = 42609;
     config.raop = aplay::streaming::raop::make_raop_service(raop_profile);
@@ -112,7 +117,8 @@ bool pcap_contains_dns_name(const std::vector<unsigned char>& pcap, const std::s
 
 bool validate_generated_response() {
     MdnsResponder& responder = MdnsResponder::instance();
-    responder.set_config(make_config());
+    const ResponderConfig config = make_config(kDefaultReceiverName, kDefaultDeviceId);
+    responder.set_config(config);
     const std::vector<std::uint8_t> query =
         aplay::protocol::mdns::build_ptr_query({"_airplay._tcp.local", "_raop._tcp.local"}, true);
     const aplay::protocol::mdns::ResponsePlan plan =
@@ -135,24 +141,19 @@ bool validate_generated_response() {
                  "missing AirPlay service enumeration PTR") ||
         !require(has_ptr(answers, "_services._dns-sd._udp.local", "_raop._tcp.local"),
                  "missing RAOP service enumeration PTR") ||
-        !require(has_ptr(answers, "_airplay._tcp.local", "UxPlay@iMac._airplay._tcp.local"),
+        !require(has_ptr(answers, "_airplay._tcp.local", config.airplay.instance),
                  "missing AirPlay instance PTR") ||
-        !require(has_ptr(answers, "_raop._tcp.local",
-                         "B246EE395763@UxPlay@iMac._raop._tcp.local"),
+        !require(has_ptr(answers, "_raop._tcp.local", config.raop.instance),
                  "missing RAOP instance PTR") ||
-        !require(has_record(answers, "UxPlay@iMac._airplay._tcp.local",
-                            aplay::protocol::mdns::kTypeSrv),
+        !require(has_record(answers, config.airplay.instance, aplay::protocol::mdns::kTypeSrv),
                  "missing AirPlay SRV") ||
-        !require(has_record(answers, "B246EE395763@UxPlay@iMac._raop._tcp.local",
-                            aplay::protocol::mdns::kTypeSrv),
+        !require(has_record(answers, config.raop.instance, aplay::protocol::mdns::kTypeSrv),
                  "missing RAOP SRV") ||
-        !require(has_record(answers, "iMac.local", aplay::protocol::mdns::kTypeA),
+        !require(has_record(answers, config.host_name, aplay::protocol::mdns::kTypeA),
                  "missing host A record") ||
-        !require(has_txt_item(answers, "UxPlay@iMac._airplay._tcp.local",
-                              "features=0x527FFEE6,0x0"),
+        !require(has_txt_item(answers, config.airplay.instance, "features=0x527FFEE6,0x0"),
                  "missing AirPlay features TXT") ||
-        !require(has_txt_item(answers, "B246EE395763@UxPlay@iMac._raop._tcp.local",
-                              "sr=44100"),
+        !require(has_txt_item(answers, config.raop.instance, "sr=44100"),
                  "missing RAOP sample-rate TXT")) {
         return false;
     }
@@ -183,10 +184,24 @@ bool validate_generated_response() {
                    "goodbye answers must use TTL 0");
 }
 
-bool validate_pcap_fixture(const char* path) {
+std::string raop_instance_name(const std::string& receiver_name,
+                               const std::string& device_id) {
+    std::string normalized;
+    normalized.reserve(device_id.size());
+    for (std::size_t i = 0; i < device_id.size(); ++i) {
+        const unsigned char c = static_cast<unsigned char>(device_id[i]);
+        if (std::isxdigit(c)) {
+            normalized.push_back(static_cast<char>(std::toupper(c)));
+        }
+    }
+    return normalized + "@" + receiver_name + "._raop._tcp.local";
+}
+
+bool validate_pcap_capture(const char* path, const std::string& receiver_name,
+                           const std::string& device_id) {
     std::ifstream input(path, std::ios::binary);
     if (!input) {
-        LOGE("mdns_replay", "failed to open pcap fixture: %s", path);
+        LOGE("mdns_replay", "failed to open pcap capture: %s", path);
         return false;
     }
 
@@ -198,24 +213,27 @@ bool validate_pcap_fixture(const char* path) {
                    "pcap is missing _raop._tcp.local DNS name") &&
            require(pcap_contains_dns_name(data, "_services._dns-sd._udp.local"),
                    "pcap is missing _services._dns-sd._udp.local DNS name") &&
-           require(pcap_contains_dns_name(data, "UxPlay@iMac._airplay._tcp.local"),
-                   "pcap is missing UxPlay AirPlay instance") &&
-           require(pcap_contains_dns_name(data, "B246EE395763@UxPlay@iMac._raop._tcp.local"),
-                   "pcap is missing UxPlay RAOP instance");
+           require(pcap_contains_dns_name(data, receiver_name + "._airplay._tcp.local"),
+                   "pcap is missing receiver AirPlay instance") &&
+           require(pcap_contains_dns_name(data, raop_instance_name(receiver_name, device_id)),
+                   "pcap is missing receiver RAOP instance");
 }
 
 } // namespace
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        LOGE("mdns_replay", "usage: aplay_example_mdns_replay <pcapng-fixture>");
+    if (argc < 2 || argc > 4) {
+        LOGE("mdns_replay",
+             "usage: aplay_harness_mdns_replay <pcap-capture> [receiver-name] [device-id]");
         return 2;
     }
 
-    if (!validate_generated_response() || !validate_pcap_fixture(argv[1])) {
+    const std::string receiver_name = argc >= 3 ? argv[2] : kDefaultReceiverName;
+    const std::string device_id = argc >= 4 ? argv[3] : kDefaultDeviceId;
+    if (!validate_generated_response() || !validate_pcap_capture(argv[1], receiver_name, device_id)) {
         return 1;
     }
 
-    std::cout << "{\"mdns\":\"ok\",\"fixture\":\"" << argv[1] << "\"}\n";
+    std::cout << "{\"mdns\":\"ok\",\"capture\":\"" << argv[1] << "\"}\n";
     return 0;
 }

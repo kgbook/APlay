@@ -55,6 +55,10 @@ set(LOCAL_RUNTIME_OUTPUT_DIRECTORY
 include(${BUILD_EXECUTABLE})
 
 if(APLAY_BUILD_EXAMPLES)
+    set(APLAY_BUILD_HARNESS ON)
+endif()
+
+if(APLAY_BUILD_HARNESS)
     enable_testing()
-    add_subdirectory("${TOP_DIR}/example" "${CMAKE_BINARY_DIR}/example")
+    add_subdirectory("${TOP_DIR}/harness/mdns" "${CMAKE_BINARY_DIR}/harness/mdns")
 endif()

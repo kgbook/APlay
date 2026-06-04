@@ -26,6 +26,6 @@
 
 ### Build validation
 - Linux build: `./scripts/linux_build.sh`.
-- Linux harness: `./harness/verify_linux.sh`
+- Linux mDNS harness: `./harness/verify_mdns.sh`
 - Android app: `./scripts/android_build.sh`.
 - Harmony HAP: `./scripts/harmony_build.sh`.

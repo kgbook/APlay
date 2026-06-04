@@ -5,12 +5,12 @@ component "pcap fixture" as PcapFixture
 component "mdns_replay" as MdnsReplay
 component "mdns_announce" as MdnsAnnounce
 component "mDNS packet summaries" as MdnsSummary
-component "verify_linux.sh" as VerifyLinux
+component "verify_mdns.sh" as VerifyMdns
 
 PcapFixture --> MdnsReplay
 MdnsReplay --> MdnsSummary
 MdnsAnnounce --> MdnsSummary
-MdnsSummary --> VerifyLinux
+MdnsSummary --> VerifyMdns
 
 note bottom
 Offline mDNS replay is mandatory.

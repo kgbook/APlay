@@ -16,8 +16,18 @@ APlay is a cross-platform AirPlay receiver that enables seamless media casting a
 Agent validation:
 
 ```sh
-./harness/verify_linux.sh
+./harness/verify_mdns.sh
 ```
+
+This captures live UDP 5353 mDNS packets to `resources/pcap/mdns_announce.pcapng` by default, then analyzes the capture with `aplay_harness_mdns_replay`. Use `APLAY_CAPTURE_IFACE` to choose the capture interface and `APLAY_PCAP_CAPTURE` to choose the output file.
+
+mDNS harness announcer after build:
+
+```sh
+build/linux/harness/mdns/aplay_harness_mdns_announce APlayHarness
+```
+
+By default it starts the UDP 5353 multicast responder and keeps sending AirPlay/RAOP announcement packets until `SIGINT` or `SIGTERM`. Add `--once` to only build and parse announcement packets offline.
 
 ## Android Build
 

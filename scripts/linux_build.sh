@@ -16,7 +16,7 @@ cmake \
     -S "${ROOT_DIR}/app/linux" \
     -B "${BUILD_DIR}" \
     -G "${GENERATOR}" \
-    -DAPLAY_BUILD_EXAMPLES=ON \
+    -DAPLAY_BUILD_HARNESS=ON \
     -DAPLAY_BUILD_LINUX=ON \
     -DAPLAY_BUILD_ANDROID=OFF \
     -DAPLAY_BUILD_HARMONY=OFF

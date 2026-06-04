@@ -57,7 +57,7 @@
 验收：
 
 - fixture replay 覆盖正常、未知请求、非法 CSeq、过长 header。
-- golden summary 与 UxPlay 抓包语义一致。
+- golden summary 与已确认抓包语义一致。
 
 ## Phase 3: Crypto 与 Pairing
 
@@ -65,7 +65,7 @@
 
 - 迁移 AES、Ed25519/X25519、SRP、FairPlay、digest auth。
 - 所有 crypto 能力脱离网络单测。
-- 生成固定 vectors 和 UxPlay 对照 fixtures。
+- 生成固定 vectors 和抓包对照 fixtures。
 
 验收：
 
@@ -118,7 +118,7 @@
 
 ## 风险
 
-- AirPlay legacy 协议依赖非公开行为，必须以 UxPlay 和抓包为行为基线。
+- AirPlay legacy 协议依赖非公开行为，必须以抓包和 harness 验收为行为基线。
 - FairPlay/Pairing 迁移风险高，必须先固定 vectors。
 - GStreamer 生命周期容易与协议 reset 耦合，必须通过 OSAL render/codec 抽象隔离。
 - 真机验收不可完全自动化，因此离线 pcap/fixtures 是硬性门禁。
