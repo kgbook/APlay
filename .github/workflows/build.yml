@@ -26,10 +26,19 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install build tools
+      - name: Sync submodules recursively
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
+
+      - name: Install build and capture tools
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends build-essential cmake ninja-build
+          sudo apt-get install -y --no-install-recommends build-essential cmake ninja-build libcap2-bin tcpdump wireshark-common
+          sudo setcap cap_net_raw,cap_net_admin=eip "$(command -v dumpcap)"
+          sudo setcap cap_net_raw,cap_net_admin=eip "$(command -v tcpdump)"
 
       - name: Build Linux executable and SDK
         run: ./scripts/linux_build.sh
@@ -38,6 +47,38 @@ jobs:
         run: |
           test -x build/linux/APlayReceiver
           test -f build/linux/sdk-cpp/libAPlaySdk.so
+
+      - name: Verify Linux mDNS harness
+        run: ./harness/verify_mdns.sh
+
+      - name: Summarize mDNS harness result
+        if: ${{ always() }}
+        run: |
+          if [ -f resources/pcap/mdns_verify_result.txt ]; then
+            cat resources/pcap/mdns_verify_result.txt
+            {
+              echo "### mDNS harness result"
+              sed 's/^/- /' resources/pcap/mdns_verify_result.txt
+            } >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "mDNS harness result file was not produced"
+            {
+              echo "### mDNS harness result"
+              echo "- status=unknown"
+              echo "- message=result file was not produced"
+            } >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Upload mDNS harness capture
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-mdns-harness-results
+          path: |
+            resources/pcap/mdns_announce.pcapng
+            resources/pcap/mdns_replay.log
+            resources/pcap/mdns_verify_result.txt
+          if-no-files-found: warn
 
       - name: Upload Linux artifacts
         if: ${{ !env.ACT }}

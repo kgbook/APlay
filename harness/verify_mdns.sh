@@ -4,6 +4,9 @@ set -eu
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 BUILD_DIR="${ROOT_DIR}/build/linux"
 PCAP_CAPTURE="${APLAY_PCAP_CAPTURE:-${ROOT_DIR}/resources/pcap/mdns_announce.pcapng}"
+RESULT_DIR="${APLAY_MDNS_RESULT_DIR:-${ROOT_DIR}/resources/pcap}"
+RESULT_FILE="${APLAY_MDNS_RESULT:-${RESULT_DIR}/mdns_verify_result.txt}"
+REPLAY_LOG="${APLAY_MDNS_REPLAY_LOG:-${RESULT_DIR}/mdns_replay.log}"
 CAPTURE_IFACE="${APLAY_CAPTURE_IFACE:-any}"
 RECEIVER_NAME="APlayHarness"
 DEVICE_ID="02:00:00:00:00:01"
@@ -25,7 +28,23 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
+write_result() {
+    STATUS=$1
+    PHASE=$2
+    MESSAGE=$3
+
+    mkdir -p "${RESULT_DIR}"
+    {
+        echo "status=${STATUS}"
+        echo "phase=${PHASE}"
+        echo "capture=${PCAP_CAPTURE}"
+        echo "replay_log=${REPLAY_LOG}"
+        echo "message=${MESSAGE}"
+    } >"${RESULT_FILE}"
+}
+
 capture_setup_error() {
+    write_result fail capture-setup "failed to start live mDNS capture without unprivileged packet capture"
     cat >&2 <<EOF
 failed to start live mDNS capture without unprivileged packet capture
 
@@ -46,6 +65,7 @@ EOF
 }
 
 dependency_setup_error() {
+    write_result fail dependencies "missing dependencies for Linux harness validation"
     cat >&2 <<EOF
 missing dependencies for Linux harness validation
 
@@ -208,11 +228,15 @@ cmake --build "${BUILD_DIR}" --target \
     aplay_harness_mdns_replay \
     aplay_harness_mdns_announce
 
-mkdir -p "$(dirname -- "${PCAP_CAPTURE}")"
+mkdir -p "$(dirname -- "${PCAP_CAPTURE}")" "${RESULT_DIR}"
 rm -f "${PCAP_CAPTURE}"
+rm -f "${RESULT_FILE}" "${REPLAY_LOG}"
 
 echo "=== Capturing live mDNS announcements ==="
-start_capture || capture_setup_error
+start_capture || {
+    write_result fail capture-start "failed to start live mDNS capture"
+    capture_setup_error
+}
 
 "${BUILD_DIR}/harness/mdns/aplay_harness_mdns_announce" --interval-ms 250 "${RECEIVER_NAME}" &
 ANNOUNCE_PID=$!
@@ -228,8 +252,30 @@ wait "${ANNOUNCE_PID}" 2>/dev/null || true
 ANNOUNCE_PID=
 
 if [ "${CAPTURE_STATUS}" -ne 0 ]; then
+    write_result fail capture "failed to capture live mDNS announcements"
     echo "failed to capture live mDNS announcements into ${PCAP_CAPTURE}" >&2
     exit "${CAPTURE_STATUS}"
 fi
 
-"${BUILD_DIR}/harness/mdns/aplay_harness_mdns_replay" "${PCAP_CAPTURE}" "${RECEIVER_NAME}" "${DEVICE_ID}"
+if [ ! -s "${PCAP_CAPTURE}" ]; then
+    write_result fail capture "captured pcap is missing or empty"
+    echo "captured pcap is missing or empty: ${PCAP_CAPTURE}" >&2
+    exit 1
+fi
+
+echo "=== Analyzing captured mDNS pcap ==="
+set +e
+"${BUILD_DIR}/harness/mdns/aplay_harness_mdns_replay" \
+    "${PCAP_CAPTURE}" "${RECEIVER_NAME}" "${DEVICE_ID}" >"${REPLAY_LOG}" 2>&1
+REPLAY_STATUS=$?
+set -e
+cat "${REPLAY_LOG}"
+
+if [ "${REPLAY_STATUS}" -ne 0 ]; then
+    write_result fail pcap-analysis "mDNS replay analysis failed"
+    echo "mDNS replay analysis failed for ${PCAP_CAPTURE}" >&2
+    exit "${REPLAY_STATUS}"
+fi
+
+write_result pass pcap-analysis "mDNS capture analysis passed"
+echo "=== mDNS harness validation passed ==="
