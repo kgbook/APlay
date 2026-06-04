@@ -12,9 +12,19 @@
  *  Lesser General Public License for more details.
  */
 
-#pragma once
+#include "mdns_responder_thread.hpp"
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+MdnsResponderThread::MdnsResponderThread(const std::function<bool()>& run_once)
+    : core::Thread("aplay-mdns"), run_once_(run_once) {}
+
+bool MdnsResponderThread::runOnce() {
+    return run_once_();
+}
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

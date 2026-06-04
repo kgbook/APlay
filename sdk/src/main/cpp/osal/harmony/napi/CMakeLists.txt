@@ -2,7 +2,7 @@ include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_napi)
 set(LOCAL_SRC_FILES
     napi_entry.cpp)
-set(LOCAL_OBJECT_LIBRARIES
+set(LOCAL_INTERFACE_LIBRARIES
     aplay_cpp_sdk)
 set(LOCAL_SHARED_LIBRARIES
     libace_napi.z.so)

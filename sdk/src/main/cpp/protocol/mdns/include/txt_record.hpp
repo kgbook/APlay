@@ -14,7 +14,20 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include <cstdint>
+#include <string>
+#include <vector>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+struct TxtRecord {
+    std::vector<std::uint8_t> bytes;
+
+    bool add(const std::string& key, const std::string& value);
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

@@ -12,29 +12,27 @@
  *  Lesser General Public License for more details.
  */
 
-#include "mdns_parser.hpp"
-#include "mdns_constants.hpp"
-#include "mdns_internal.hpp"
+#include "txt_record.hpp"
+
+#include <limits>
 
 namespace aplay {
 namespace protocol {
 namespace mdns {
 
-std::vector<std::uint8_t> build_ptr_query(const std::vector<std::string>& names,
-                                          bool request_unicast) {
-    internal::PacketWriter packet;
-    packet.put_u16(0);
-    packet.put_u16(0);
-    packet.put_u16(static_cast<std::uint16_t>(names.size()));
-    packet.put_u16(0);
-    packet.put_u16(0);
-    packet.put_u16(0);
-    for (const std::string& name : names) {
-        packet.put_name(name);
-        packet.put_u16(kTypePtr);
-        packet.put_u16(kClassIn | (request_unicast ? kUnicastResponse : 0));
+bool TxtRecord::add(const std::string& key, const std::string& value) {
+    if (key.empty() || key.find('=') != std::string::npos) {
+        return false;
     }
-    return packet.take();
+    const std::size_t length = key.size() + 1 + value.size();
+    if (length > std::numeric_limits<std::uint8_t>::max() || bytes.size() + 1 + length > 512) {
+        return false;
+    }
+    bytes.push_back(static_cast<std::uint8_t>(length));
+    bytes.insert(bytes.end(), key.begin(), key.end());
+    bytes.push_back('=');
+    bytes.insert(bytes.end(), value.begin(), value.end());
+    return true;
 }
 
 } // namespace mdns

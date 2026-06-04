@@ -12,30 +12,26 @@
  *  Lesser General Public License for more details.
  */
 
-#include "mdns_parser.hpp"
-#include "mdns_constants.hpp"
-#include "mdns_internal.hpp"
+#pragma once
+
+#include <cstdint>
 
 namespace aplay {
 namespace protocol {
 namespace mdns {
 
-std::vector<std::uint8_t> build_ptr_query(const std::vector<std::string>& names,
-                                          bool request_unicast) {
-    internal::PacketWriter packet;
-    packet.put_u16(0);
-    packet.put_u16(0);
-    packet.put_u16(static_cast<std::uint16_t>(names.size()));
-    packet.put_u16(0);
-    packet.put_u16(0);
-    packet.put_u16(0);
-    for (const std::string& name : names) {
-        packet.put_name(name);
-        packet.put_u16(kTypePtr);
-        packet.put_u16(kClassIn | (request_unicast ? kUnicastResponse : 0));
-    }
-    return packet.take();
-}
+static const std::uint16_t kPort = 5353;
+static const std::uint32_t kServiceTtl = 4500;
+static const std::uint32_t kHostTtl = 120;
+
+static const std::uint16_t kTypeA = 1;
+static const std::uint16_t kTypePtr = 12;
+static const std::uint16_t kTypeTxt = 16;
+static const std::uint16_t kTypeSrv = 33;
+static const std::uint16_t kTypeAny = 255;
+static const std::uint16_t kClassIn = 1;
+static const std::uint16_t kCacheFlush = 0x8000;
+static const std::uint16_t kUnicastResponse = 0x8000;
 
 } // namespace mdns
 } // namespace protocol

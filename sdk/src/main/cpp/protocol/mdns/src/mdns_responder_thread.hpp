@@ -14,7 +14,25 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include "thread.hpp"
+
+#include <functional>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+class MdnsResponderThread : public core::Thread {
+public:
+    explicit MdnsResponderThread(const std::function<bool()>& run_once);
+
+protected:
+    bool runOnce() override;
+
+private:
+    std::function<bool()> run_once_;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

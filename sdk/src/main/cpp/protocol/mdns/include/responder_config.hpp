@@ -14,7 +14,22 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include "mdns_service.hpp"
+
+#include <cstdint>
+#include <string>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+struct ResponderConfig {
+    std::string host_name = "APlay.local";
+    std::uint32_t ipv4_address = 0; // Network byte order.
+    Service airplay;
+    Service raop;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

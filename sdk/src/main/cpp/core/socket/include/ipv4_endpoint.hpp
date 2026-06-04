@@ -12,37 +12,27 @@
  *  Lesser General Public License for more details.
  */
 
-#ifndef APLAY_CORE_POLLER_HPP
-#define APLAY_CORE_POLLER_HPP
-
-#include "poll_event.hpp"
+#ifndef APLAY_CORE_IPV4_ENDPOINT_HPP
+#define APLAY_CORE_IPV4_ENDPOINT_HPP
 
 #include <cstdint>
-#include <vector>
+#include <string>
 
 namespace aplay {
 namespace core {
+namespace socket {
 
-class Poller {
-public:
-    class Impl;
-
-    Poller();
-    ~Poller();
-
-    Poller(const Poller&) = delete;
-    Poller& operator=(const Poller&) = delete;
-
-    bool add(int fd, std::uint32_t events);
-    bool update(int fd, std::uint32_t events);
-    void remove(int fd);
-    int wait(std::vector<PollEvent>& events, int timeout_ms);
-
-private:
-    Impl* impl_;
+struct Ipv4Endpoint {
+    std::uint32_t address = 0; // Host byte order.
+    std::uint16_t port = 0;
 };
 
+std::uint32_t default_ipv4_address_for_route(const std::string& remote_address,
+                                             std::uint16_t remote_port);
+Ipv4Endpoint make_ipv4_endpoint(const std::string& address, std::uint16_t port);
+
+} // namespace socket
 } // namespace core
 } // namespace aplay
 
-#endif // APLAY_CORE_POLLER_HPP
+#endif // APLAY_CORE_IPV4_ENDPOINT_HPP

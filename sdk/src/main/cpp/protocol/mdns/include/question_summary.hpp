@@ -14,7 +14,19 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include <cstdint>
+#include <string>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+struct QuestionSummary {
+    std::string name;
+    std::uint16_t type = 0;
+    std::uint16_t dns_class = 0;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

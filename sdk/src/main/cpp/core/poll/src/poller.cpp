@@ -12,202 +12,24 @@
  *  Lesser General Public License for more details.
  */
 
-#include "poller.hpp"
-
-#include <algorithm>
-#include <cerrno>
-#include <cstring>
-
-#if defined(__linux__) || defined(__ANDROID__)
-#include <sys/epoll.h>
-#include <unistd.h>
-#else
-#include <poll.h>
-#endif
+#include "poller_impl.hpp"
 
 namespace aplay {
 namespace core {
+
 namespace {
 
+Poller::Impl* create_poller_impl() {
 #if defined(__linux__) || defined(__ANDROID__)
-std::uint32_t to_native_events(std::uint32_t events) {
-    std::uint32_t native = 0;
-    if ((events & kPollReadable) != 0) {
-        native |= EPOLLIN;
-    }
-    if ((events & kPollWritable) != 0) {
-        native |= EPOLLOUT;
-    }
-    return native;
-}
-
-std::uint32_t from_native_events(std::uint32_t events) {
-    std::uint32_t out = 0;
-    if ((events & EPOLLIN) != 0) {
-        out |= kPollReadable;
-    }
-    if ((events & EPOLLOUT) != 0) {
-        out |= kPollWritable;
-    }
-    if ((events & (EPOLLERR | EPOLLHUP)) != 0) {
-        out |= kPollError;
-    }
-    return out;
-}
+    return create_epoll_poller_impl();
 #else
-short to_native_events(std::uint32_t events) {
-    short native = 0;
-    if ((events & kPollReadable) != 0) {
-        native = static_cast<short>(native | POLLIN);
-    }
-    if ((events & kPollWritable) != 0) {
-        native = static_cast<short>(native | POLLOUT);
-    }
-    return native;
-}
-
-std::uint32_t from_native_events(short events) {
-    std::uint32_t out = 0;
-    if ((events & POLLIN) != 0) {
-        out |= kPollReadable;
-    }
-    if ((events & POLLOUT) != 0) {
-        out |= kPollWritable;
-    }
-    if ((events & (POLLERR | POLLHUP | POLLNVAL)) != 0) {
-        out |= kPollError;
-    }
-    return out;
-}
+    return create_poll_poller_impl();
 #endif
+}
 
 } // namespace
 
-class Poller::Impl {
-public:
-    Impl() {
-#if defined(__linux__) || defined(__ANDROID__)
-        epoll_fd_ = ::epoll_create1(EPOLL_CLOEXEC);
-#endif
-    }
-
-    ~Impl() {
-#if defined(__linux__) || defined(__ANDROID__)
-        if (epoll_fd_ != -1) {
-            ::close(epoll_fd_);
-        }
-#endif
-    }
-
-    bool add(int fd, std::uint32_t events) {
-        if (fd == -1) {
-            return false;
-        }
-#if defined(__linux__) || defined(__ANDROID__)
-        if (epoll_fd_ == -1) {
-            return false;
-        }
-        epoll_event event;
-        std::memset(&event, 0, sizeof(event));
-        event.events = to_native_events(events);
-        event.data.fd = fd;
-        return ::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &event) == 0;
-#else
-        remove(fd);
-        pollfd item;
-        std::memset(&item, 0, sizeof(item));
-        item.fd = fd;
-        item.events = to_native_events(events);
-        poll_fds_.push_back(item);
-        return true;
-#endif
-    }
-
-    bool update(int fd, std::uint32_t events) {
-        if (fd == -1) {
-            return false;
-        }
-#if defined(__linux__) || defined(__ANDROID__)
-        if (epoll_fd_ == -1) {
-            return false;
-        }
-        epoll_event event;
-        std::memset(&event, 0, sizeof(event));
-        event.events = to_native_events(events);
-        event.data.fd = fd;
-        return ::epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event) == 0;
-#else
-        for (std::size_t i = 0; i < poll_fds_.size(); ++i) {
-            if (poll_fds_[i].fd == fd) {
-                poll_fds_[i].events = to_native_events(events);
-                return true;
-            }
-        }
-        return add(fd, events);
-#endif
-    }
-
-    void remove(int fd) {
-        if (fd == -1) {
-            return;
-        }
-#if defined(__linux__) || defined(__ANDROID__)
-        if (epoll_fd_ != -1) {
-            ::epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, NULL);
-        }
-#else
-        poll_fds_.erase(std::remove_if(poll_fds_.begin(), poll_fds_.end(),
-                                       [fd](const pollfd& item) { return item.fd == fd; }),
-                        poll_fds_.end());
-#endif
-    }
-
-    int wait(std::vector<PollEvent>& events, int timeout_ms) {
-        events.clear();
-#if defined(__linux__) || defined(__ANDROID__)
-        if (epoll_fd_ == -1) {
-            return -1;
-        }
-        epoll_event native_events[16];
-        const int ready = ::epoll_wait(epoll_fd_, native_events, 16, timeout_ms);
-        if (ready <= 0) {
-            return ready;
-        }
-        for (int i = 0; i < ready; ++i) {
-            PollEvent event;
-            event.fd = native_events[i].data.fd;
-            event.events = from_native_events(native_events[i].events);
-            events.push_back(event);
-        }
-        return ready;
-#else
-        const int ready = ::poll(poll_fds_.empty() ? NULL : &poll_fds_[0],
-                                 poll_fds_.size(), timeout_ms);
-        if (ready <= 0) {
-            return ready;
-        }
-        for (std::size_t i = 0; i < poll_fds_.size(); ++i) {
-            if (poll_fds_[i].revents == 0) {
-                continue;
-            }
-            PollEvent event;
-            event.fd = poll_fds_[i].fd;
-            event.events = from_native_events(poll_fds_[i].revents);
-            events.push_back(event);
-        }
-        return ready;
-#endif
-    }
-
-private:
-#if defined(__linux__) || defined(__ANDROID__)
-    int epoll_fd_ = -1;
-#else
-    std::vector<pollfd> poll_fds_;
-#endif
-};
-
-Poller::Poller() : impl_(new Impl()) {}
+Poller::Poller() : impl_(create_poller_impl()) {}
 
 Poller::~Poller() {
     delete impl_;

@@ -31,7 +31,7 @@ By default it starts the UDP 5353 multicast responder and keeps sending AirPlay/
 
 ## Android Build
 
-`app/android/build.gradle.kts` is the Android app entrypoint. The Android Gradle root is named `APlayReceiver`; it depends on the `:APlaySdk` Java SDK module which lives in `sdk/src/main/java` and calls native code through the `sdk/src/main/cpp/osal/android/jni` JNI binding, which links the C++ SDK object library (`aplay_cpp_sdk`) and loads `APlaySdk` at runtime. 
+`app/android/build.gradle.kts` is the Android app entrypoint. The Android Gradle root is named `APlayReceiver`; it depends on the `:APlaySdk` Java SDK module which lives in `sdk/src/main/java` and calls native code through the `sdk/src/main/cpp/osal/android/jni` JNI binding, which links the C++ SDK facade (`aplay_cpp_sdk`) and loads `APlaySdk` at runtime. 
 
 The Android build uses `APLAY_BUILD_ANDROID=ON`.
 

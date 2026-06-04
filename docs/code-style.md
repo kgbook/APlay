@@ -35,3 +35,6 @@
 - C++11 compatible
 - Logs: `ALog.h` only
 - POSIX APIs + STL; no platform APIs outside platform modules
+- Define one primary C++ class per source file, third-party code is exempt. 
+When a module needs multiple implementations of the same abstraction, keep each concrete implementation in
+its own `lower_snake_case` source file and share only the minimal private sinterface needed to connect them.

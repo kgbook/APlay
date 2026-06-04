@@ -14,7 +14,23 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include "txt_record.hpp"
+
+#include <cstdint>
+#include <string>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+struct Service {
+    std::string type;
+    std::string instance;
+    std::uint16_t port = 0;
+    TxtRecord txt;
+    bool registered = false;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

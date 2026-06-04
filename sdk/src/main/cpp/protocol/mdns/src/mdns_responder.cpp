@@ -12,12 +12,13 @@
  *  Lesser General Public License for more details.
  */
 
-#include "mdns.hpp"
+#include "mdns_responder.hpp"
+#include "mdns_parser.hpp"
 #include "mdns_internal.hpp"
+#include "mdns_responder_thread.hpp"
 
 #include "event_loop.hpp"
 #include "socket.hpp"
-#include "thread.hpp"
 
 #include <array>
 #include <functional>
@@ -39,7 +40,10 @@ core::socket::Ipv4Endpoint multicast_endpoint() {
 class MdnsResponder::Impl {
 public:
     explicit Impl(MdnsResponder& responder)
-        : responder_(responder), socket_(), loop_(), thread_(*this) {}
+        : responder_(responder),
+          socket_(),
+          loop_(),
+          thread_(std::bind(&Impl::run_once, this)) {}
 
     ~Impl() {
         stop();
@@ -100,18 +104,9 @@ public:
     }
 
 private:
-    class ResponderThread : public core::Thread {
-    public:
-        explicit ResponderThread(Impl& owner) : core::Thread("aplay-mdns"), owner_(owner) {}
-
-    protected:
-        bool runOnce() override {
-            return owner_.loop_.run_once(250);
-        }
-
-    private:
-        Impl& owner_;
-    };
+    bool run_once() {
+        return loop_.run_once(250);
+    }
 
     void handle_readable(int fd) {
         (void)fd;
@@ -153,7 +148,7 @@ private:
     std::mutex mutex_;
     core::socket::UdpSocket socket_;
     core::EventLoop loop_;
-    ResponderThread thread_;
+    MdnsResponderThread thread_;
 };
 
 MdnsResponder::MdnsResponder()

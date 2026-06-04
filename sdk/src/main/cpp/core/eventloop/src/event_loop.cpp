@@ -110,8 +110,8 @@ public:
 
 private:
     void consume_wake() {
-        char bytes[32];
-        while (::read(wake_fds_[0], bytes, sizeof(bytes)) > 0) {
+        char byte;
+        while (::read(wake_fds_[0], &byte, 1) > 0) {
         }
     }
 

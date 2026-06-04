@@ -46,20 +46,17 @@ include(${BUILD_INTERFACE_LIBRARY})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_cpp_sdk)
-set(LOCAL_SRC_FILES
-    core/runtime/runtime.cpp)
 set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/runtime/include)
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_native)
-include(${BUILD_OBJECT_LIBRARY})
+    aplay_native
+    aplay_core_runtime)
+include(${BUILD_INTERFACE_LIBRARY})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_sdk_static)
-set(LOCAL_OBJECT_LIBRARIES
-    aplay_cpp_sdk)
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_native)
+    aplay_cpp_sdk)
 set(LOCAL_MODULE_FILENAME
     APlaySdk)
 include(${BUILD_STATIC_LIBRARY})
@@ -71,16 +68,14 @@ set(LOCAL_PREBUILT_MODULE_TYPE
 set(LOCAL_PREBUILT_LOCATION
     $<TARGET_FILE:aplay_sdk_static>)
 set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/core/runtime/include)
 include(${BUILD_PREBUILT})
 
 if(APLAY_BUILD_LINUX)
     include(${CLEAR_VARS})
     set(LOCAL_MODULE aplay_sdk)
-    set(LOCAL_OBJECT_LIBRARIES
-        aplay_cpp_sdk)
     set(LOCAL_INTERFACE_LIBRARIES
-        aplay_native)
+        aplay_cpp_sdk)
     set(LOCAL_MODULE_FILENAME
         APlaySdk)
     include(${BUILD_SHARED_LIBRARY})

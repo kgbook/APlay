@@ -14,7 +14,26 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include <cstdint>
+#include <string>
+#include <vector>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+struct RecordSummary {
+    std::string name;
+    std::uint16_t type = 0;
+    std::uint16_t dns_class = 0;
+    std::uint32_t ttl = 0;
+    std::string ptr_name;
+    std::string srv_target;
+    std::uint16_t srv_port = 0;
+    std::uint32_t ipv4_address = 0; // Network byte order.
+    std::vector<std::string> txt;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

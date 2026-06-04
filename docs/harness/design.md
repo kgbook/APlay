@@ -36,7 +36,7 @@ harness 由 agent/CI 调用；mDNS announce/replay 验证工具位于 `harness/m
 ### Runtime
 
 - `APlayReceiver` 不要求传入 options，应可直接启动。
-- `aplay_cpp_sdk` 作为对象库承载共享 SDK 源码，公共 runtime 实现位于 `sdk/src/main/cpp/core/runtime`。
+- `aplay_cpp_sdk` 作为 SDK facade 复用 core 导出的公共 runtime，runtime 实现位于 `sdk/src/main/cpp/core/runtime`。
 - `aplay_sdk` 可构建并输出 `libAPlaySdk.so`。
 - `aplay_jni` 可作为 Java SDK native binding 构建，并为 Android 打包输出 `libAPlaySdk.so`。
 - `aplay_napi` 保留 ETS SDK native binding 条件编译入口，并由 Harmony HAR native 构建启用。
@@ -58,7 +58,7 @@ harness 由 agent/CI 调用；mDNS announce/replay 验证工具位于 `harness/m
 
 当前 harness 已实现：
 
-- `sdk` C++ SDK 对象库与 `libAPlaySdk.so` 可编译入口。
+- `sdk` C++ SDK facade 与 `libAPlaySdk.so` 可编译入口。
 - `sdk` Java SDK `APlaySdk` AAR 可编译入口。
 - `sdk` ETS SDK/Harmony HAR module 入口及 NAPI native module 类型声明包。
 - `app/android` 可编译入口通过 `:APlaySdk` 使用 SDK。

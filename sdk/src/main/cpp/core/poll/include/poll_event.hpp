@@ -12,9 +12,24 @@
  *  Lesser General Public License for more details.
  */
 
-#pragma once
+#ifndef APLAY_CORE_POLL_EVENT_HPP
+#define APLAY_CORE_POLL_EVENT_HPP
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include <cstdint>
+
+namespace aplay {
+namespace core {
+
+static const std::uint32_t kPollReadable = 0x01;
+static const std::uint32_t kPollWritable = 0x02;
+static const std::uint32_t kPollError = 0x04;
+
+struct PollEvent {
+    int fd = -1;
+    std::uint32_t events = 0;
+};
+
+} // namespace core
+} // namespace aplay
+
+#endif // APLAY_CORE_POLL_EVENT_HPP

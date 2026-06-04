@@ -14,7 +14,18 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include <cstdint>
+#include <vector>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+struct ResponsePlan {
+    std::vector<std::vector<std::uint8_t>> packets;
+    bool wants_unicast = false;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

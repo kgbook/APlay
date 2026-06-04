@@ -1,15 +1,13 @@
 include(${CLEAR_VARS})
-set(LOCAL_MODULE aplay_core_poll_objects)
+set(LOCAL_MODULE aplay_core_runtime_objects)
 set(LOCAL_SRC_FILES
-    src/epoll_poller_impl.cpp
-    src/poll_poller_impl.cpp
-    src/poller.cpp)
+    runtime.cpp)
 set(LOCAL_EXPORT_C_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 include(${BUILD_OBJECT_LIBRARY})
 
 include(${CLEAR_VARS})
-set(LOCAL_MODULE aplay_core_poll)
+set(LOCAL_MODULE aplay_core_runtime)
 set(LOCAL_OBJECT_LIBRARIES
-    aplay_core_poll_objects)
+    aplay_core_runtime_objects)
 include(${BUILD_INTERFACE_LIBRARY})

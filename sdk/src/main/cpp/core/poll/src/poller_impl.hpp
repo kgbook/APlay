@@ -12,37 +12,28 @@
  *  Lesser General Public License for more details.
  */
 
-#ifndef APLAY_CORE_POLLER_HPP
-#define APLAY_CORE_POLLER_HPP
+#ifndef APLAY_CORE_POLLER_IMPL_HPP
+#define APLAY_CORE_POLLER_IMPL_HPP
 
-#include "poll_event.hpp"
-
-#include <cstdint>
-#include <vector>
+#include "poller.hpp"
 
 namespace aplay {
 namespace core {
 
-class Poller {
+class Poller::Impl {
 public:
-    class Impl;
+    virtual ~Impl() {}
 
-    Poller();
-    ~Poller();
-
-    Poller(const Poller&) = delete;
-    Poller& operator=(const Poller&) = delete;
-
-    bool add(int fd, std::uint32_t events);
-    bool update(int fd, std::uint32_t events);
-    void remove(int fd);
-    int wait(std::vector<PollEvent>& events, int timeout_ms);
-
-private:
-    Impl* impl_;
+    virtual bool add(int fd, std::uint32_t events) = 0;
+    virtual bool update(int fd, std::uint32_t events) = 0;
+    virtual void remove(int fd) = 0;
+    virtual int wait(std::vector<PollEvent>& events, int timeout_ms) = 0;
 };
+
+Poller::Impl* create_epoll_poller_impl();
+Poller::Impl* create_poll_poller_impl();
 
 } // namespace core
 } // namespace aplay
 
-#endif // APLAY_CORE_POLLER_HPP
+#endif // APLAY_CORE_POLLER_IMPL_HPP

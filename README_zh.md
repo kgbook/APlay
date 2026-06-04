@@ -31,7 +31,7 @@ build/linux/harness/mdns/aplay_harness_mdns_announce APlayHarness
 
 ## Android 构建
 
-`app/android/build.gradle.kts` 是 Android app 入口。Android Gradle root 命名为 `APlayReceiver`，并依赖 `:APlaySdk` Java SDK module。Java SDK 位于 `sdk/src/main/java`，native 接口通过 `sdk/src/main/cpp/osal/android/jni` 的 JNI binding 连接 C++ SDK 对象库（`aplay_cpp_sdk`），运行时加载 `APlaySdk`。Android 构建时通过 `APLAY_BUILD_ANDROID=ON` 进入。
+`app/android/build.gradle.kts` 是 Android app 入口。Android Gradle root 命名为 `APlayReceiver`，并依赖 `:APlaySdk` Java SDK module。Java SDK 位于 `sdk/src/main/java`，native 接口通过 `sdk/src/main/cpp/osal/android/jni` 的 JNI binding 连接 C++ SDK facade（`aplay_cpp_sdk`），运行时加载 `APlaySdk`。Android 构建时通过 `APLAY_BUILD_ANDROID=ON` 进入。
 
 ```sh
 ./scripts/android_build.sh

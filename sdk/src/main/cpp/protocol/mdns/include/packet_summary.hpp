@@ -14,7 +14,22 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include "question_summary.hpp"
+#include "record_summary.hpp"
+
+#include <cstdint>
+#include <vector>
+
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+struct PacketSummary {
+    std::uint16_t flags = 0;
+    std::vector<QuestionSummary> questions;
+    std::vector<RecordSummary> answers;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay

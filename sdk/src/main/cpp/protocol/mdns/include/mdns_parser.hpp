@@ -12,30 +12,32 @@
  *  Lesser General Public License for more details.
  */
 
-#include "mdns_parser.hpp"
-#include "mdns_constants.hpp"
-#include "mdns_internal.hpp"
+#pragma once
+
+#include "mdns_types.hpp"
+
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <vector>
 
 namespace aplay {
 namespace protocol {
 namespace mdns {
 
+class MdnsParser {
+public:
+    static bool parse_packet(const std::uint8_t* bytes, std::size_t length,
+                             PacketSummary& summary);
+    static bool parse_question(const std::uint8_t* bytes, std::size_t length,
+                               std::size_t& offset, QuestionSummary& question);
+    static bool parse_record(const std::uint8_t* bytes, std::size_t length,
+                             std::size_t& offset, RecordSummary& record);
+};
+
+bool parse_packet(const std::uint8_t* bytes, std::size_t length, PacketSummary& summary);
 std::vector<std::uint8_t> build_ptr_query(const std::vector<std::string>& names,
-                                          bool request_unicast) {
-    internal::PacketWriter packet;
-    packet.put_u16(0);
-    packet.put_u16(0);
-    packet.put_u16(static_cast<std::uint16_t>(names.size()));
-    packet.put_u16(0);
-    packet.put_u16(0);
-    packet.put_u16(0);
-    for (const std::string& name : names) {
-        packet.put_name(name);
-        packet.put_u16(kTypePtr);
-        packet.put_u16(kClassIn | (request_unicast ? kUnicastResponse : 0));
-    }
-    return packet.take();
-}
+                                          bool request_unicast);
 
 } // namespace mdns
 } // namespace protocol
