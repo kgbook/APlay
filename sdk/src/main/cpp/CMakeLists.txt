@@ -53,10 +53,13 @@ set(LOCAL_INTERFACE_LIBRARIES
     aplay_core_runtime)
 include(${BUILD_INTERFACE_LIBRARY})
 
+add_subdirectory(osal)
+
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_sdk_static)
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_cpp_sdk)
+    aplay_cpp_sdk
+    osal)
 set(LOCAL_MODULE_FILENAME
     APlaySdk)
 include(${BUILD_STATIC_LIBRARY})
@@ -69,16 +72,17 @@ set(LOCAL_PREBUILT_LOCATION
     $<TARGET_FILE:aplay_sdk_static>)
 set(LOCAL_EXPORT_C_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/core/runtime/include)
+set(LOCAL_INTERFACE_LIBRARIES
+    osal)
 include(${BUILD_PREBUILT})
 
 if(APLAY_BUILD_LINUX)
     include(${CLEAR_VARS})
     set(LOCAL_MODULE aplay_sdk)
     set(LOCAL_INTERFACE_LIBRARIES
-        aplay_cpp_sdk)
+        aplay_cpp_sdk
+        osal)
     set(LOCAL_MODULE_FILENAME
         APlaySdk)
     include(${BUILD_SHARED_LIBRARY})
 endif()
-
-add_subdirectory(osal)

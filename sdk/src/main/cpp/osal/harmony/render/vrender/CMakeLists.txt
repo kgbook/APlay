@@ -1,1 +1,3 @@
-# Harmony video render OSAL module placeholder.
+include(${CLEAR_VARS})
+set(LOCAL_MODULE vrender)
+include(${BUILD_INTERFACE_LIBRARY})

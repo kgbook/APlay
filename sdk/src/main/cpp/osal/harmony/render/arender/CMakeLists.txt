@@ -1,1 +1,3 @@
-# Harmony audio render OSAL module placeholder.
+include(${CLEAR_VARS})
+set(LOCAL_MODULE arender)
+include(${BUILD_INTERFACE_LIBRARY})
