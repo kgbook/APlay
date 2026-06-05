@@ -217,7 +217,7 @@ check_capture_permissions
 
 echo "=== Syncing and updating submodules ==="
 git -C "${ROOT_DIR}" submodule sync --recursive
-git -C "${ROOT_DIR}" submodule update --init --recursive
+git -C "${ROOT_DIR}" submodule update --init --remote --recursive
 
 cmake -S "${ROOT_DIR}/app/linux" -B "${BUILD_DIR}" -G Ninja \
     -DAPLAY_BUILD_LINUX=ON \

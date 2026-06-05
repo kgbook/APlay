@@ -1,9 +1,12 @@
 [submodule "sdk/src/main/cpp/third-party/xdebug"]
 	path = sdk/src/main/cpp/third-party/xdebug
 	url = https://github.com/kgbook/xdebug
+	branch = main
 [submodule "sdk/src/main/cpp/third-party/SpdlogHelper"]
 	path = sdk/src/main/cpp/third-party/SpdlogHelper
 	url = https://github.com/kgbook/SpdlogHelper.git
+	branch = main
 [submodule "cmake/CMakeHelper"]
 	path = cmake/CMakeHelper
 	url = https://github.com/kgbook/CMakeHelper.git
+	branch = main
