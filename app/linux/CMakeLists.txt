@@ -17,48 +17,17 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(APLAY_SDK_CPP_DIR "${TOP_DIR}/sdk/src/main/cpp")
-set(APLAY_LOG_INCLUDE_DIR "${APLAY_SDK_CPP_DIR}/third-party/SpdlogHelper/helper")
+set(APLAY_BUILD_LINUX ON CACHE BOOL "Build Linux platform native modules")
 
-if(NOT TARGET cpp_sdk)
-    set(LOCAL_CMAKE_LISTS_DIR "${APLAY_SDK_CPP_DIR}")
-    set(LOCAL_CMAKE_LISTS_BINARY_DIR "${CMAKE_BINARY_DIR}/sdk-cpp")
-    include("${LOCAL_BUILD_SYSTEM_PATH}/internal/AddCMakeListDirectory.cmake")
-endif()
-
-include(${CLEAR_VARS})
-set(LOCAL_MODULE aplay_linux_runtime_objects)
-set(LOCAL_SRC_FILES
-    runtime.cpp)
-set(LOCAL_EXPORT_C_INCLUDES
-    "${CMAKE_CURRENT_SOURCE_DIR}/include")
-set(LOCAL_C_INCLUDES
-    "${APLAY_LOG_INCLUDE_DIR}")
-set(LOCAL_INTERFACE_LIBRARIES
-    native)
-include(${BUILD_OBJECT_LIBRARY})
-
-include(${CLEAR_VARS})
-set(LOCAL_MODULE aplay_linux_runtime)
-set(LOCAL_OBJECT_LIBRARIES
-    aplay_linux_runtime_objects)
-set(LOCAL_INTERFACE_LIBRARIES
-    native)
-include(${BUILD_INTERFACE_LIBRARY})
+add_subdirectory("${TOP_DIR}/sdk/src/main/cpp" "${CMAKE_BINARY_DIR}/sdk-cpp")
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE APlayReceiver)
-set(LOCAL_SRC_FILES
-    main.cpp)
-set(LOCAL_INTERFACE_LIBRARIES
-    aplay_linux_runtime)
-set(LOCAL_RUNTIME_OUTPUT_DIRECTORY
-    ${CMAKE_BINARY_DIR})
+set(LOCAL_SRC_FILES main.cpp runtime.cpp)
+set(LOCAL_INTERFACE_LIBRARIES cpp_sdk SpdlogHelper)
+set(LOCAL_C_INCLUDES include)
+set(LOCAL_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 include(${BUILD_EXECUTABLE})
-
-if(APLAY_BUILD_EXAMPLES)
-    set(APLAY_BUILD_HARNESS ON)
-endif()
 
 if(APLAY_BUILD_HARNESS)
     enable_testing()

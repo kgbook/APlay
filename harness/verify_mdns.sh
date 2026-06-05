@@ -215,9 +215,7 @@ echo "=== Checking Linux harness dependencies ==="
 check_dependencies
 check_capture_permissions
 
-echo "=== Syncing and updating submodules ==="
-git -C "${ROOT_DIR}" submodule sync --recursive
-git -C "${ROOT_DIR}" submodule update --init --remote --recursive
+sh "${ROOT_DIR}/scripts/update_submodules.sh" "${ROOT_DIR}"
 
 cmake -S "${ROOT_DIR}/app/linux" -B "${BUILD_DIR}" -G Ninja \
     -DAPLAY_BUILD_LINUX=ON \

@@ -23,31 +23,9 @@ set(APLAY_SDK_CPP_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
-set(LOCAL_MODULE native)
-set(LOCAL_INTERFACE_LIBRARIES
-    core
-    flow
-    crypto
-    protocol
-    streaming)
-include(${BUILD_INTERFACE_LIBRARY})
-
-include(${CLEAR_VARS})
 set(LOCAL_MODULE cpp_sdk)
-set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/runtime/include)
+set(LOCAL_EXPORT_C_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/core/runtime/include)
 set(LOCAL_INTERFACE_LIBRARIES
-    native)
+        osal  core  flow crypto
+        protocol streaming)
 include(${BUILD_INTERFACE_LIBRARY})
-
-include(${CLEAR_VARS})
-set(LOCAL_MODULE sdk_prebuilt)
-set(LOCAL_PREBUILT_MODULE_TYPE
-    STATIC)
-set(LOCAL_PREBUILT_LOCATION
-    $<TARGET_FILE:sdk_static>)
-set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/core/runtime/include)
-set(LOCAL_INTERFACE_LIBRARIES
-    osal)
-include(${BUILD_PREBUILT})
