@@ -12,7 +12,7 @@
  *  Lesser General Public License for more details.
  */
 
-#include "txt_record.hpp"
+#include "impl/txt_record.hpp"
 
 #include <limits>
 

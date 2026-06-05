@@ -1,3 +1,3 @@
 include(${CLEAR_VARS})
-set(LOCAL_MODULE aplay_protocol_rtsp)
+set(LOCAL_MODULE rtsp)
 include(${BUILD_INTERFACE_LIBRARY})

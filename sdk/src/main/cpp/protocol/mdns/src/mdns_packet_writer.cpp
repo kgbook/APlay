@@ -13,7 +13,7 @@
  */
 
 #include "mdns_internal.hpp"
-#include "mdns_constants.hpp"
+#include "impl/mdns_constants.hpp"
 
 #include <algorithm>
 #include <cctype>

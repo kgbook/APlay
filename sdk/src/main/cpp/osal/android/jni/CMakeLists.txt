@@ -3,7 +3,8 @@ set(LOCAL_MODULE jni)
 set(LOCAL_SRC_FILES
     native_entry.cpp)
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_cpp_sdk
+    cpp_sdk
+    runtime
     osal)
 set(LOCAL_MODULE_FILENAME
     APlaySdk)

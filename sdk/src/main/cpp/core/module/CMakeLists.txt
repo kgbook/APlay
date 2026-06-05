@@ -1,3 +1,3 @@
 include(${CLEAR_VARS})
-set(LOCAL_MODULE aplay_core_module)
+set(LOCAL_MODULE module)
 include(${BUILD_INTERFACE_LIBRARY})

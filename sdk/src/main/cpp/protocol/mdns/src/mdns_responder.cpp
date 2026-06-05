@@ -12,8 +12,8 @@
  *  Lesser General Public License for more details.
  */
 
-#include "mdns_responder.hpp"
-#include "mdns_parser.hpp"
+#include "impl/mdns_responder.hpp"
+#include "impl/mdns_parser.hpp"
 #include "mdns_internal.hpp"
 #include "mdns_responder_thread.hpp"
 

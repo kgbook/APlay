@@ -3,7 +3,8 @@ set(LOCAL_MODULE napi)
 set(LOCAL_SRC_FILES
     napi_entry.cpp)
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_cpp_sdk
+    cpp_sdk
+    runtime
     osal)
 set(LOCAL_SHARED_LIBRARIES
     libace_napi.z.so)

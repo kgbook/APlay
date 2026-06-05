@@ -12,7 +12,7 @@
  *  Lesser General Public License for more details.
  */
 
-#include "udp_socket.hpp"
+#include "impl/udp_socket.hpp"
 #include "socket_internal.hpp"
 
 #include <arpa/inet.h>

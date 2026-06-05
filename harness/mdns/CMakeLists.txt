@@ -10,8 +10,8 @@ set(LOCAL_SRC_FILES
 set(LOCAL_C_INCLUDES
     ${APLAY_LOG_INCLUDE_DIR})
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_protocol
-    aplay_streaming)
+    protocol
+    streaming)
 set(LOCAL_RUNTIME_OUTPUT_DIRECTORY
     ${APLAY_HARNESS_MDNS_OUTPUT_DIR})
 include(${BUILD_EXECUTABLE})
@@ -23,8 +23,8 @@ set(LOCAL_SRC_FILES
 set(LOCAL_C_INCLUDES
     ${APLAY_LOG_INCLUDE_DIR})
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_protocol
-    aplay_streaming)
+    protocol
+    streaming)
 set(LOCAL_RUNTIME_OUTPUT_DIRECTORY
     ${APLAY_HARNESS_MDNS_OUTPUT_DIR})
 include(${BUILD_EXECUTABLE})

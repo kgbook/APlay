@@ -20,7 +20,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(APLAY_SDK_CPP_DIR "${TOP_DIR}/sdk/src/main/cpp")
 set(APLAY_LOG_INCLUDE_DIR "${APLAY_SDK_CPP_DIR}/third-party/SpdlogHelper/helper")
 
-if(NOT TARGET aplay_cpp_sdk)
+if(NOT TARGET cpp_sdk)
     set(LOCAL_CMAKE_LISTS_DIR "${APLAY_SDK_CPP_DIR}")
     set(LOCAL_CMAKE_LISTS_BINARY_DIR "${CMAKE_BINARY_DIR}/sdk-cpp")
     include("${LOCAL_BUILD_SYSTEM_PATH}/internal/AddCMakeListDirectory.cmake")
@@ -35,7 +35,7 @@ set(LOCAL_EXPORT_C_INCLUDES
 set(LOCAL_C_INCLUDES
     "${APLAY_LOG_INCLUDE_DIR}")
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_native)
+    native)
 include(${BUILD_OBJECT_LIBRARY})
 
 include(${CLEAR_VARS})
@@ -43,7 +43,7 @@ set(LOCAL_MODULE aplay_linux_runtime)
 set(LOCAL_OBJECT_LIBRARIES
     aplay_linux_runtime_objects)
 set(LOCAL_INTERFACE_LIBRARIES
-    aplay_native)
+    native)
 include(${BUILD_INTERFACE_LIBRARY})
 
 include(${CLEAR_VARS})

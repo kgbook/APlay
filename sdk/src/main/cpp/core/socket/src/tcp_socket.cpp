@@ -12,7 +12,7 @@
  *  Lesser General Public License for more details.
  */
 
-#include "tcp_socket.hpp"
+#include "impl/tcp_socket.hpp"
 #include "socket_internal.hpp"
 
 #include <sys/socket.h>

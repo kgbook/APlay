@@ -1,3 +1,7 @@
+if (NOT APLAY_BUILD_LINUX)
+    return()
+endif ()
+
 include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})

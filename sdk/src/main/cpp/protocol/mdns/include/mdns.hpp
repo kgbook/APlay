@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "mdns_constants.hpp"
-#include "mdns_parser.hpp"
-#include "mdns_responder.hpp"
-#include "mdns_types.hpp"
+#include "impl/mdns_constants.hpp"
+#include "impl/mdns_parser.hpp"
+#include "impl/mdns_responder.hpp"
+#include "impl/mdns_types.hpp"

@@ -14,20 +14,5 @@
 
 #pragma once
 
-#include "impl/ipv4_endpoint.hpp"
-
-#include <netinet/in.h>
-
-namespace aplay {
-namespace core {
-namespace socket {
-namespace internal {
-
-void close_fd(int& fd);
-sockaddr_in to_sockaddr(const Ipv4Endpoint& endpoint);
-Ipv4Endpoint from_sockaddr(const sockaddr_in& addr);
-
-} // namespace internal
-} // namespace socket
-} // namespace core
-} // namespace aplay
+#include "impl/poll_event.hpp"
+#include "impl/poller.hpp"

@@ -12,8 +12,8 @@
  *  Lesser General Public License for more details.
  */
 
-#include "mdns_parser.hpp"
-#include "mdns_constants.hpp"
+#include "impl/mdns_parser.hpp"
+#include "impl/mdns_constants.hpp"
 #include "mdns_internal.hpp"
 
 namespace aplay {

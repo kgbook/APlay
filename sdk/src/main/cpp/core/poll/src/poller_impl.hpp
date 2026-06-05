@@ -15,7 +15,7 @@
 #ifndef APLAY_CORE_POLLER_IMPL_HPP
 #define APLAY_CORE_POLLER_IMPL_HPP
 
-#include "poller.hpp"
+#include "poll.hpp"
 
 namespace aplay {
 namespace core {
