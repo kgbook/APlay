@@ -72,3 +72,4 @@ git submodule update --init --recursive
 ## TODO
 
 - BLE service discovery.
+- Support RTOS.
