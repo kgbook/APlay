@@ -1,10 +1,4 @@
-set(APLAY_ANDROID_CODEC_MODULES
-    acodec
-    vcodec)
-
-foreach(APLAY_ANDROID_CODEC_MODULE IN LISTS APLAY_ANDROID_CODEC_MODULES)
-    add_subdirectory(${APLAY_ANDROID_CODEC_MODULE})
-endforeach()
+include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE codec)

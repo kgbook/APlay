@@ -23,16 +23,7 @@ if(APLAY_BUILD_HARNESS)
     set(APLAY_BUILD_EXAMPLES ON)
 endif()
 
-set(APLAY_NATIVE_MODULES
-    core
-    flow
-    crypto
-    protocol
-    streaming)
-
-foreach(APLAY_NATIVE_MODULE IN LISTS APLAY_NATIVE_MODULES)
-    add_subdirectory(${APLAY_NATIVE_MODULE})
-endforeach()
+include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_native)
@@ -52,8 +43,6 @@ set(LOCAL_INTERFACE_LIBRARIES
     aplay_native
     aplay_core_runtime)
 include(${BUILD_INTERFACE_LIBRARY})
-
-add_subdirectory(osal)
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_sdk_static)

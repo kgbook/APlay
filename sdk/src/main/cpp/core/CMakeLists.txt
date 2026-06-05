@@ -1,24 +1,4 @@
-set(APLAY_CORE_MODULES
-    eventloop
-    network/interface
-    pattern
-    poll
-    runtime
-    socket
-    thread)
-
-foreach(APLAY_CORE_MODULE IN LISTS APLAY_CORE_MODULES)
-    add_subdirectory(${APLAY_CORE_MODULE})
-endforeach()
-
-set(APLAY_OPTIONAL_CORE_MODULES
-    module)
-
-foreach(APLAY_CORE_MODULE IN LISTS APLAY_OPTIONAL_CORE_MODULES)
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${APLAY_CORE_MODULE}/CMakeLists.txt")
-        add_subdirectory(${APLAY_CORE_MODULE})
-    endif()
-endforeach()
+include(${ALL_CMAKELISTS_UNDER})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_core)

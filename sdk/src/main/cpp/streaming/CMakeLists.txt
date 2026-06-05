@@ -1,12 +1,4 @@
-set(APLAY_STREAMING_MODULES
-    airplay
-    hls
-    jitterbuffer
-    raop)
-
-foreach(APLAY_STREAMING_MODULE IN LISTS APLAY_STREAMING_MODULES)
-    add_subdirectory(${APLAY_STREAMING_MODULE})
-endforeach()
+include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_streaming)

@@ -1,11 +1,4 @@
-set(APLAY_CRYPTO_MODULES
-    aes
-    ed25519
-    fairplay)
-
-foreach(APLAY_CRYPTO_MODULE IN LISTS APLAY_CRYPTO_MODULES)
-    add_subdirectory(${APLAY_CRYPTO_MODULE})
-endforeach()
+include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE aplay_crypto)

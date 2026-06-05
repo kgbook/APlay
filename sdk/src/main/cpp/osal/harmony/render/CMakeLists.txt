@@ -1,10 +1,4 @@
-set(APLAY_HARMONY_RENDER_MODULES
-    arender
-    vrender)
-
-foreach(APLAY_HARMONY_RENDER_MODULE IN LISTS APLAY_HARMONY_RENDER_MODULES)
-    add_subdirectory(${APLAY_HARMONY_RENDER_MODULE})
-endforeach()
+include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE render)
