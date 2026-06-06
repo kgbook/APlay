@@ -14,6 +14,13 @@
 
 #include "network_interface.hpp"
 
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <netinet/in.h>
+
+#include <cstring>
+
 namespace aplay {
 namespace core {
 namespace network {
@@ -47,6 +54,52 @@ bool parse_ipv4_address(const std::string& text, std::uint32_t& address) {
     }
 
     if (start <= text.size()) {
+        return false;
+    }
+    address = result;
+    return true;
+}
+
+bool parse_ipv6_address(const std::string& text, std::array<std::uint8_t, 16>& address) {
+    std::array<std::uint8_t, 16> result{};
+    if (::inet_pton(AF_INET6, text.c_str(), result.data()) != 1) {
+        return false;
+    }
+    address = result;
+    return true;
+}
+
+bool default_ipv6_address(std::array<std::uint8_t, 16>& address) {
+    ifaddrs* addrs = NULL;
+    if (::getifaddrs(&addrs) != 0) {
+        return false;
+    }
+
+    bool found = false;
+    std::array<std::uint8_t, 16> result{};
+    for (ifaddrs* entry = addrs; entry != NULL; entry = entry->ifa_next) {
+        if (entry->ifa_addr == NULL || entry->ifa_addr->sa_family != AF_INET6 ||
+            (entry->ifa_flags & IFF_UP) == 0 ||
+            (entry->ifa_flags & IFF_MULTICAST) == 0 ||
+            (entry->ifa_flags & IFF_LOOPBACK) != 0) {
+            continue;
+        }
+
+        const sockaddr_in6* addr = reinterpret_cast<const sockaddr_in6*>(entry->ifa_addr);
+        if (IN6_IS_ADDR_UNSPECIFIED(&addr->sin6_addr) ||
+            IN6_IS_ADDR_LOOPBACK(&addr->sin6_addr)) {
+            continue;
+        }
+
+        std::memcpy(result.data(), addr->sin6_addr.s6_addr, result.size());
+        found = true;
+        if (IN6_IS_ADDR_LINKLOCAL(&addr->sin6_addr)) {
+            break;
+        }
+    }
+    ::freeifaddrs(addrs);
+
+    if (!found) {
         return false;
     }
     address = result;

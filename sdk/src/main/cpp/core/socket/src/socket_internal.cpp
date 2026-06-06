@@ -47,6 +47,24 @@ Ipv4Endpoint from_sockaddr(const sockaddr_in& addr) {
     return endpoint;
 }
 
+sockaddr_in6 to_sockaddr(const Ipv6Endpoint& endpoint) {
+    sockaddr_in6 addr;
+    std::memset(&addr, 0, sizeof(addr));
+    addr.sin6_family = AF_INET6;
+    addr.sin6_port = htons(endpoint.port);
+    std::memcpy(addr.sin6_addr.s6_addr, endpoint.address.data(), endpoint.address.size());
+    addr.sin6_scope_id = endpoint.scope_id;
+    return addr;
+}
+
+Ipv6Endpoint from_sockaddr(const sockaddr_in6& addr) {
+    Ipv6Endpoint endpoint;
+    std::memcpy(endpoint.address.data(), addr.sin6_addr.s6_addr, endpoint.address.size());
+    endpoint.port = ntohs(addr.sin6_port);
+    endpoint.scope_id = addr.sin6_scope_id;
+    return endpoint;
+}
+
 } // namespace internal
 } // namespace socket
 } // namespace core

@@ -17,7 +17,7 @@ The script performs these steps:
 - Uses unprivileged capture only. The script does not request sudo or read sudo passwords.
 - Starts `aplay_harness_mdns_announce` with receiver name `APlayHarness`.
 - Stores the captured packets at `resources/pcap/mdns_announce.pcapng` by default.
-- Runs `aplay_harness_mdns_replay resources/pcap/mdns_announce.pcapng APlayHarness 02:00:00:00:00:01`.
+- Runs `aplay_harness_mdns_replay resources/pcap/mdns_announce.pcapng APlayHarness 02:00:00:00:00:01 APlayHarness.local`.
 
 Override knobs:
 
@@ -69,7 +69,7 @@ If this message still appears, check that the script being run is the current `h
 build/linux/harness/mdns/aplay_harness_mdns_announce APlayHarness
 ```
 
-It starts the POSIX mDNS responder on UDP 5353 and keeps broadcasting AirPlay/RAOP announcement packets until it receives `SIGINT` or `SIGTERM`.
+It starts the POSIX mDNS responder on UDP 5353 and keeps broadcasting AirPlay/RAOP announcement packets until it receives `SIGINT` or `SIGTERM`. The responder attempts both IPv4 `224.0.0.251:5353` and IPv6 `ff02::fb:5353` listeners and keeps running if at least one opens; host records include both `A` and `AAAA` when configured.
 
 Useful options:
 
@@ -81,7 +81,9 @@ Useful options:
 `build/linux/harness/mdns/aplay_harness_mdns_replay` validates generated responder output and scans a pcap file for DNS-encoded mDNS service names:
 
 ```sh
-build/linux/harness/mdns/aplay_harness_mdns_replay <pcap-file> [receiver-name] [device-id]
+build/linux/harness/mdns/aplay_harness_mdns_replay <pcap-file> [receiver-name] [device-id] [host-name]
 ```
 
-When receiver name and device id are omitted, replay uses the APlay harness defaults: `APlayHarness` and `02:00:00:00:00:01`. The Linux harness passes those values explicitly so the live capture is checked against the packet names that `announce` actually emits.
+When receiver name, device id, and host name are omitted, replay uses the APlay harness defaults: `APlayHarness`, `02:00:00:00:00:01`, and `APlayHarness.local`. The Linux harness passes those values explicitly so the live capture is checked against the packet names that `announce` actually emits. External reference captures can pass a different host name when the DNS-SD instance name and SRV target differ.
+
+Replay checks generated packet semantics and pcap contents. Generated packets must include PTR/SRV/TXT plus host `A` and `AAAA` records. Pcap scans require both IPv4 mDNS multicast (`224.0.0.251`) and IPv6 mDNS multicast (`ff02::fb`) traffic, plus receiver AirPlay/RAOP DNS-SD names and host `A`/`AAAA` records.

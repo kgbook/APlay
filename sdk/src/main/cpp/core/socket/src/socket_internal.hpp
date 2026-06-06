@@ -26,6 +26,8 @@ namespace internal {
 void close_fd(int& fd);
 sockaddr_in to_sockaddr(const Ipv4Endpoint& endpoint);
 Ipv4Endpoint from_sockaddr(const sockaddr_in& addr);
+sockaddr_in6 to_sockaddr(const Ipv6Endpoint& endpoint);
+Ipv6Endpoint from_sockaddr(const sockaddr_in6& addr);
 
 } // namespace internal
 } // namespace socket

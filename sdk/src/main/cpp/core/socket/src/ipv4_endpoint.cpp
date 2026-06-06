@@ -64,6 +64,19 @@ Ipv4Endpoint make_ipv4_endpoint(const std::string& address, std::uint16_t port) 
     return endpoint;
 }
 
+Ipv6Endpoint make_ipv6_endpoint(const std::string& address, std::uint16_t port,
+                                std::uint32_t scope_id) {
+    Ipv6Endpoint endpoint;
+    in6_addr addr;
+    std::memset(&addr, 0, sizeof(addr));
+    if (::inet_pton(AF_INET6, address.c_str(), &addr) == 1) {
+        std::memcpy(endpoint.address.data(), addr.s6_addr, endpoint.address.size());
+        endpoint.port = port;
+        endpoint.scope_id = scope_id;
+    }
+    return endpoint;
+}
+
 } // namespace socket
 } // namespace core
 } // namespace aplay

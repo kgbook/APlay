@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
     aplay::protocol::mdns::ResponderConfig config;
     config.host_name = receiver_name + ".local";
     aplay::core::network::parse_ipv4_address("127.0.0.1", config.ipv4_address);
+    aplay::core::network::parse_ipv6_address("::1", config.ipv6_address);
 
     aplay::streaming::airplay::ServiceProfile airplay_profile;
     airplay_profile.receiver_name = receiver_name;

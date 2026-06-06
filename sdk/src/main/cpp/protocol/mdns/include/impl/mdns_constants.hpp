@@ -27,6 +27,7 @@ static const std::uint32_t kHostTtl = 120;
 static const std::uint16_t kTypeA = 1;
 static const std::uint16_t kTypePtr = 12;
 static const std::uint16_t kTypeTxt = 16;
+static const std::uint16_t kTypeAaaa = 28;
 static const std::uint16_t kTypeSrv = 33;
 static const std::uint16_t kTypeAny = 255;
 static const std::uint16_t kClassIn = 1;

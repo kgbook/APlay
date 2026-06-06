@@ -30,6 +30,7 @@ static const std::uint16_t kFlagResponse = 0x8000;
 static const std::uint16_t kFlagAuthoritative = 0x0400;
 static const char kServicesName[] = "_services._dns-sd._udp.local";
 static const char kMulticastAddress[] = "224.0.0.251";
+static const char kMulticastAddressIpv6[] = "ff02::fb";
 
 class PacketWriter {
 public:

@@ -15,6 +15,7 @@
 #ifndef APLAY_CORE_IPV4_ENDPOINT_HPP
 #define APLAY_CORE_IPV4_ENDPOINT_HPP
 
+#include <array>
 #include <cstdint>
 #include <string>
 
@@ -27,9 +28,17 @@ struct Ipv4Endpoint {
     std::uint16_t port = 0;
 };
 
+struct Ipv6Endpoint {
+    std::array<std::uint8_t, 16> address{};
+    std::uint16_t port = 0;
+    std::uint32_t scope_id = 0;
+};
+
 std::uint32_t default_ipv4_address_for_route(const std::string& remote_address,
                                              std::uint16_t remote_port);
 Ipv4Endpoint make_ipv4_endpoint(const std::string& address, std::uint16_t port);
+Ipv6Endpoint make_ipv6_endpoint(const std::string& address, std::uint16_t port,
+                                std::uint32_t scope_id);
 
 } // namespace socket
 } // namespace core

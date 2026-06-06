@@ -16,6 +16,7 @@
 #define APLAY_CORE_NETWORK_INTERFACE_HPP
 
 #include <cstdint>
+#include <array>
 #include <string>
 
 namespace aplay {
@@ -23,6 +24,8 @@ namespace core {
 namespace network {
 
 bool parse_ipv4_address(const std::string& text, std::uint32_t& address);
+bool parse_ipv6_address(const std::string& text, std::array<std::uint8_t, 16>& address);
+bool default_ipv6_address(std::array<std::uint8_t, 16>& address);
 
 } // namespace network
 } // namespace core

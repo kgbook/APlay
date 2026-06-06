@@ -10,6 +10,7 @@ REPLAY_LOG="${APLAY_MDNS_REPLAY_LOG:-${RESULT_DIR}/mdns_replay.log}"
 CAPTURE_IFACE="${APLAY_CAPTURE_IFACE:-any}"
 RECEIVER_NAME="APlayHarness"
 DEVICE_ID="02:00:00:00:00:01"
+HOST_NAME="${RECEIVER_NAME}.local"
 ANNOUNCE_PID=
 CAPTURE_PID=
 CAPTURE_TOOL=
@@ -264,7 +265,7 @@ fi
 echo "=== Analyzing captured mDNS pcap ==="
 set +e
 "${BUILD_DIR}/harness/mdns/aplay_harness_mdns_replay" \
-    "${PCAP_CAPTURE}" "${RECEIVER_NAME}" "${DEVICE_ID}" >"${REPLAY_LOG}" 2>&1
+    "${PCAP_CAPTURE}" "${RECEIVER_NAME}" "${DEVICE_ID}" "${HOST_NAME}" >"${REPLAY_LOG}" 2>&1
 REPLAY_STATUS=$?
 set -e
 cat "${REPLAY_LOG}"

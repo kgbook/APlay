@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -31,6 +32,7 @@ struct RecordSummary {
     std::string srv_target;
     std::uint16_t srv_port = 0;
     std::uint32_t ipv4_address = 0; // Network byte order.
+    std::array<std::uint8_t, 16> ipv6_address{};
     std::vector<std::string> txt;
 };
 

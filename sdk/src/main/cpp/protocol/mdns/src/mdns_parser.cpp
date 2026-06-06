@@ -54,6 +54,13 @@ bool MdnsParser::parse_record(const std::uint8_t* bytes, std::size_t length,
             return false;
         }
         record.ipv4_address = internal::read_u32(bytes + offset);
+    } else if (record.type == kTypeAaaa) {
+        if (rdlength != record.ipv6_address.size()) {
+            return false;
+        }
+        for (std::size_t i = 0; i < record.ipv6_address.size(); ++i) {
+            record.ipv6_address[i] = bytes[offset + i];
+        }
     } else if (record.type == kTypeTxt) {
         std::size_t txt_offset = offset;
         while (txt_offset < rdata_offset + rdlength) {

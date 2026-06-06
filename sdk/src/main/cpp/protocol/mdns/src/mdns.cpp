@@ -111,6 +111,22 @@ bool add_a(PacketWriter& packet, const std::string& name, std::uint32_t addr,
     return true;
 }
 
+bool add_aaaa(PacketWriter& packet, const std::string& name,
+              const std::array<std::uint8_t, 16>& addr, std::uint32_t ttl) {
+    const std::array<std::uint8_t, 16> empty{};
+    if (addr == empty) {
+        return true;
+    }
+
+    std::size_t rdlength_pos = 0;
+    if (!begin_rr(packet, name, kTypeAaaa, kClassIn | kCacheFlush, ttl, rdlength_pos) ||
+        !packet.put_bytes(addr.data(), addr.size())) {
+        return false;
+    }
+    end_rr(packet, rdlength_pos);
+    return true;
+}
+
 bool add_service_records(PacketWriter& packet, const Service& service,
                          const std::string& host_name, std::uint32_t ttl,
                          std::uint16_t& answers) {
@@ -149,6 +165,13 @@ bool build_response(const ResponderConfig& config, bool include_airplay, bool in
             return false;
         }
         if (config.ipv4_address != 0) {
+            answers = static_cast<std::uint16_t>(answers + 1);
+        }
+        if (!add_aaaa(packet, config.host_name, config.ipv6_address, ttl == 0 ? 0 : kHostTtl)) {
+            return false;
+        }
+        const std::array<std::uint8_t, 16> empty{};
+        if (config.ipv6_address != empty) {
             answers = static_cast<std::uint16_t>(answers + 1);
         }
     }
@@ -224,7 +247,8 @@ bool question_matches_service(const ResponderConfig& config, const std::string& 
     }
 
     if (internal::name_equals(name, config.host_name) &&
-        internal::query_type_matches(type, kTypeA)) {
+        (internal::query_type_matches(type, kTypeA) ||
+         internal::query_type_matches(type, kTypeAaaa))) {
         host = true;
         return true;
     }

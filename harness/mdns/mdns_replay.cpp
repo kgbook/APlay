@@ -36,6 +36,7 @@ using aplay::protocol::mdns::ResponderConfig;
 const char kDefaultReceiverName[] = "APlayHarness";
 const char kDefaultDeviceId[] = "02:00:00:00:00:01";
 const char kDefaultIpv4Address[] = "127.0.0.1";
+const char kDefaultIpv6Address[] = "::1";
 
 bool require(bool condition, const char* message) {
     if (!condition) {
@@ -50,6 +51,9 @@ ResponderConfig make_config(const std::string& receiver_name, const std::string&
     config.host_name = receiver_name + ".local";
     if (!aplay::core::network::parse_ipv4_address(kDefaultIpv4Address, config.ipv4_address)) {
         LOGE("mdns_replay", "failed to parse harness IPv4 address");
+    }
+    if (!aplay::core::network::parse_ipv6_address(kDefaultIpv6Address, config.ipv6_address)) {
+        LOGE("mdns_replay", "failed to parse harness IPv6 address");
     }
 
     aplay::streaming::airplay::ServiceProfile airplay_profile;
@@ -115,6 +119,19 @@ bool pcap_contains_dns_name(const std::vector<unsigned char>& pcap, const std::s
     return std::search(pcap.begin(), pcap.end(), pattern.begin(), pattern.end()) != pcap.end();
 }
 
+bool pcap_contains_bytes(const std::vector<unsigned char>& pcap,
+                         const std::vector<unsigned char>& pattern) {
+    return std::search(pcap.begin(), pcap.end(), pattern.begin(), pattern.end()) != pcap.end();
+}
+
+bool pcap_contains_dns_record_type(const std::vector<unsigned char>& pcap,
+                                   const std::string& name, std::uint16_t type) {
+    std::vector<unsigned char> pattern = dns_name_pattern(name);
+    pattern.push_back(static_cast<unsigned char>((type >> 8) & 0xff));
+    pattern.push_back(static_cast<unsigned char>(type & 0xff));
+    return pcap_contains_bytes(pcap, pattern);
+}
+
 bool validate_generated_response() {
     MdnsResponder& responder = MdnsResponder::instance();
     const ResponderConfig config = make_config(kDefaultReceiverName, kDefaultDeviceId);
@@ -132,7 +149,7 @@ bool validate_generated_response() {
     if (!require(aplay::protocol::mdns::MdnsParser::parse_packet(
                      plan.packets[0].data(), plan.packets[0].size(), summary),
                  "generated response must parse") ||
-        !require(summary.answers.size() == 9, "combined response must include 9 answers")) {
+        !require(summary.answers.size() == 10, "combined response must include 10 answers")) {
         return false;
     }
 
@@ -151,6 +168,8 @@ bool validate_generated_response() {
                  "missing RAOP SRV") ||
         !require(has_record(answers, config.host_name, aplay::protocol::mdns::kTypeA),
                  "missing host A record") ||
+        !require(has_record(answers, config.host_name, aplay::protocol::mdns::kTypeAaaa),
+                 "missing host AAAA record") ||
         !require(has_txt_item(answers, config.airplay.instance, "features=0x527FFEE6,0x0"),
                  "missing AirPlay features TXT") ||
         !require(has_txt_item(answers, config.raop.instance, "sr=44100"),
@@ -166,7 +185,8 @@ bool validate_generated_response() {
         }
         if ((answer.type == aplay::protocol::mdns::kTypeSrv ||
              answer.type == aplay::protocol::mdns::kTypeTxt ||
-             answer.type == aplay::protocol::mdns::kTypeA) &&
+             answer.type == aplay::protocol::mdns::kTypeA ||
+             answer.type == aplay::protocol::mdns::kTypeAaaa) &&
             !require((answer.dns_class & aplay::protocol::mdns::kCacheFlush) != 0,
                      "unique records must set cache flush")) {
             return false;
@@ -198,7 +218,7 @@ std::string raop_instance_name(const std::string& receiver_name,
 }
 
 bool validate_pcap_capture(const char* path, const std::string& receiver_name,
-                           const std::string& device_id) {
+                           const std::string& device_id, const std::string& host_name) {
     std::ifstream input(path, std::ios::binary);
     if (!input) {
         LOGE("mdns_replay", "failed to open pcap capture: %s", path);
@@ -207,7 +227,13 @@ bool validate_pcap_capture(const char* path, const std::string& receiver_name,
 
     const std::vector<unsigned char> data{std::istreambuf_iterator<char>(input),
                                           std::istreambuf_iterator<char>()};
-    return require(pcap_contains_dns_name(data, "_airplay._tcp.local"),
+    return require(pcap_contains_bytes(data, {0xe0, 0x00, 0x00, 0xfb}),
+                   "pcap is missing IPv4 mDNS multicast address 224.0.0.251") &&
+           require(pcap_contains_bytes(data,
+                                       {0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfb}),
+                   "pcap is missing IPv6 mDNS multicast address ff02::fb") &&
+           require(pcap_contains_dns_name(data, "_airplay._tcp.local"),
                    "pcap is missing _airplay._tcp.local DNS name") &&
            require(pcap_contains_dns_name(data, "_raop._tcp.local"),
                    "pcap is missing _raop._tcp.local DNS name") &&
@@ -216,21 +242,29 @@ bool validate_pcap_capture(const char* path, const std::string& receiver_name,
            require(pcap_contains_dns_name(data, receiver_name + "._airplay._tcp.local"),
                    "pcap is missing receiver AirPlay instance") &&
            require(pcap_contains_dns_name(data, raop_instance_name(receiver_name, device_id)),
-                   "pcap is missing receiver RAOP instance");
+                   "pcap is missing receiver RAOP instance") &&
+           require(pcap_contains_dns_record_type(data, host_name,
+                                                aplay::protocol::mdns::kTypeA),
+                   "pcap is missing receiver host A record") &&
+           require(pcap_contains_dns_record_type(data, host_name,
+                                                aplay::protocol::mdns::kTypeAaaa),
+                   "pcap is missing receiver host AAAA record");
 }
 
 } // namespace
 
 int main(int argc, char** argv) {
-    if (argc < 2 || argc > 4) {
+    if (argc < 2 || argc > 5) {
         LOGE("mdns_replay",
-             "usage: aplay_harness_mdns_replay <pcap-capture> [receiver-name] [device-id]");
+             "usage: aplay_harness_mdns_replay <pcap-capture> [receiver-name] [device-id] [host-name]");
         return 2;
     }
 
     const std::string receiver_name = argc >= 3 ? argv[2] : kDefaultReceiverName;
     const std::string device_id = argc >= 4 ? argv[3] : kDefaultDeviceId;
-    if (!validate_generated_response() || !validate_pcap_capture(argv[1], receiver_name, device_id)) {
+    const std::string host_name = argc >= 5 ? argv[4] : receiver_name + ".local";
+    if (!validate_generated_response() ||
+        !validate_pcap_capture(argv[1], receiver_name, device_id, host_name)) {
         return 1;
     }
 

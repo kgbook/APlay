@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace aplay {
 namespace core {
@@ -42,7 +43,10 @@ public:
 
     bool send_to(const std::uint8_t* bytes, std::size_t length,
                  const Ipv4Endpoint& endpoint) const;
+    bool send_to(const std::uint8_t* bytes, std::size_t length,
+                 const Ipv6Endpoint& endpoint) const;
     int receive_from(std::uint8_t* bytes, std::size_t length, Ipv4Endpoint& endpoint) const;
+    int receive_from(std::uint8_t* bytes, std::size_t length, Ipv6Endpoint& endpoint) const;
 
 private:
     int fd_;
@@ -51,6 +55,9 @@ private:
 UdpSocket open_ipv4_udp_multicast_socket(std::uint16_t port,
                                          const std::string& multicast_address,
                                          std::uint32_t interface_address);
+UdpSocket open_ipv6_udp_multicast_socket(std::uint16_t port,
+                                         const std::string& multicast_address);
+std::vector<unsigned int> ipv6_multicast_interface_indices();
 
 } // namespace socket
 } // namespace core

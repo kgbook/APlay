@@ -16,6 +16,7 @@
 
 #include "mdns_service.hpp"
 
+#include <array>
 #include <cstdint>
 #include <string>
 
@@ -26,6 +27,7 @@ namespace mdns {
 struct ResponderConfig {
     std::string host_name = "APlay.local";
     std::uint32_t ipv4_address = 0; // Network byte order.
+    std::array<std::uint8_t, 16> ipv6_address{};
     Service airplay;
     Service raop;
 };
