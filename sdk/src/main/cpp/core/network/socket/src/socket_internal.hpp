@@ -14,26 +14,22 @@
 
 #pragma once
 
-#include "mdns_service.hpp"
+#include "impl/ipv4or6_endpoint.hpp"
 
-#include <array>
-#include <cstdint>
-#include <string>
-#include <vector>
+#include <netinet/in.h>
 
 namespace aplay {
-namespace protocol {
-namespace mdns {
+namespace core {
+namespace socket {
+namespace internal {
 
-struct ResponderConfig {
-    std::string host_name = "APlay.local";
-    std::uint32_t ipv4_address = 0; // Host byte order.
-    std::vector<std::uint32_t> ipv4_addresses; // Host byte order.
-    std::array<std::uint8_t, 16> ipv6_address{};
-    Service airplay;
-    Service raop;
-};
+void close_fd(int& fd);
+sockaddr_in to_sockaddr(const Ipv4Endpoint& endpoint);
+Ipv4Endpoint from_sockaddr(const sockaddr_in& addr);
+sockaddr_in6 to_sockaddr(const Ipv6Endpoint& endpoint);
+Ipv6Endpoint from_sockaddr(const sockaddr_in6& addr);
 
-} // namespace mdns
-} // namespace protocol
+} // namespace internal
+} // namespace socket
+} // namespace core
 } // namespace aplay

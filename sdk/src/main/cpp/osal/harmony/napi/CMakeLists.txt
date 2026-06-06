@@ -1,13 +1,7 @@
 include(${CLEAR_VARS})
-set(LOCAL_MODULE napi)
-set(LOCAL_SRC_FILES
-    napi_entry.cpp)
-set(LOCAL_INTERFACE_LIBRARIES
-    cpp_sdk
-    runtime
-    osal)
-set(LOCAL_SHARED_LIBRARIES
-    libace_napi.z.so)
-set(LOCAL_MODULE_FILENAME
-    aplay_napi)
+set(LOCAL_MODULE APlaySdk)
+set(LOCAL_SRC_DIRS .)
+set(LOCAL_INTERFACE_LIBRARIES cpp_sdk)
+set(LOCAL_SHARED_LIBRARIES libace_napi.z.so)
+set(LOCAL_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 include(${BUILD_SHARED_LIBRARY})

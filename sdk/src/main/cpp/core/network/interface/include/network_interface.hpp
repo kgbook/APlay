@@ -17,6 +17,7 @@
 
 #include <cstdint>
 #include <array>
+#include <vector>
 #include <string>
 
 namespace aplay {
@@ -25,7 +26,12 @@ namespace network {
 
 bool parse_ipv4_address(const std::string& text, std::uint32_t& address);
 bool parse_ipv6_address(const std::string& text, std::array<std::uint8_t, 16>& address);
+
+bool default_ipv4_address(std::uint32_t& address);
 bool default_ipv6_address(std::array<std::uint8_t, 16>& address);
+
+std::vector<std::uint32_t> ipv4_multicast_interface_addresses();
+std::vector<unsigned int> ipv6_multicast_interface_indices();
 
 } // namespace network
 } // namespace core

@@ -22,6 +22,7 @@
 #include "socket.hpp"
 
 #include <array>
+#include <algorithm>
 #include <functional>
 #include <mutex>
 #include <utility>
@@ -48,6 +49,7 @@ public:
         : responder_(responder),
           ipv4_socket_(),
           ipv6_socket_(),
+          ipv4_multicast_interface_addresses_(),
           loop_(),
           thread_(std::bind(&Impl::run_once, this)) {}
 
@@ -62,9 +64,29 @@ public:
         }
 
         ResponderConfig config = responder_.config_;
-        if (config.ipv4_address == 0) {
-            config.ipv4_address =
-                core::socket::default_ipv4_address_for_route(internal::kMulticastAddress, kPort);
+        const bool configured_ipv4 =
+            config.ipv4_address != 0 || !config.ipv4_addresses.empty();
+        if (configured_ipv4) {
+            if (config.ipv4_address == 0 && !config.ipv4_addresses.empty()) {
+                config.ipv4_address = config.ipv4_addresses[0];
+            }
+            ipv4_multicast_interface_addresses_ = config.ipv4_addresses;
+            if (config.ipv4_address != 0 &&
+                std::find(ipv4_multicast_interface_addresses_.begin(),
+                          ipv4_multicast_interface_addresses_.end(),
+                          config.ipv4_address) == ipv4_multicast_interface_addresses_.end()) {
+                ipv4_multicast_interface_addresses_.insert(
+                    ipv4_multicast_interface_addresses_.begin(), config.ipv4_address);
+            }
+        } else {
+            ipv4_multicast_interface_addresses_ =
+                core::network::ipv4_multicast_interface_addresses();
+            config.ipv4_addresses = ipv4_multicast_interface_addresses_;
+            if (!config.ipv4_addresses.empty()) {
+                config.ipv4_address = config.ipv4_addresses[0];
+            } else {
+                core::network::default_ipv4_address(config.ipv4_address);
+            }
         }
         const std::array<std::uint8_t, 16> empty_ipv6{};
         if (config.ipv6_address == empty_ipv6) {
@@ -72,8 +94,12 @@ public:
         }
         responder_.config_ = config;
 
+        const std::uint32_t ipv4_socket_interface =
+            configured_ipv4 && ipv4_multicast_interface_addresses_.size() <= 1 ?
+                responder_.config_.ipv4_address :
+                0;
         ipv4_socket_ = core::socket::open_ipv4_udp_multicast_socket(
-            kPort, internal::kMulticastAddress, responder_.config_.ipv4_address);
+            kPort, internal::kMulticastAddress, ipv4_socket_interface);
         ipv6_socket_ =
             core::socket::open_ipv6_udp_multicast_socket(kPort, internal::kMulticastAddressIpv6);
         if (!ipv4_socket_.valid() && !ipv6_socket_.valid()) {
@@ -131,16 +157,17 @@ public:
             std::lock_guard<std::mutex> lock(mutex_);
             packets = responder_.build_announcement(ttl);
         }
-        send_ipv4_packets(packets, multicast_endpoint(), false);
+        send_ipv4_multicast_packets(packets);
         send_ipv6_multicast_packets(packets, 0);
     }
 
 private:
-    bool run_once() {
+    bool run_once() const
+    {
         return loop_.run_once(250);
     }
 
-    void handle_ipv4_readable(int fd) {
+    void handle_ipv4_readable(const int fd) {
         (void)fd;
         std::array<std::uint8_t, internal::kMaxPacketSize> buffer;
         core::socket::Ipv4Endpoint from;
@@ -159,13 +186,13 @@ private:
             plan = responder_.handle_query(buffer.data(), static_cast<std::size_t>(received));
         }
 
-        send_ipv4_packets(plan.packets, multicast_endpoint(), false);
+        send_ipv4_multicast_packets(plan.packets);
         if (plan.wants_unicast || from.port != kPort) {
             send_ipv4_packets(plan.packets, from, true);
         }
     }
 
-    void handle_ipv6_readable(int fd) {
+    void handle_ipv6_readable(const int fd) {
         (void)fd;
         std::array<std::uint8_t, internal::kMaxPacketSize> buffer;
         core::socket::Ipv6Endpoint from;
@@ -190,13 +217,32 @@ private:
         }
     }
 
+    void send_ipv4_multicast_packets(const std::vector<std::vector<std::uint8_t> >& packets) {
+        std::vector<std::uint32_t> addresses;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            addresses = ipv4_multicast_interface_addresses_;
+        }
+        if (addresses.empty()) {
+            send_ipv4_packets(packets, multicast_endpoint(), false);
+            return;
+        }
+        for (std::size_t i = 0; i < addresses.size(); ++i) {
+            send_ipv4_packets(packets, multicast_endpoint(), false, addresses[i]);
+        }
+    }
+
     void send_ipv4_packets(const std::vector<std::vector<std::uint8_t> >& packets,
                            const core::socket::Ipv4Endpoint& endpoint,
-                           bool allow_empty_endpoint) {
+                           bool allow_empty_endpoint,
+                           std::uint32_t multicast_interface_address = 0) {
         if (!allow_empty_endpoint && endpoint.address == 0) {
             return;
         }
         std::lock_guard<std::mutex> lock(mutex_);
+        if (multicast_interface_address != 0) {
+            ipv4_socket_.set_ipv4_multicast_interface(multicast_interface_address);
+        }
         for (std::size_t i = 0; i < packets.size(); ++i) {
             ipv4_socket_.send_to(packets[i].data(), packets[i].size(), endpoint);
         }
@@ -209,7 +255,7 @@ private:
 
     void send_ipv6_multicast_packets(const std::vector<std::vector<std::uint8_t> >& packets,
                                      std::uint32_t fallback_scope_id) {
-        std::vector<unsigned int> indices = core::socket::ipv6_multicast_interface_indices();
+        std::vector<unsigned int> indices = core::network::ipv6_multicast_interface_indices();
         if (indices.empty() && fallback_scope_id != 0) {
             indices.push_back(fallback_scope_id);
         }
@@ -239,6 +285,7 @@ private:
     std::mutex mutex_;
     core::socket::UdpSocket ipv4_socket_;
     core::socket::UdpSocket ipv6_socket_;
+    std::vector<std::uint32_t> ipv4_multicast_interface_addresses_;
     core::EventLoop loop_;
     MdnsResponderThread thread_;
 };

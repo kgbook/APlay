@@ -9,8 +9,6 @@
 
 #include "mdns.hpp"
 #include "network_interface.hpp"
-#include "airplay.hpp"
-#include "raop.hpp"
 
 #include "ALog.h"
 
@@ -55,14 +53,14 @@ int main(int argc, char** argv) {
     aplay::core::network::parse_ipv4_address("127.0.0.1", config.ipv4_address);
     aplay::core::network::parse_ipv6_address("::1", config.ipv6_address);
 
-    aplay::streaming::airplay::ServiceProfile airplay_profile;
+    aplay::protocol::mdns::AirPlayServiceProfile airplay_profile;
     airplay_profile.receiver_name = receiver_name;
     airplay_profile.model = "APlayExample";
-    config.airplay = aplay::streaming::airplay::make_airplay_service(airplay_profile);
+    config.airplay = aplay::protocol::mdns::make_airplay_service(airplay_profile);
 
-    aplay::streaming::raop::ServiceProfile raop_profile;
+    aplay::protocol::mdns::RaopServiceProfile raop_profile;
     raop_profile.receiver_name = receiver_name;
-    config.raop = aplay::streaming::raop::make_raop_service(raop_profile);
+    config.raop = aplay::protocol::mdns::make_raop_service(raop_profile);
 
     aplay::protocol::mdns::MdnsResponder& responder =
         aplay::protocol::mdns::MdnsResponder::instance();

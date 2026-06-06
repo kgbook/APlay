@@ -1,6 +1,6 @@
 include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
-set(LOCAL_MODULE third-party)
-set(LOCAL_INTERFACE_LIBRARIES SpdlogHelper xdebug)
+set(LOCAL_MODULE network)
+set(LOCAL_INTERFACE_LIBRARIES interface socket)
 include(${BUILD_INTERFACE_LIBRARY})

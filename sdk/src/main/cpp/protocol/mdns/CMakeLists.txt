@@ -1,19 +1,12 @@
 include(${CLEAR_VARS})
 set(LOCAL_MODULE mdns)
-set(LOCAL_SRC_FILES
-    src/mdns.cpp
-    src/mdns_packet.cpp
-    src/mdns_packet_writer.cpp
-    src/mdns_parser.cpp
-    src/mdns_responder.cpp
-    src/mdns_responder_thread.cpp
-    src/txt_record.cpp)
-set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(LOCAL_SRC_DIRS src)
+set(LOCAL_EXPORT_C_INCLUDES include)
 set(LOCAL_INTERFACE_LIBRARIES
     eventloop
     interface
     pattern
+    SpdlogHelper
     socket
     thread)
-include(${BUILD_STATIC_LIBRARY})
+include(${BUILD_OBJECT_LIBRARY})

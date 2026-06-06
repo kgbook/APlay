@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <map>
 #include <atomic>
 #include <vector>
 
@@ -56,7 +57,7 @@ public:
         }
     }
 
-    bool add_reader(int fd, FdCallback callback) {
+    bool add_reader(const int fd, const FdCallback& callback) {
         if (fd == -1 || !callback) {
             return false;
         }
@@ -109,7 +110,8 @@ public:
     }
 
 private:
-    void consume_wake() {
+    void consume_wake() const
+    {
         char byte;
         while (::read(wake_fds_[0], &byte, 1) > 0) {
         }
@@ -127,27 +129,33 @@ EventLoop::~EventLoop() {
     delete impl_;
 }
 
-bool EventLoop::add_reader(int fd, FdCallback callback) {
+bool EventLoop::add_reader(const int fd, const FdCallback& callback) const
+{
     return impl_->add_reader(fd, callback);
 }
 
-void EventLoop::remove(int fd) {
+void EventLoop::remove(int fd) const
+{
     impl_->remove(fd);
 }
 
-bool EventLoop::run_once(int timeout_ms) {
+bool EventLoop::run_once(int timeout_ms) const
+{
     return impl_->run_once(timeout_ms);
 }
 
-void EventLoop::run() {
+void EventLoop::run() const
+{
     impl_->run();
 }
 
-void EventLoop::stop() {
+void EventLoop::stop() const
+{
     impl_->stop();
 }
 
-void EventLoop::wake() {
+void EventLoop::wake() const
+{
     impl_->wake();
 }
 

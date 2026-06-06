@@ -23,13 +23,51 @@ namespace aplay {
 namespace protocol {
 namespace mdns {
 
-struct Service {
-    std::string type;
-    std::string instance;
-    std::uint16_t port = 0;
-    TxtRecord txt;
-    bool registered = false;
-};
+    struct Service {
+        std::string type;
+        std::string instance;
+        std::uint16_t port = 0;
+        TxtRecord txt;
+        bool registered = false;
+    };
+
+    struct AirPlayServiceProfile {
+        std::string receiver_name = "APlay";
+        std::string device_id = "02:00:00:00:00:01";
+        std::string features = "0x527FFEE6,0x0";
+        std::string flags = "0x4";
+        std::string model = "APlayReceiver";
+        std::string source_version = "220.68";
+        std::string protocol_version = "2";
+        bool password_required = false;
+        bool include_password_required = false;
+        std::uint16_t port = 7000;
+    };
+
+    struct RaopServiceProfile {
+        std::string receiver_name = "APlay";
+        std::string device_id = "02:00:00:00:00:01";
+        std::string channels = "2";
+        std::string codecs = "0,1,2,3";
+        std::string encryption_types = "0,3,5";
+        std::string features = "0x527FFEE6,0x0";
+        std::string metadata_types = "0,1,2";
+        std::string sample_rate = "44100";
+        std::string sample_size = "16";
+        std::string transport = "UDP";
+        std::string txt_version = "1";
+        std::string source_version = "220.68";
+        std::string protocol_version = "2";
+        bool password_required = false;
+        bool include_password_required = false;
+        std::uint16_t port = 7000;
+    };
+
+    Service make_airplay_service(const AirPlayServiceProfile& profile);
+    Service make_airplay_service(const std::string& receiver_name, std::uint16_t port);
+
+    Service make_raop_service(const RaopServiceProfile& profile);
+    Service make_raop_service(const std::string& receiver_name, std::uint16_t port);
 
 } // namespace mdns
 } // namespace protocol

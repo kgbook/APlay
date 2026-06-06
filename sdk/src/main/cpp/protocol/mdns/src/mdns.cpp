@@ -17,6 +17,8 @@
 #include "mdns_internal.hpp"
 
 #include <array>
+#include <algorithm>
+#include <vector>
 
 namespace aplay {
 namespace protocol {
@@ -127,6 +129,25 @@ bool add_aaaa(PacketWriter& packet, const std::string& name,
     return true;
 }
 
+bool add_a_records(PacketWriter& packet, const ResponderConfig& config, std::uint32_t ttl,
+                   std::uint16_t& answers) {
+    std::vector<std::uint32_t> addresses = config.ipv4_addresses;
+    if (config.ipv4_address != 0 &&
+        std::find(addresses.begin(), addresses.end(), config.ipv4_address) == addresses.end()) {
+        addresses.insert(addresses.begin(), config.ipv4_address);
+    }
+
+    for (std::size_t i = 0; i < addresses.size(); ++i) {
+        if (!add_a(packet, config.host_name, addresses[i], ttl == 0 ? 0 : kHostTtl)) {
+            return false;
+        }
+        if (addresses[i] != 0) {
+            answers = static_cast<std::uint16_t>(answers + 1);
+        }
+    }
+    return true;
+}
+
 bool add_service_records(PacketWriter& packet, const Service& service,
                          const std::string& host_name, std::uint32_t ttl,
                          std::uint16_t& answers) {
@@ -161,11 +182,8 @@ bool build_response(const ResponderConfig& config, bool include_airplay, bool in
         return false;
     }
     if (include_host) {
-        if (!add_a(packet, config.host_name, config.ipv4_address, ttl == 0 ? 0 : kHostTtl)) {
+        if (!add_a_records(packet, config, ttl, answers)) {
             return false;
-        }
-        if (config.ipv4_address != 0) {
-            answers = static_cast<std::uint16_t>(answers + 1);
         }
         if (!add_aaaa(packet, config.host_name, config.ipv6_address, ttl == 0 ? 0 : kHostTtl)) {
             return false;

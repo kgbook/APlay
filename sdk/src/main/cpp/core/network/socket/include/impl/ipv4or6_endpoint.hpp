@@ -34,8 +34,6 @@ struct Ipv6Endpoint {
     std::uint32_t scope_id = 0;
 };
 
-std::uint32_t default_ipv4_address_for_route(const std::string& remote_address,
-                                             std::uint16_t remote_port);
 Ipv4Endpoint make_ipv4_endpoint(const std::string& address, std::uint16_t port);
 Ipv6Endpoint make_ipv6_endpoint(const std::string& address, std::uint16_t port,
                                 std::uint32_t scope_id);

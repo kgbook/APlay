@@ -16,7 +16,6 @@
 #define APLAY_CORE_EVENT_LOOP_HPP
 
 #include <functional>
-#include <map>
 
 namespace aplay {
 namespace core {
@@ -31,12 +30,12 @@ public:
     EventLoop(const EventLoop&) = delete;
     EventLoop& operator=(const EventLoop&) = delete;
 
-    bool add_reader(int fd, FdCallback callback);
-    void remove(int fd);
-    bool run_once(int timeout_ms);
-    void run();
-    void stop();
-    void wake();
+    bool add_reader(int fd, const FdCallback& callback) const;
+    void remove(int fd) const;
+    bool run_once(int timeout_ms) const;
+    void run() const;
+    void stop() const;
+    void wake() const;
 
 private:
     class Impl;

@@ -15,7 +15,7 @@
 #ifndef APLAY_CORE_TCP_SOCKET_HPP
 #define APLAY_CORE_TCP_SOCKET_HPP
 
-#include "ipv4_endpoint.hpp"
+#include "ipv4or6_endpoint.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -48,6 +48,7 @@ private:
 };
 
 TcpSocket open_ipv4_tcp_socket();
+TcpSocket open_ipv6_tcp_socket();
 
 } // namespace socket
 } // namespace core

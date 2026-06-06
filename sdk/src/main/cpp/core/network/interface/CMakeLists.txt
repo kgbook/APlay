@@ -1,7 +1,5 @@
 include(${CLEAR_VARS})
 set(LOCAL_MODULE interface)
-set(LOCAL_SRC_FILES
-    src/network_interface.cpp)
-set(LOCAL_EXPORT_C_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
-include(${BUILD_STATIC_LIBRARY})
+set(LOCAL_EXPORT_C_INCLUDES include)
+set(LOCAL_SRC_DIRS src)
+include(${BUILD_OBJECT_LIBRARY})

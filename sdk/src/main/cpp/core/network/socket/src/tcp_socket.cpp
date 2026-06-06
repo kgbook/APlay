@@ -82,6 +82,10 @@ TcpSocket open_ipv4_tcp_socket() {
     return TcpSocket(::socket(AF_INET, SOCK_STREAM, 0));
 }
 
+TcpSocket open_ipv6_tcp_socket() {
+    return TcpSocket(::socket(AF_INET6, SOCK_STREAM, 0));
+}
+
 } // namespace socket
 } // namespace core
 } // namespace aplay

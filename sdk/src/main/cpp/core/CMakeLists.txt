@@ -1,14 +1,13 @@
-include(${ALL_CMAKELISTS_UNDER})
+include(${ALL_SUBDIR_CMAKELISTS})
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE core)
 set(LOCAL_INTERFACE_LIBRARIES
     pattern
     eventloop
-    interface
+    network
     poll
     runtime
-    socket
     thread
     module)
 include(${BUILD_INTERFACE_LIBRARY})

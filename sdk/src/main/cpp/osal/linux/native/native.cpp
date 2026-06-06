@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2026  kgbook
+*  Copyright (C) 2026  kgbook
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -11,25 +11,3 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
  */
-
-#pragma once
-
-#include "impl/ipv4_endpoint.hpp"
-
-#include <netinet/in.h>
-
-namespace aplay {
-namespace core {
-namespace socket {
-namespace internal {
-
-void close_fd(int& fd);
-sockaddr_in to_sockaddr(const Ipv4Endpoint& endpoint);
-Ipv4Endpoint from_sockaddr(const sockaddr_in& addr);
-sockaddr_in6 to_sockaddr(const Ipv6Endpoint& endpoint);
-Ipv6Endpoint from_sockaddr(const sockaddr_in6& addr);
-
-} // namespace internal
-} // namespace socket
-} // namespace core
-} // namespace aplay

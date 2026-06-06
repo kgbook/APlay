@@ -13,45 +13,19 @@
  */
 
 #include "impl/udp_socket.hpp"
+#include "network_interface.hpp"
 #include "socket_internal.hpp"
 
 #include <arpa/inet.h>
-#include <ifaddrs.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
-#include <algorithm>
 #include <cstring>
 #include <vector>
 
 namespace aplay {
 namespace core {
 namespace socket {
-std::vector<unsigned int> ipv6_multicast_interface_indices() {
-    std::vector<unsigned int> indices;
-    ifaddrs* addrs = NULL;
-    if (::getifaddrs(&addrs) != 0) {
-        return indices;
-    }
-
-    for (ifaddrs* entry = addrs; entry != NULL; entry = entry->ifa_next) {
-        if (entry->ifa_name == NULL || entry->ifa_addr == NULL ||
-            entry->ifa_addr->sa_family != AF_INET6 ||
-            (entry->ifa_flags & IFF_UP) == 0 ||
-            (entry->ifa_flags & IFF_MULTICAST) == 0) {
-            continue;
-        }
-
-        const unsigned int index = ::if_nametoindex(entry->ifa_name);
-        if (index != 0 && std::find(indices.begin(), indices.end(), index) == indices.end()) {
-            indices.push_back(index);
-        }
-    }
-    ::freeifaddrs(addrs);
-    return indices;
-}
-
 UdpSocket::UdpSocket() : fd_(-1) {}
 
 UdpSocket::UdpSocket(int fd) : fd_(fd) {}
@@ -139,6 +113,17 @@ int UdpSocket::receive_from(std::uint8_t* bytes, std::size_t length,
     return static_cast<int>(received);
 }
 
+bool UdpSocket::set_ipv4_multicast_interface(std::uint32_t interface_address) const {
+    if (!valid() || interface_address == 0) {
+        return false;
+    }
+
+    in_addr iface;
+    std::memset(&iface, 0, sizeof(iface));
+    iface.s_addr = htonl(interface_address);
+    return ::setsockopt(fd(), IPPROTO_IP, IP_MULTICAST_IF, &iface, sizeof(iface)) == 0;
+}
+
 UdpSocket open_ipv4_udp_multicast_socket(std::uint16_t port,
                                          const std::string& multicast_address,
                                          std::uint32_t interface_address) {
@@ -174,19 +159,35 @@ UdpSocket open_ipv4_udp_multicast_socket(std::uint16_t port,
         return UdpSocket();
     }
 
-    ip_mreq mreq;
-    std::memset(&mreq, 0, sizeof(mreq));
-    if (::inet_pton(AF_INET, multicast_address.c_str(), &mreq.imr_multiaddr) != 1) {
+    in_addr multicast_addr;
+    std::memset(&multicast_addr, 0, sizeof(multicast_addr));
+    if (::inet_pton(AF_INET, multicast_address.c_str(), &multicast_addr) != 1) {
         internal::close_fd(fd);
         return UdpSocket();
     }
-    mreq.imr_interface.s_addr =
-        interface_address == 0 ? htonl(INADDR_ANY) : htonl(interface_address);
-    if (::setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1) {
-        if (interface_address == 0) {
-            internal::close_fd(fd);
-            return UdpSocket();
+
+    bool joined = false;
+    std::vector<std::uint32_t> interface_addresses;
+    if (interface_address != 0) {
+        interface_addresses.push_back(interface_address);
+    } else {
+        interface_addresses = aplay::core::network::ipv4_multicast_interface_addresses();
+    }
+
+    for (std::size_t i = 0; i < interface_addresses.size(); ++i) {
+        ip_mreq mreq;
+        std::memset(&mreq, 0, sizeof(mreq));
+        mreq.imr_multiaddr = multicast_addr;
+        mreq.imr_interface.s_addr = htonl(interface_addresses[i]);
+        if (::setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == 0) {
+            joined = true;
         }
+    }
+
+    if (!joined) {
+        ip_mreq mreq;
+        std::memset(&mreq, 0, sizeof(mreq));
+        mreq.imr_multiaddr = multicast_addr;
         mreq.imr_interface.s_addr = htonl(INADDR_ANY);
         if (::setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1) {
             internal::close_fd(fd);
@@ -233,7 +234,7 @@ UdpSocket open_ipv6_udp_multicast_socket(std::uint16_t port,
     }
 
     bool joined = false;
-    const std::vector<unsigned int> indices = ipv6_multicast_interface_indices();
+    const std::vector<unsigned int> indices = aplay::core::network::ipv6_multicast_interface_indices();
     for (std::size_t i = 0; i < indices.size(); ++i) {
         ipv6_mreq mreq;
         std::memset(&mreq, 0, sizeof(mreq));

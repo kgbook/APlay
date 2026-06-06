@@ -15,7 +15,7 @@
 #ifndef APLAY_CORE_SOCKET_HPP
 #define APLAY_CORE_SOCKET_HPP
 
-#include "impl/ipv4_endpoint.hpp"
+#include "impl/ipv4or6_endpoint.hpp"
 #include "impl/tcp_socket.hpp"
 #include "impl/udp_socket.hpp"
 

@@ -1,5 +1,6 @@
 include(${CLEAR_VARS})
-set(LOCAL_MODULE poll)
+set(LOCAL_MODULE socket)
 set(LOCAL_SRC_DIRS src)
 set(LOCAL_EXPORT_C_INCLUDES include)
+set(LOCAL_OBJECT_LIBRARIES interface)
 include(${BUILD_OBJECT_LIBRARY})

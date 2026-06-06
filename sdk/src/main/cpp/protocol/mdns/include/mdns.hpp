@@ -18,3 +18,4 @@
 #include "impl/mdns_parser.hpp"
 #include "impl/mdns_responder.hpp"
 #include "impl/mdns_types.hpp"
+#include "impl/mdns_service.hpp"

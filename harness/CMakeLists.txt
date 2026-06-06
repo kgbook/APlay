@@ -1,0 +1,1 @@
+include(${ALL_SUBDIR_CMAKELISTS})
