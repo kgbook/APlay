@@ -46,7 +46,7 @@ jobs:
       - name: Verify Linux outputs
         run: |
           test -x build/linux/APlayReceiver
-          test -f build/linux/sdk-cpp/libaplay-sdk.so
+          test -f build/linux/sdk-cpp/libaplay_sdk.so
 
       - name: Verify Linux mDNS harness
         run: ./harness/verify_mdns.sh
