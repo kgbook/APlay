@@ -146,3 +146,46 @@ jobs:
             app/android/build/outputs/apk/debug/APlayReceiver-debug.apk
             sdk/build/outputs/aar/APlaySdk-debug.aar
           if-no-files-found: error
+
+  harmony:
+    name: Harmony
+    runs-on: ubuntu-24.04
+
+    env:
+      HARMONY_COMMAND_LINE_TOOLS: /home/runner/tools/command-line-tools
+      HARMONY_SDK_HOME: /home/runner/tools/command-line-tools/sdk
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Sync submodules recursively
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
+
+      - name: Download Harmony command line tools
+        run: |
+          mkdir -p /home/runner/tools
+          curl -fL -o /tmp/command-line-tools.tar.gz https://github.com/kgbook/HarmonyOSCommandLineTools/releases/download/6.1.1.280/command-line-tools.tar.gz
+          tar -xzf /tmp/command-line-tools.tar.gz -C /home/runner/tools
+
+      - name: Build Harmony app and SDK
+        run: ./scripts/harmony_build.sh
+
+      - name: Verify Harmony outputs
+        run: |
+          test -f sdk/build/default/outputs/default/libAPlaySdk.har
+          test -f app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default.hap
+
+      - name: Upload Harmony artifacts
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: harmony-build
+          path: |
+            sdk/build/default/outputs/default/libAPlaySdk.har
+            app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default.hap
+          if-no-files-found: error
