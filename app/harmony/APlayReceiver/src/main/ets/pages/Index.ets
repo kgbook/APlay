@@ -1,4 +1,4 @@
-import APlaySdk from 'APlaySdk';
+import APlaySdk from 'aplay-sdk';
 
 @Entry
 @Component

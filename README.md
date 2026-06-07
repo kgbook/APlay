@@ -7,7 +7,7 @@ APlay is a cross-platform AirPlay receiver that enables seamless media casting a
 
 ## Linux Build
 
-`app/linux/CMakeLists.txt` is the Linux entrypoint. It imports shared native modules from `sdk/src/main/cpp` with `APLAY_BUILD_LINUX=ON` and builds the `APlayReceiver` executable and `APlaySdk` shared library.
+`app/linux/CMakeLists.txt` is the Linux entrypoint. It imports shared native modules from `sdk/src/main/cpp` with `APLAY_BUILD_LINUX=ON` and builds the `APlayReceiver` executable and `aplay-sdk` shared library.
 
 ```sh
 ./scripts/linux_build.sh
@@ -31,7 +31,7 @@ By default it starts the UDP 5353 multicast responder and keeps sending AirPlay/
 
 ## Android Build
 
-`app/android/build.gradle.kts` is the Android app entrypoint. The Android Gradle root is named `APlayReceiver`; it depends on the `:APlaySdk` Java SDK module which lives in `sdk/src/main/java` and calls native code through the `sdk/src/main/cpp/osal/android/jni` JNI binding, which links the C++ SDK facade (`aplay_cpp_sdk`) and loads `APlaySdk` at runtime. 
+`app/android/build.gradle.kts` is the Android app entrypoint. The Android Gradle root is named `APlayReceiver`; it depends on the `:aplay-sdk` Java SDK module which lives in `sdk/src/main/java` and calls native code through the `sdk/src/main/cpp/osal/android/jni` JNI binding, which links the C++ SDK facade (`aplay_cpp_sdk`) and loads `aplay-sdk` at runtime.
 
 The Android build uses `APLAY_BUILD_ANDROID=ON`.
 
@@ -42,12 +42,12 @@ The Android build uses `APLAY_BUILD_ANDROID=ON`.
 Debug AAR output:
 
 ```text
-sdk/build/outputs/aar/APlaySdk-debug.aar
+sdk/build/outputs/aar/aplay-sdk-debug.aar
 ```
 
 ## Harmony Build
 
-`app/harmony` is the DevEco Studio import entry. It builds the `APlayReceiver` HAP target and depends on the local `APlaySdk` HAR target rooted at `sdk`. the Harmony build uses `APLAY_BUILD_HARMONY=ON`.
+`app/harmony` is the DevEco Studio import entry. It builds the `APlayReceiver` HAP target and depends on the local `aplay-sdk` HAR target rooted at `sdk`. The Harmony build uses `APLAY_BUILD_HARMONY=ON`.
 
 Build requires Harmony toolchain. Two options:
 

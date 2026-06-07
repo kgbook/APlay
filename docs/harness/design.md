@@ -20,10 +20,6 @@ harness 由 agent/CI 调用；mDNS announce/replay 验证工具位于 `harness/m
 
 - `harness/verify_mdns.sh`
   agent/CI 调用入口；构建 Linux SDK、APlayReceiver 和 mDNS harness 二进制，启动 live mDNS 抓包，运行 announce 广播，再用 replay 自动分析抓包。
-- `harness/mdns/mdns_replay.cpp`
-  离线验证 mDNS responder 生成的 PTR/SRV/TXT/A/AAAA/goodbye 记录，并扫描 pcap 中的 IPv4/IPv6 mDNS multicast 与 DNS 编码服务名，确认抓到预期 receiver 的 AirPlay/RAOP announcement。
-- `harness/mdns/mdns_announce.cpp`
-  默认启动 POSIX mDNS responder 并持续发送 announcement 广播包，直到收到 `SIGINT` 或 `SIGTERM`；加 `--once` 后只离线生成并解析 packet。
 
 ## 验收类型
 
@@ -35,13 +31,9 @@ harness 由 agent/CI 调用；mDNS announce/replay 验证工具位于 `harness/m
 
 ### Runtime
 
-- `APlayReceiver` 不要求传入 options，应可直接启动。
 - `aplay_cpp_sdk` 作为 SDK facade 复用 core 导出的公共 runtime，runtime 实现位于 `sdk/src/main/cpp/core/runtime`。
-- `aplay_sdk` 可构建并输出 `libAPlaySdk.so`。
-- `aplay_jni` 可作为 Java SDK native binding 构建，并为 Android 打包输出 `libAPlaySdk.so`。
-- `aplay_napi` 保留 ETS SDK native binding 条件编译入口，并由 Harmony HAR native 构建启用。
-- `sdk/src/main/ets/libaplay_napi` 提供 `libaplay_napi.so` 的 Harmony native module 类型声明包。
-- `:APlaySdk` 可构建 Java SDK 并输出 `APlaySdk` Android AAR。
+- `aplay_sdk` 可构建并输出 `libaplay_sdk.so`。
+- `:aplay-sdk` 可构建 Java SDK 并输出 `aplay-sdk` Android AAR。
 - `sdk` 提供 Harmony HAR module 配置，`sdk/src/main/ets/com/kgbook/aplay` 提供 ETS SDK facade。
 - `app/android` host stub 可通过 Java SDK 构建并输出 `APlayReceiver` APK。
 - 后续扩展为端口监听、请求响应、退出清理。
@@ -59,10 +51,9 @@ harness 由 agent/CI 调用；mDNS announce/replay 验证工具位于 `harness/m
 
 当前 harness 已实现：
 
-- `sdk` C++ SDK facade 与 `libAPlaySdk.so` 可编译入口。
-- `sdk` Java SDK `APlaySdk` AAR 可编译入口。
-- `sdk` ETS SDK/Harmony HAR module 入口及 NAPI native module 类型声明包。
-- `app/android` 可编译入口通过 `:APlaySdk` 使用 SDK。
+- `sdk` C++ SDK facade 与 `libaplay_sdk.so` 可编译入口。
+- `sdk` Java SDK `aplay-sdk` AAR 可编译入口。
+- `app/android` 可编译入口通过 `:aplay-sdk` 使用 SDK。
 - `app/harmony` 可导入 DevEco Studio，并通过本地 ETS SDK HAR 使用 SDK facade。
 - mDNS harness announce 工具默认持续广播 IPv4/IPv6 AirPlay/RAOP announcement，可通过 `--once` 做离线 packet 自检。
 - Linux harness 默认把实时抓包保存到 `resources/pcap/mdns_announce.pcapng`。

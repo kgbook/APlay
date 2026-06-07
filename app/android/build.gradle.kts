@@ -31,5 +31,5 @@ android.applicationVariants.all {
 }
 
 dependencies {
-    implementation(project(":APlaySdk"))
+    implementation(project(":aplay-sdk"))
 }

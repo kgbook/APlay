@@ -2,7 +2,7 @@ package com.kgbook.aplay;
 
 final class APlayNative {
     static {
-        System.loadLibrary("APlaySdk");
+        System.loadLibrary("aplay_sdk");
     }
 
     private APlayNative() {

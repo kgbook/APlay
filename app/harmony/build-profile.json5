@@ -32,11 +32,11 @@
       ]
     },
     {
-      "name": "APlaySdk",
+      "name": "aplay_sdk",
       "srcPath": "../../sdk",
       "targets": [
         {
-          "name": "APlaySdk",
+          "name": "aplay_sdk",
           "applyToProducts": [
             "default"
           ]

@@ -3,7 +3,7 @@ plugins {
 }
 
 base {
-    archivesName.set("APlaySdk")
+    archivesName.set("aplay-sdk")
 }
 
 android {

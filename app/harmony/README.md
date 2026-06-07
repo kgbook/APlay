@@ -1,6 +1,6 @@
 # APlay Harmony App
 
-`app/harmony` is the HarmonyOS/DevEco Studio import entry. It builds the `APlayReceiver` HAP target and depends on the local `APlaySdk` HAR target under `sdk`.
+`app/harmony` is the HarmonyOS/DevEco Studio import entry. It builds the `APlayReceiver` HAP target and depends on the local `aplay-sdk` HAR target under `sdk`.
 
 The ETS SDK facade imports `libaplay_napi.so` from `sdk/src/main/cpp/osal/harmony/napi`. Its ArkTS-visible API is declared by the native module type package at `sdk/src/main/ets/libaplay_napi`, which is referenced from `sdk/oh-package.json5`. The C++ SDK object target is linked into that NAPI library internally; Harmony packaging should only expose `libaplay_napi.so`.
 

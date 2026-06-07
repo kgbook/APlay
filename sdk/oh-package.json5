@@ -1,5 +1,5 @@
 {
-  "name": "APlaySdk",
+  "name": "aplay-sdk",
   "version": "1.0.0",
   "description": "APlay ETS SDK facade",
   "main": "Index.ets",

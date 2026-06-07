@@ -46,7 +46,7 @@ jobs:
       - name: Verify Linux outputs
         run: |
           test -x build/linux/APlayReceiver
-          test -f build/linux/sdk-cpp/libAPlaySdk.so
+          test -f build/linux/sdk-cpp/libaplay-sdk.so
 
       - name: Verify Linux mDNS harness
         run: ./harness/verify_mdns.sh
@@ -87,7 +87,7 @@ jobs:
           name: linux-build
           path: |
             build/linux/APlayReceiver
-            build/linux/sdk-cpp/libAPlaySdk.so
+            build/linux/sdk-cpp/libaplay_sdk.so
           if-no-files-found: error
 
   android:
@@ -135,7 +135,7 @@ jobs:
       - name: Verify Android outputs
         run: |
           test -f app/android/build/outputs/apk/debug/APlayReceiver-debug.apk
-          test -f sdk/build/outputs/aar/APlaySdk-debug.aar
+          test -f sdk/build/outputs/aar/aplay-sdk-debug.aar
 
       - name: Upload Android artifacts
         if: ${{ !env.ACT }}
@@ -144,7 +144,7 @@ jobs:
           name: android-build
           path: |
             app/android/build/outputs/apk/debug/APlayReceiver-debug.apk
-            sdk/build/outputs/aar/APlaySdk-debug.aar
+            sdk/build/outputs/aar/aplay-sdk-debug.aar
           if-no-files-found: error
 
   harmony:
@@ -185,7 +185,7 @@ jobs:
 
       - name: Verify Harmony outputs
         run: |
-          test -f sdk/build/default/outputs/default/APlaySdk.har
+          test -f sdk/build/default/outputs/default/aplay_sdk.har
           test -f app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default-unsigned.hap
 
       - name: Upload Harmony artifacts
@@ -194,6 +194,6 @@ jobs:
         with:
           name: harmony-build
           path: |
-            sdk/build/default/outputs/default/APlaySdk.har
+            sdk/build/default/outputs/default/aplay_sdk.har
             app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default-unsigned.hap
           if-no-files-found: error

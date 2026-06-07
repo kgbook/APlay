@@ -20,6 +20,6 @@ cmake \
     -DAPLAY_BUILD_HARMONY=OFF
 cmake --build "${BUILD_DIR}"
 
-SDK_LIBRARY="$(find "${BUILD_DIR}/sdk-cpp" -maxdepth 1 -type f \( -name 'libAPlaySdk.so' -o -name 'libAPlaySdk.dylib' \) -print -quit)"
+SDK_LIBRARY="$(find "${BUILD_DIR}/sdk-cpp" -maxdepth 1 -type f \( -name 'libaplay-sdk.so' -o -name 'libaplay-sdk.dylib' \) -print -quit)"
 echo "Linux SDK library: ${SDK_LIBRARY}"
 echo "Linux executable: ${BUILD_DIR}/APlayReceiver"

@@ -1,5 +1,5 @@
 include(${CLEAR_VARS})
-set(LOCAL_MODULE APlaySdk)
+set(LOCAL_MODULE aplay_sdk)
 set(LOCAL_SRC_DIRS .)
 set(LOCAL_INTERFACE_LIBRARIES cpp_sdk)
 set(LOCAL_SHARED_LIBRARIES libace_napi.z.so)

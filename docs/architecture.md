@@ -4,8 +4,6 @@
 
 APlay 目标是以现代 C++ 分期实现 AirPlay 接收能力。APlay 首版以 Linux 可运行为硬门槛，同时保留共享 SDK、Android app、Harmony 大屏终端入口和 OSAL 适配边界。
 
-BLE 服务发现不进入首版实现，记录为 TODO。
-
 ## Legacy Baseline
 
 历史基线实现包含以下能力，需要在 APlay 中按模块重新实现并纳入 harness 验收：
@@ -28,9 +26,9 @@ BLE 服务发现不进入首版实现，记录为 TODO。
 APlay 采用边界清晰的分层架构：
 
 - `app/linux`：Linux 平台 UI/业务逻辑，包括 CLI、配置文件、服务启动/停止、信号处理、桌面集成策略。
-- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK，Linux 输出 `libAPlaySdk.so`；`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding 并为 Android 打包输出 `libAPlaySdk.so`；`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 `APlaySdk` Android AAR，`sdk` 根目录提供本地 `APlaySdk` Harmony HAR module 配置，`sdk/src/main/ets/com/kgbook/aplay` 提供 ETS SDK 门面，`sdk/src/main/ets/libaplay_napi` 提供 Harmony native module 类型声明包。
-- `app/android`：Android 平台 UI/业务逻辑，包括前台服务、Activity/Service 生命周期、权限申请、网络/投屏状态展示、Android 媒体会话集成；Gradle root 命名为 `APlayReceiver`，输出 `APlayReceiver` APK。它通过 `:APlaySdk` 使用 Java SDK，不直接持有 C/C++ 代码。
-- `app/harmony`：HarmonyOS/DevEco Studio 导入入口，构建 `APlayReceiver` HAP target，依赖 `sdk` 本地 `APlaySdk` ETS SDK HAR target；电视、机顶盒等大屏业务适配仍为 TODO。
+- `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK，Linux 输出 `libaplay-sdk.so`；`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding 并为 Android 打包输出 `libaplay-sdk.so`；`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 `aplay-sdk` Android AAR，`sdk` 根目录提供本地 `aplay-sdk` Harmony HAR module 配置，`sdk/src/main/ets/com/kgbook/aplay` 提供 ETS SDK 门面，`sdk/src/main/ets/libaplay_napi` 提供 Harmony native module 类型声明包。
+- `app/android`：Android 平台 UI/业务逻辑，包括前台服务、Activity/Service 生命周期、权限申请、网络/投屏状态展示、Android 媒体会话集成；Gradle root 命名为 `APlayReceiver`，输出 `APlayReceiver` APK。它通过 `:aplay-sdk` 使用 Java SDK，不直接持有 C/C++ 代码。
+- `app/harmony`：HarmonyOS/DevEco Studio 导入入口，构建 `APlayReceiver` HAP target，依赖 `sdk` 本地 `aplay-sdk` ETS SDK HAR target；电视、机顶盒等大屏业务适配仍为 TODO。
 - `protocol`：RTSP、HTTP、reverse HTTP、mDNS/DNS-SD、请求/响应模型和协议状态机。
 - `streaming`：RAOP 音频 RTP、AirPlay mirror video、HLS、jitter buffer、NTP 时间同步。
 - `crypto`：AES、FairPlay、Ed25519/X25519、SRP、digest auth、hash/base64。
@@ -44,9 +42,9 @@ APlay 采用边界清晰的分层架构：
 - C++ SDK 位于 `sdk/src/main/cpp`，Linux app、Android Java SDK AAR 和 Harmony ETS SDK HAR 都从这里复用 native 能力。
 - JNI 与 NAPI 是独立 C++ binding 子模块，通过 CMake option 条件编译，不把 Java/ETS 绑定逻辑混入核心 C++ SDK。
 - Harmony NAPI `.so` 的 ArkTS 可见接口由 `sdk/src/main/ets/<library>` 下的 native module `.d.ts` 包声明，并通过 HAR module 的 `oh-package.json5` 引用。
-- `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议核心可被 harness 离线驱动。
+- `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议核心跨平台，且可被 harness 离线驱动。
 - `osal` 不主动调用业务逻辑，只提供平台能力；当前落地范围是 codec/render 和平台 native binding，Linux 的 GStreamer render/codec 与 Android 的 MediaCodec/AudioTrack/Surface 属于后续 OSAL 实现方向。
-- `harness` 使用 mock OSAL 或 mock render/codec 能力验收协议和数据流，不依赖真实 UI。
+- `harness` 使用 mock protocol、straming、OSAL等能力验收协议和数据流，不依赖真实 UI。
 
 ## 核心数据流
 
@@ -56,7 +54,7 @@ APlay 采用边界清晰的分层架构：
 4. Pairing/FairPlay 生成会话密钥。
 5. SETUP 建立音频 RTP、镜像视频或 HLS 通道。
 6. `streaming` 解密、排序、同步并输出媒体帧。
-7. `streaming` 通过 `osal` 的 render/codec 抽象输出媒体帧。
+7. `streaming` 通过 `osal` 的 render/codec 抽象解码并渲染显示媒体帧。
 8. `harness` 可在无真机环境中回放相同步骤并比对结果。
 
 ## 线程模型
@@ -77,6 +75,5 @@ APlay 采用边界清晰的分层架构：
 - BLE service discovery：TODO。
 - 完整 HLS：后续阶段。
 - mp4 录制：后续阶段。
-- DBus screensaver inhibition：后续阶段。
 - Android 完整 UI：后续阶段，首版保留 Java SDK AAR 与 `app/android` 可编译入口。
 - Harmony 大屏业务：TODO；首版保留可导入 DevEco Studio 的 `app/harmony` HAP、ETS SDK HAR facade、NAPI native binding 构建入口和对应 native module 类型声明。
