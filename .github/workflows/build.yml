@@ -166,7 +166,15 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
+      - name: Install Harmony runtime dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgl1 openjdk-17-jdk-headless
+
       - name: Download Harmony command line tools
+        if: ${{ !env.ACT }}
         run: |
           mkdir -p /home/runner/tools
           curl -fL -o /tmp/command-line-tools.tar.gz https://github.com/kgbook/HarmonyOSCommandLineTools/releases/download/6.1.1.280/command-line-tools.tar.gz
@@ -177,8 +185,8 @@ jobs:
 
       - name: Verify Harmony outputs
         run: |
-          test -f sdk/build/default/outputs/default/libAPlaySdk.har
-          test -f app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default.hap
+          test -f sdk/build/default/outputs/default/APlaySdk.har
+          test -f app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default-unsigned.hap
 
       - name: Upload Harmony artifacts
         if: ${{ !env.ACT }}
@@ -186,6 +194,6 @@ jobs:
         with:
           name: harmony-build
           path: |
-            sdk/build/default/outputs/default/libAPlaySdk.har
-            app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default.hap
+            sdk/build/default/outputs/default/APlaySdk.har
+            app/harmony/APlayReceiver/build/default/outputs/default/APlayReceiver-default-unsigned.hap
           if-no-files-found: error
