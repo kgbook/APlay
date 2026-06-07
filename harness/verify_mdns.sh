@@ -223,7 +223,6 @@ cmake -S "${ROOT_DIR}/app/linux" -B "${BUILD_DIR}" -G Ninja \
     -DAPLAY_BUILD_HARNESS=ON
 cmake --build "${BUILD_DIR}" --target \
     APlayReceiver \
-    sdk \
     aplay_harness_mdns_replay \
     aplay_harness_mdns_announce
 
