@@ -41,6 +41,8 @@ core::socket::Ipv6Endpoint multicast_endpoint_ipv6(std::uint32_t scope_id) {
     return core::socket::make_ipv6_endpoint(internal::kMulticastAddressIpv6, kPort, scope_id);
 }
 
+typedef std::pair<std::uint32_t, std::vector<std::vector<std::uint8_t> > > Ipv4PacketSet;
+
 } // namespace
 
 class MdnsResponder::Impl {
@@ -152,13 +154,16 @@ public:
     }
 
     void announce(std::uint32_t ttl) {
-        std::vector<std::vector<std::uint8_t> > packets;
-        {
-            std::lock_guard<std::mutex> lock(mutex_);
-            packets = responder_.build_announcement(ttl);
+        const std::vector<Ipv4PacketSet> ipv4_packet_sets =
+            build_ipv4_multicast_packet_sets(true, true, true, ttl);
+        const std::vector<std::vector<std::uint8_t> > ipv6_packets =
+            build_ipv6_packet_set(true, true, true, ttl);
+
+        for (std::size_t i = 0; i < ipv4_packet_sets.size(); ++i) {
+            send_ipv4_packets(ipv4_packet_sets[i].second, multicast_endpoint(), false,
+                              ipv4_packet_sets[i].first);
         }
-        send_ipv4_multicast_packets(packets);
-        send_ipv6_multicast_packets(packets, 0);
+        send_ipv6_multicast_packets(ipv6_packets, 0);
     }
 
 private:
@@ -183,12 +188,19 @@ private:
         ResponsePlan plan;
         {
             std::lock_guard<std::mutex> lock(mutex_);
-            plan = responder_.handle_query(buffer.data(), static_cast<std::size_t>(received));
+            plan = responder_.handle_query(buffer.data(), static_cast<std::size_t>(received),
+                                           AddressFamily::Ipv4, 0);
         }
 
-        send_ipv4_multicast_packets(plan.packets);
+        const std::vector<Ipv4PacketSet> multicast_packet_sets =
+            build_ipv4_multicast_packet_sets(plan.include_airplay, plan.include_raop,
+                                             plan.include_host, kServiceTtl);
+        for (std::size_t i = 0; i < multicast_packet_sets.size(); ++i) {
+            send_ipv4_packets(multicast_packet_sets[i].second, multicast_endpoint(), false,
+                              multicast_packet_sets[i].first);
+        }
         if (plan.wants_unicast || from.port != kPort) {
-            send_ipv4_packets(plan.packets, from, true);
+            send_ipv4_packets(build_ipv4_unicast_packet_set(plan), from, true);
         }
     }
 
@@ -208,7 +220,8 @@ private:
         ResponsePlan plan;
         {
             std::lock_guard<std::mutex> lock(mutex_);
-            plan = responder_.handle_query(buffer.data(), static_cast<std::size_t>(received));
+            plan = responder_.handle_query(buffer.data(), static_cast<std::size_t>(received),
+                                           AddressFamily::Ipv6, 0);
         }
 
         send_ipv6_packets(plan.packets, from.scope_id, false);
@@ -230,6 +243,55 @@ private:
         for (std::size_t i = 0; i < addresses.size(); ++i) {
             send_ipv4_packets(packets, multicast_endpoint(), false, addresses[i]);
         }
+    }
+
+    std::vector<Ipv4PacketSet> build_ipv4_multicast_packet_sets(bool include_airplay,
+                                                                bool include_raop,
+                                                                bool include_host,
+                                                                std::uint32_t ttl) {
+        std::vector<Ipv4PacketSet> packet_sets;
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (ipv4_multicast_interface_addresses_.empty()) {
+            const std::vector<std::vector<std::uint8_t> > packets =
+                responder_.build_response_packets(include_airplay, include_raop, include_host, ttl,
+                                                  AddressFamily::Ipv4, 0);
+            if (!packets.empty()) {
+                packet_sets.push_back(Ipv4PacketSet(0, packets));
+            }
+            return packet_sets;
+        }
+
+        for (std::size_t i = 0; i < ipv4_multicast_interface_addresses_.size(); ++i) {
+            const std::uint32_t address = ipv4_multicast_interface_addresses_[i];
+            const std::vector<std::vector<std::uint8_t> > packets =
+                responder_.build_response_packets(include_airplay, include_raop, include_host, ttl,
+                                                  AddressFamily::Ipv4, address);
+            if (!packets.empty()) {
+                packet_sets.push_back(Ipv4PacketSet(address, packets));
+            }
+        }
+        return packet_sets;
+    }
+
+    std::vector<std::vector<std::uint8_t> > build_ipv4_unicast_packet_set(
+        const ResponsePlan& plan) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        std::uint32_t address = responder_.config_.ipv4_address;
+        if (address == 0 && !ipv4_multicast_interface_addresses_.empty()) {
+            address = ipv4_multicast_interface_addresses_[0];
+        }
+        return responder_.build_response_packets(plan.include_airplay, plan.include_raop,
+                                                plan.include_host, kServiceTtl,
+                                                AddressFamily::Ipv4, address);
+    }
+
+    std::vector<std::vector<std::uint8_t> > build_ipv6_packet_set(bool include_airplay,
+                                                                  bool include_raop,
+                                                                  bool include_host,
+                                                                  std::uint32_t ttl) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return responder_.build_response_packets(include_airplay, include_raop, include_host, ttl,
+                                                AddressFamily::Ipv6, 0);
     }
 
     void send_ipv4_packets(const std::vector<std::vector<std::uint8_t> >& packets,

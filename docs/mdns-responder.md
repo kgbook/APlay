@@ -27,7 +27,9 @@ The Linux harness writes its live mDNS capture to `resources/pcap/mdns_announce.
 
 ## DNS-SD Records
 
-A full response for AirPlay and RAOP contains these records:
+A family-specific AirPlay/RAOP response contains these records. IPv4 packets include the host
+`A` record and IPv6 packets include the host `AAAA` record; cross-family host records are not
+placed in the same response.
 
 | Record | Name | Data | Cache flush |
 | --- | --- | --- | --- |
@@ -39,8 +41,8 @@ A full response for AirPlay and RAOP contains these records:
 | `SRV` | RAOP instance name | `host.local:port` | yes |
 | `TXT` | AirPlay instance name | AirPlay capability keys | yes |
 | `TXT` | RAOP instance name | RAOP capability keys | yes |
-| `A` | `host.local` | IPv4 address | yes |
-| `AAAA` | `host.local` | IPv6 address | yes |
+| `A` | `host.local` | IPv4 address, only in IPv4 responses | yes |
+| `AAAA` | `host.local` | IPv6 address, only in IPv6 responses | yes |
 
 Service records use `TTL=4500`. Host address records use `TTL=120`. Goodbye responses use `TTL=0`.
 
@@ -51,12 +53,12 @@ The responder parses only the DNS header and question section. Query packets may
 Supported question matches:
 
 - `_services._dns-sd._udp.local` `PTR` or `ANY`: include registered service type PTR records.
-- `_airplay._tcp.local` `PTR` or `ANY`: include AirPlay service records and host `A`/`AAAA`.
-- `_raop._tcp.local` `PTR` or `ANY`: include RAOP service records and host `A`/`AAAA`.
-- AirPlay/RAOP instance `SRV`, `TXT`, or `ANY`: include the matching service records and host `A`/`AAAA`.
-- Host `A`, `AAAA`, or `ANY`: include host `A`/`AAAA`.
+- `_airplay._tcp.local` `PTR` or `ANY`: include AirPlay service records and the matching-family host address record.
+- `_raop._tcp.local` `PTR` or `ANY`: include RAOP service records and the matching-family host address record.
+- AirPlay/RAOP instance `SRV`, `TXT`, or `ANY`: include the matching service records and the matching-family host address record.
+- Host `A` on IPv4, host `AAAA` on IPv6, or `ANY`: include the matching-family host address record.
 
-If the query class has the QU bit (`0x8000`) or the source port is not `5353`, the Linux POSIX responder sends a unicast copy in addition to the multicast response. IPv4 responses are sent on `224.0.0.251:5353`; IPv6 responses are sent on `ff02::fb:5353` and scoped to the interface that received the query when available. Startup attempts both IPv4 and IPv6 listeners and only fails when both fail; live announcements are emitted on every successfully opened family.
+If the query class has the QU bit (`0x8000`) or the source port is not `5353`, the Linux POSIX responder sends a unicast copy in addition to the multicast response. IPv4 responses are sent on `224.0.0.251:5353` with IPv4 host records only; IPv6 responses are sent on `ff02::fb:5353` with IPv6 host records only and are scoped to the interface that received the query when available. Startup attempts both IPv4 and IPv6 listeners and only fails when both fail; live announcements are emitted on every successfully opened family.
 
 ## Packet Size Strategy
 
@@ -73,10 +75,10 @@ Core types:
 - `TxtRecord`: builds DNS-SD TXT payloads from key/value pairs.
 - `Service`: describes one DNS-SD service instance.
 - `ResponderConfig`: host name, IPv4 address, IPv6 address, AirPlay service, and RAOP service.
-- `MdnsResponder`: singleton responder accessed with `MdnsResponder::instance()`; builds announcements, goodbye packets, and responses to query bytes; `start`, `stop`, and `announce` run the optional POSIX UDP multicast responder.
+- `MdnsResponder`: singleton responder accessed with `MdnsResponder::instance()`; builds `AddressFamily`-specific announcements, goodbye packets, and responses to query bytes; `start`, `stop`, and `announce` run the optional POSIX UDP multicast responder.
 - `MdnsParser`: test/debug parser for generated DNS packets, with static `parse_packet`, `parse_question`, and `parse_record` methods using `bool` returns and output parameters for C++11 compatibility.
 
-The IPv4 value is stored as a big-endian numeric address. `core::network::parse_ipv4_address("127.0.0.1", address)` fills the expected value for the Linux harness packet encoding path. The IPv6 value is stored as 16 network-order bytes and can be filled with `core::network::parse_ipv6_address("::1", address)`.
+The IPv4 value is stored in host byte order. `core::network::parse_ipv4_address("127.0.0.1", address)` fills the expected value for the Linux harness packet encoding path. The IPv6 value is stored as 16 network-order bytes and can be filled with `core::network::parse_ipv6_address("::1", address)`.
 
 DNS-SD service profile helpers:
 
@@ -89,8 +91,8 @@ DNS-SD service profile helpers:
 `harness/mdns/mdns_replay.cpp` validates the responder offline and analyzes pcap captures:
 
 - Builds a dual `_airplay` + `_raop` QU query.
-- Verifies that one combined response is generated.
-- Parses the generated response and checks all expected PTR/SRV/TXT/A/AAAA records.
+- Verifies that one combined response is generated per address family.
+- Parses generated IPv4 and IPv6 responses, checks expected PTR/SRV/TXT records, requires `A` only in IPv4 responses, and requires `AAAA` only in IPv6 responses.
 - Verifies cache-flush behavior for unique records and no cache-flush on PTR records.
 - Verifies AirPlay goodbye records use `TTL=0`.
 - Scans a pcap file for IPv4 and IPv6 mDNS multicast addresses and DNS-encoded AirPlay/RAOP names used by the capture.

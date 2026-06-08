@@ -23,6 +23,9 @@ namespace mdns {
 
 struct ResponsePlan {
     std::vector<std::vector<std::uint8_t>> packets;
+    bool include_airplay = false;
+    bool include_raop = false;
+    bool include_host = false;
     bool wants_unicast = false;
 };
 

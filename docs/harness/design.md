@@ -40,11 +40,11 @@ harness 由 agent/CI 调用；mDNS announce/replay 验证工具位于 `harness/m
 
 ### mDNS
 
-- mDNS PTR/SRV/TXT/A/AAAA announcement。
+- mDNS PTR/SRV/TXT/A/AAAA announcement，其中 IPv4 packet 只携带 host A，IPv6 packet 只携带 host AAAA。
 - responder 启动时同时尝试 IPv4 `224.0.0.251:5353` 与 IPv6 `ff02::fb:5353`，至少一个 listener 成功即可运行；具备双栈条件的 harness capture 应同时可观测 IPv4/IPv6。
 - mDNS goodbye 记录。
 - AirPlay/RAOP PTR query response。
-- `resources/pcap/mdns_announce.pcapng` live capture 中包含当前 announce receiver 的 AirPlay/RAOP DNS-SD 名称、host A/AAAA 记录以及 IPv4/IPv6 mDNS multicast。
+- `resources/pcap/mdns_announce.pcapng` live capture 中包含当前 announce receiver 的 AirPlay/RAOP DNS-SD 名称、按 family 发布的 host A/AAAA 记录以及 IPv4/IPv6 mDNS multicast。
 - pcap 原始文件不直接作为唯一 golden；live capture 用于验证真实 UDP 5353 multicast 可观测，replay 仍负责协议语义判定。
 
 ## 当前 Phase 0 行为
@@ -57,7 +57,7 @@ harness 由 agent/CI 调用；mDNS announce/replay 验证工具位于 `harness/m
 - `app/harmony` 可导入 DevEco Studio，并通过本地 ETS SDK HAR 使用 SDK facade。
 - mDNS harness announce 工具默认持续广播 IPv4/IPv6 AirPlay/RAOP announcement，可通过 `--once` 做离线 packet 自检。
 - Linux harness 默认把实时抓包保存到 `resources/pcap/mdns_announce.pcapng`。
-- mDNS replay 可分析 live capture，并按 receiver name/device id/host name 校验 AirPlay/RAOP DNS-SD 名称和 host A/AAAA 记录。
+- mDNS replay 可分析 live capture，并按 receiver name/device id/host name 校验 AirPlay/RAOP DNS-SD 名称和按 family 发布的 host A/AAAA 记录。
 
 非 mDNS 的协议、加密、RTP 与运行时验证还没有实现，不在 `example` 中保留占位示例。
 

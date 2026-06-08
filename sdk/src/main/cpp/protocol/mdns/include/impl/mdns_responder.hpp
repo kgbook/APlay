@@ -31,9 +31,11 @@ public:
     void set_config(ResponderConfig config);
     const ResponderConfig& config() const;
 
-    std::vector<std::vector<std::uint8_t>> build_announcement(std::uint32_t ttl) const;
+    std::vector<std::vector<std::uint8_t>> build_announcement(
+        std::uint32_t ttl, AddressFamily family, std::uint32_t ipv4_address) const;
     std::vector<std::uint8_t> build_goodbye(const Service& service) const;
-    ResponsePlan handle_query(const std::uint8_t* bytes, std::size_t length) const;
+    ResponsePlan handle_query(const std::uint8_t* bytes, std::size_t length,
+                              AddressFamily family, std::uint32_t ipv4_address) const;
 
     int start();
     void stop();
@@ -46,6 +48,10 @@ private:
     ~MdnsResponder();
 
     ResponderConfig config_;
+
+    std::vector<std::vector<std::uint8_t>> build_response_packets(
+        bool include_airplay, bool include_raop, bool include_host, std::uint32_t ttl,
+        AddressFamily family, std::uint32_t ipv4_address) const;
 
     class Impl;
     Impl* impl_;

@@ -65,10 +65,16 @@ int main(int argc, char** argv) {
     aplay::protocol::mdns::MdnsResponder& responder =
         aplay::protocol::mdns::MdnsResponder::instance();
     responder.set_config(config);
-    const std::vector<std::vector<std::uint8_t> > packets =
-        responder.build_announcement(aplay::protocol::mdns::kServiceTtl);
-    std::cout << "mDNS announcement packets=" << packets.size()
-              << " receiver=" << receiver_name << '\n';
+    std::vector<std::vector<std::uint8_t> > packets =
+        responder.build_announcement(aplay::protocol::mdns::kServiceTtl,
+                                     aplay::protocol::mdns::AddressFamily::Ipv4,
+                                     config.ipv4_address);
+    const std::vector<std::vector<std::uint8_t> > ipv6_packets =
+        responder.build_announcement(aplay::protocol::mdns::kServiceTtl,
+                                     aplay::protocol::mdns::AddressFamily::Ipv6, 0);
+    packets.insert(packets.end(), ipv6_packets.begin(), ipv6_packets.end());
+    std::cout << "mDNS announcement packets=" << packets.size() << " receiver=" << receiver_name
+              << '\n';
     for (std::size_t i = 0; i < packets.size(); ++i) {
         aplay::protocol::mdns::PacketSummary summary;
         if (!aplay::protocol::mdns::MdnsParser::parse_packet(packets[i].data(),

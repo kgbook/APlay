@@ -130,14 +130,16 @@ bool pcap_contains_dns_record_type(const std::vector<unsigned char>& pcap,
     return pcap_contains_bytes(pcap, pattern);
 }
 
-bool validate_generated_response() {
-    MdnsResponder& responder = MdnsResponder::instance();
-    const ResponderConfig config = make_config(kDefaultReceiverName, kDefaultDeviceId);
-    responder.set_config(config);
-    const std::vector<std::uint8_t> query =
-        aplay::protocol::mdns::build_ptr_query({"_airplay._tcp.local", "_raop._tcp.local"}, true);
-    const aplay::protocol::mdns::ResponsePlan plan =
-        responder.handle_query(query.data(), query.size());
+bool validate_generated_response_for_family(MdnsResponder& responder,
+                                            const ResponderConfig& config,
+                                            const std::vector<std::uint8_t>& query,
+                                            aplay::protocol::mdns::AddressFamily family,
+                                            std::uint16_t expected_host_type,
+                                            std::uint16_t rejected_host_type,
+                                            const char* family_name) {
+    const aplay::protocol::mdns::ResponsePlan plan = responder.handle_query(
+        query.data(), query.size(), family,
+        family == aplay::protocol::mdns::AddressFamily::Ipv4 ? config.ipv4_address : 0);
     if (!require(plan.wants_unicast, "QU query should request a unicast response") ||
         !require(plan.packets.size() == 1, "AirPlay + RAOP query should fit in one response")) {
         return false;
@@ -147,7 +149,8 @@ bool validate_generated_response() {
     if (!require(aplay::protocol::mdns::MdnsParser::parse_packet(
                      plan.packets[0].data(), plan.packets[0].size(), summary),
                  "generated response must parse") ||
-        !require(summary.answers.size() == 10, "combined response must include 10 answers")) {
+        !require(summary.answers.size() == 9,
+                 "combined family-specific response must include 9 answers")) {
         return false;
     }
 
@@ -164,10 +167,10 @@ bool validate_generated_response() {
                  "missing AirPlay SRV") ||
         !require(has_record(answers, config.raop.instance, aplay::protocol::mdns::kTypeSrv),
                  "missing RAOP SRV") ||
-        !require(has_record(answers, config.host_name, aplay::protocol::mdns::kTypeA),
-                 "missing host A record") ||
-        !require(has_record(answers, config.host_name, aplay::protocol::mdns::kTypeAaaa),
-                 "missing host AAAA record") ||
+        !require(has_record(answers, config.host_name, expected_host_type),
+                 "missing expected family host address record") ||
+        !require(!has_record(answers, config.host_name, rejected_host_type),
+                 "response contains cross-family host address record") ||
         !require(has_txt_item(answers, config.airplay.instance, "features=0x527FFEE6,0x0"),
                  "missing AirPlay features TXT") ||
         !require(has_txt_item(answers, config.raop.instance, "sr=44100"),
@@ -189,6 +192,26 @@ bool validate_generated_response() {
                      "unique records must set cache flush")) {
             return false;
         }
+    }
+
+    std::cout << "generated " << family_name << " response records=" << summary.answers.size()
+              << '\n';
+    return true;
+}
+
+bool validate_generated_response() {
+    MdnsResponder& responder = MdnsResponder::instance();
+    const ResponderConfig config = make_config(kDefaultReceiverName, kDefaultDeviceId);
+    responder.set_config(config);
+    const std::vector<std::uint8_t> query =
+        aplay::protocol::mdns::build_ptr_query({"_airplay._tcp.local", "_raop._tcp.local"}, true);
+    if (!validate_generated_response_for_family(
+            responder, config, query, aplay::protocol::mdns::AddressFamily::Ipv4,
+            aplay::protocol::mdns::kTypeA, aplay::protocol::mdns::kTypeAaaa, "IPv4") ||
+        !validate_generated_response_for_family(
+            responder, config, query, aplay::protocol::mdns::AddressFamily::Ipv6,
+            aplay::protocol::mdns::kTypeAaaa, aplay::protocol::mdns::kTypeA, "IPv6")) {
+        return false;
     }
 
     const std::vector<std::uint8_t> goodbye = responder.build_goodbye(responder.config().airplay);

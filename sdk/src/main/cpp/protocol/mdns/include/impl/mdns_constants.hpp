@@ -24,6 +24,11 @@ static const std::uint16_t kPort = 5353;
 static const std::uint32_t kServiceTtl = 4500;
 static const std::uint32_t kHostTtl = 120;
 
+enum class AddressFamily {
+    Ipv4,
+    Ipv6,
+};
+
 static const std::uint16_t kTypeA = 1;
 static const std::uint16_t kTypePtr = 12;
 static const std::uint16_t kTypeTxt = 16;

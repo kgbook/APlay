@@ -113,10 +113,14 @@ bool add_a(PacketWriter& packet, const std::string& name, std::uint32_t addr,
     return true;
 }
 
+bool has_ipv6_address(const std::array<std::uint8_t, 16>& addr) {
+    const std::array<std::uint8_t, 16> empty{};
+    return addr != empty;
+}
+
 bool add_aaaa(PacketWriter& packet, const std::string& name,
               const std::array<std::uint8_t, 16>& addr, std::uint32_t ttl) {
-    const std::array<std::uint8_t, 16> empty{};
-    if (addr == empty) {
+    if (!has_ipv6_address(addr)) {
         return true;
     }
 
@@ -130,11 +134,16 @@ bool add_aaaa(PacketWriter& packet, const std::string& name,
 }
 
 bool add_a_records(PacketWriter& packet, const ResponderConfig& config, std::uint32_t ttl,
-                   std::uint16_t& answers) {
-    std::vector<std::uint32_t> addresses = config.ipv4_addresses;
-    if (config.ipv4_address != 0 &&
-        std::find(addresses.begin(), addresses.end(), config.ipv4_address) == addresses.end()) {
-        addresses.insert(addresses.begin(), config.ipv4_address);
+                   std::uint16_t& answers, std::uint32_t ipv4_address) {
+    std::vector<std::uint32_t> addresses;
+    if (ipv4_address != 0) {
+        addresses.push_back(ipv4_address);
+    } else {
+        addresses = config.ipv4_addresses;
+        if (config.ipv4_address != 0 &&
+            std::find(addresses.begin(), addresses.end(), config.ipv4_address) == addresses.end()) {
+            addresses.insert(addresses.begin(), config.ipv4_address);
+        }
     }
 
     for (std::size_t i = 0; i < addresses.size(); ++i) {
@@ -144,6 +153,22 @@ bool add_a_records(PacketWriter& packet, const ResponderConfig& config, std::uin
         if (addresses[i] != 0) {
             answers = static_cast<std::uint16_t>(answers + 1);
         }
+    }
+    return true;
+}
+
+bool add_host_records(PacketWriter& packet, const ResponderConfig& config, std::uint32_t ttl,
+                      std::uint16_t& answers, AddressFamily family,
+                      std::uint32_t ipv4_address) {
+    if (family == AddressFamily::Ipv4) {
+        return add_a_records(packet, config, ttl, answers, ipv4_address);
+    }
+
+    if (!add_aaaa(packet, config.host_name, config.ipv6_address, ttl == 0 ? 0 : kHostTtl)) {
+        return false;
+    }
+    if (has_ipv6_address(config.ipv6_address)) {
+        answers = static_cast<std::uint16_t>(answers + 1);
     }
     return true;
 }
@@ -166,7 +191,8 @@ bool add_service_records(PacketWriter& packet, const Service& service,
 }
 
 bool build_response(const ResponderConfig& config, bool include_airplay, bool include_raop,
-                    bool include_host, std::uint32_t ttl,
+                    bool include_host, std::uint32_t ttl, AddressFamily family,
+                    std::uint32_t ipv4_address,
                     std::vector<std::uint8_t>& response) {
     PacketWriter packet;
     std::size_t answer_count_pos = 0;
@@ -181,17 +207,9 @@ bool build_response(const ResponderConfig& config, bool include_airplay, bool in
     if (include_raop && !add_service_records(packet, config.raop, config.host_name, ttl, answers)) {
         return false;
     }
-    if (include_host) {
-        if (!add_a_records(packet, config, ttl, answers)) {
-            return false;
-        }
-        if (!add_aaaa(packet, config.host_name, config.ipv6_address, ttl == 0 ? 0 : kHostTtl)) {
-            return false;
-        }
-        const std::array<std::uint8_t, 16> empty{};
-        if (config.ipv6_address != empty) {
-            answers = static_cast<std::uint16_t>(answers + 1);
-        }
+    if (include_host &&
+        !add_host_records(packet, config, ttl, answers, family, ipv4_address)) {
+        return false;
     }
     if (answers == 0) {
         return false;
@@ -203,10 +221,11 @@ bool build_response(const ResponderConfig& config, bool include_airplay, bool in
 
 void append_response_packets(std::vector<std::vector<std::uint8_t>>& packets,
                              const ResponderConfig& config, bool include_airplay,
-                             bool include_raop, bool include_host, std::uint32_t ttl) {
+                             bool include_raop, bool include_host, std::uint32_t ttl,
+                             AddressFamily family, std::uint32_t ipv4_address) {
     if (include_airplay && include_raop && config.airplay.registered && config.raop.registered) {
         std::vector<std::uint8_t> combined;
-        if (build_response(config, true, true, include_host, ttl, combined) &&
+        if (build_response(config, true, true, include_host, ttl, family, ipv4_address, combined) &&
             combined.size() <= internal::kCombinedPacketMax) {
             packets.push_back(combined);
             return;
@@ -215,26 +234,27 @@ void append_response_packets(std::vector<std::vector<std::uint8_t>>& packets,
 
     if (include_airplay) {
         std::vector<std::uint8_t> packet;
-        if (build_response(config, true, false, include_host, ttl, packet)) {
+        if (build_response(config, true, false, include_host, ttl, family, ipv4_address, packet)) {
             packets.push_back(packet);
         }
     }
     if (include_raop) {
         std::vector<std::uint8_t> packet;
-        if (build_response(config, false, true, include_host, ttl, packet)) {
+        if (build_response(config, false, true, include_host, ttl, family, ipv4_address, packet)) {
             packets.push_back(packet);
         }
     }
     if (include_host && !include_airplay && !include_raop) {
         std::vector<std::uint8_t> packet;
-        if (build_response(config, false, false, true, ttl, packet)) {
+        if (build_response(config, false, false, true, ttl, family, ipv4_address, packet)) {
             packets.push_back(packet);
         }
     }
 }
 
 bool question_matches_service(const ResponderConfig& config, const std::string& name,
-                              std::uint16_t type, bool& airplay, bool& raop, bool& host) {
+                              std::uint16_t type, AddressFamily family, bool& airplay,
+                              bool& raop, bool& host) {
     if (internal::name_equals(name, std::string(internal::kServicesName)) &&
         internal::query_type_matches(type, kTypePtr)) {
         airplay = airplay || config.airplay.registered;
@@ -265,8 +285,7 @@ bool question_matches_service(const ResponderConfig& config, const std::string& 
     }
 
     if (internal::name_equals(name, config.host_name) &&
-        (internal::query_type_matches(type, kTypeA) ||
-         internal::query_type_matches(type, kTypeAaaa))) {
+        internal::query_type_matches(type, family == AddressFamily::Ipv4 ? kTypeA : kTypeAaaa)) {
         host = true;
         return true;
     }
@@ -280,10 +299,18 @@ const ResponderConfig& MdnsResponder::config() const {
     return config_;
 }
 
-std::vector<std::vector<std::uint8_t>> MdnsResponder::build_announcement(std::uint32_t ttl) const {
+std::vector<std::vector<std::uint8_t>> MdnsResponder::build_response_packets(
+    bool include_airplay, bool include_raop, bool include_host, std::uint32_t ttl,
+    AddressFamily family, std::uint32_t ipv4_address) const {
     std::vector<std::vector<std::uint8_t>> packets;
-    append_response_packets(packets, config_, true, true, true, ttl);
+    append_response_packets(packets, config_, include_airplay, include_raop, include_host, ttl,
+                            family, ipv4_address);
     return packets;
+}
+
+std::vector<std::vector<std::uint8_t>> MdnsResponder::build_announcement(
+    std::uint32_t ttl, AddressFamily family, std::uint32_t ipv4_address) const {
+    return build_response_packets(true, true, true, ttl, family, ipv4_address);
 }
 
 std::vector<std::uint8_t> MdnsResponder::build_goodbye(const Service& service) const {
@@ -301,13 +328,16 @@ std::vector<std::uint8_t> MdnsResponder::build_goodbye(const Service& service) c
     }
 
     std::vector<std::uint8_t> packet;
-    if (build_response(goodbye_config, include_airplay, include_raop, false, 0, packet)) {
+    if (build_response(goodbye_config, include_airplay, include_raop, false, 0,
+                       AddressFamily::Ipv4, 0, packet)) {
         return packet;
     }
     return std::vector<std::uint8_t>();
 }
 
-ResponsePlan MdnsResponder::handle_query(const std::uint8_t* bytes, std::size_t length) const {
+ResponsePlan MdnsResponder::handle_query(const std::uint8_t* bytes, std::size_t length,
+                                         AddressFamily family,
+                                         std::uint32_t ipv4_address) const {
     ResponsePlan plan;
     if (length < 12 || (internal::read_u16(bytes + 2) & internal::kFlagResponse) != 0) {
         return plan;
@@ -315,10 +345,6 @@ ResponsePlan MdnsResponder::handle_query(const std::uint8_t* bytes, std::size_t 
 
     const std::uint16_t qdcount = internal::read_u16(bytes + 4);
     std::size_t offset = 12;
-    bool include_airplay = false;
-    bool include_raop = false;
-    bool include_host = false;
-
     for (std::uint16_t i = 0; i < qdcount; ++i) {
         QuestionSummary question;
         if (!MdnsParser::parse_question(bytes, length, offset, question)) {
@@ -328,13 +354,13 @@ ResponsePlan MdnsResponder::handle_query(const std::uint8_t* bytes, std::size_t 
         if ((question.dns_class & kUnicastResponse) != 0) {
             plan.wants_unicast = true;
         }
-        question_matches_service(config_, question.name, question.type, include_airplay,
-                                 include_raop, include_host);
+        question_matches_service(config_, question.name, question.type, family,
+                                 plan.include_airplay, plan.include_raop, plan.include_host);
     }
 
-    if (include_airplay || include_raop || include_host) {
-        append_response_packets(plan.packets, config_, include_airplay, include_raop,
-                                include_host, kServiceTtl);
+    if (plan.include_airplay || plan.include_raop || plan.include_host) {
+        append_response_packets(plan.packets, config_, plan.include_airplay, plan.include_raop,
+                                plan.include_host, kServiceTtl, family, ipv4_address);
     }
     return plan;
 }
