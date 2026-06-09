@@ -4,6 +4,7 @@
 #include "mdns.hpp"
 #include "network_interface.hpp"
 
+#include <array>
 #include <csignal>
 #include <string>
 #include <unistd.h>
@@ -29,6 +30,15 @@ int run_runtime() {
     aplay::protocol::mdns::ResponderConfig config;
     config.host_name = receiver_name + ".local";
 
+    std::array<std::uint8_t, 16> ipv6{};
+    if (aplay::core::network::default_ipv6_address(ipv6)) {
+        config.ipv6_address = ipv6;
+        LOGI("APlayReceiver", "detected IPv6: %s",
+             aplay::core::network::format_ipv6_address(ipv6).c_str());
+    } else {
+        LOGW("APlayReceiver", "no IPv6 multicast interface found");
+    }
+
     std::uint32_t ipv4 = 0;
     if (aplay::core::network::default_ipv4_address(ipv4)) {
         config.ipv4_address = ipv4;
@@ -36,7 +46,7 @@ int run_runtime() {
              aplay::core::network::format_ipv4_address(ipv4).c_str());
     } else {
         aplay::core::network::parse_ipv4_address("127.0.0.1", config.ipv4_address);
-        LOGW("APlayReceiver", "no multicast interface found, falling back to 127.0.0.1");
+        LOGW("APlayReceiver", "no IPv4 multicast interface found, falling back to 127.0.0.1");
     }
 
     LOGI("APlayReceiver", "mDNS host: %s", config.host_name.c_str());

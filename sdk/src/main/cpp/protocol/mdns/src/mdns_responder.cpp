@@ -166,16 +166,16 @@ public:
     }
 
     void announce(std::uint32_t ttl) {
-        const std::vector<Ipv4PacketSet> ipv4_packet_sets =
-            build_ipv4_multicast_packet_sets(true, true, true, ttl);
         const std::vector<std::vector<std::uint8_t> > ipv6_packets =
             build_ipv6_packet_set(true, true, true, ttl);
+        const std::vector<Ipv4PacketSet> ipv4_packet_sets =
+            build_ipv4_multicast_packet_sets(true, true, true, ttl);
 
+        send_ipv6_multicast_packets(ipv6_packets, 0);
         for (std::size_t i = 0; i < ipv4_packet_sets.size(); ++i) {
             send_ipv4_packets(ipv4_packet_sets[i].second, multicast_endpoint(), false,
                               ipv4_packet_sets[i].first);
         }
-        send_ipv6_multicast_packets(ipv6_packets, 0);
     }
 
 private:

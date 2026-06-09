@@ -51,6 +51,12 @@ std::string format_ipv4_address(std::uint32_t address) {
     return buf;
 }
 
+std::string format_ipv6_address(const std::array<std::uint8_t, 16>& address) {
+    char buf[INET6_ADDRSTRLEN] = {};
+    ::inet_ntop(AF_INET6, address.data(), buf, sizeof(buf));
+    return buf;
+}
+
 bool default_ipv4_address(std::uint32_t& address) {
     ifaddrs* addrs = NULL;
     if (::getifaddrs(&addrs) != 0) {
