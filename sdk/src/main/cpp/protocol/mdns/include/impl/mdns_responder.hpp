@@ -37,7 +37,7 @@ public:
     ResponsePlan handle_query(const std::uint8_t* bytes, std::size_t length,
                               AddressFamily family, std::uint32_t ipv4_address) const;
 
-    int start();
+    int start(int announce_interval_ms = 1000);
     void stop();
     void announce(std::uint32_t ttl = kServiceTtl);
 

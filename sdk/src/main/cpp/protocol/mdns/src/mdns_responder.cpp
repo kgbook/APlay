@@ -21,8 +21,9 @@
 #include "network_interface.hpp"
 #include "socket.hpp"
 
-#include <array>
 #include <algorithm>
+#include <array>
+#include <chrono>
 #include <functional>
 #include <mutex>
 #include <utility>
@@ -59,11 +60,15 @@ public:
         stop();
     }
 
-    int start() {
+    int start(int announce_interval_ms) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (thread_.isRunning()) {
             return 0;
         }
+
+        stopped_ = false;
+        announce_interval_ms_ = announce_interval_ms;
+        last_announce_time_ = std::chrono::steady_clock::time_point::min();
 
         ResponderConfig config = responder_.config_;
         const bool configured_ipv4 =
@@ -134,8 +139,15 @@ public:
     }
 
     void stop() {
+        if (stopped_) {
+            return;
+        }
+        stopped_ = true;
+
         loop_.stop();
         thread_.stopAndJoin();
+
+        announce(0);
 
         std::lock_guard<std::mutex> lock(mutex_);
         if (ipv4_socket_.valid()) {
@@ -167,8 +179,18 @@ public:
     }
 
 private:
-    bool run_once() const
+    bool run_once()
     {
+        if (announce_interval_ms_ > 0) {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - last_announce_time_).count();
+            if (last_announce_time_ == std::chrono::steady_clock::time_point::min() ||
+                elapsed >= announce_interval_ms_) {
+                announce(kServiceTtl);
+                last_announce_time_ = now;
+            }
+        }
         return loop_.run_once(250);
     }
 
@@ -350,6 +372,9 @@ private:
     std::vector<std::uint32_t> ipv4_multicast_interface_addresses_;
     core::EventLoop loop_;
     MdnsResponderThread thread_;
+    bool stopped_ = false;
+    int announce_interval_ms_ = 0;
+    std::chrono::steady_clock::time_point last_announce_time_;
 };
 
 MdnsResponder::MdnsResponder()
@@ -363,8 +388,8 @@ void MdnsResponder::set_config(ResponderConfig config) {
     impl_->set_config(std::move(config));
 }
 
-int MdnsResponder::start() {
-    return impl_->start();
+int MdnsResponder::start(int announce_interval_ms) {
+    return impl_->start(announce_interval_ms);
 }
 
 void MdnsResponder::stop() {

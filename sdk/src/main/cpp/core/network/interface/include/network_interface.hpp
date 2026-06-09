@@ -27,6 +27,8 @@ namespace network {
 bool parse_ipv4_address(const std::string& text, std::uint32_t& address);
 bool parse_ipv6_address(const std::string& text, std::array<std::uint8_t, 16>& address);
 
+std::string format_ipv4_address(std::uint32_t address);
+
 bool default_ipv4_address(std::uint32_t& address);
 bool default_ipv6_address(std::array<std::uint8_t, 16>& address);
 

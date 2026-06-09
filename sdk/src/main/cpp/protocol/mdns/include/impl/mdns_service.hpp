@@ -36,7 +36,7 @@ namespace mdns {
         std::string device_id = "02:00:00:00:00:01";
         std::string features = "0x527FFEE6,0x0";
         std::string flags = "0x4";
-        std::string model = "APlayReceiver";
+        std::string model = "AppleTV6,2";
         std::string source_version = "220.68";
         std::string protocol_version = "2";
         bool password_required = false;

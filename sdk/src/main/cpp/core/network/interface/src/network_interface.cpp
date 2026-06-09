@@ -43,6 +43,14 @@ bool parse_ipv6_address(const std::string& text, std::array<std::uint8_t, 16>& a
     return true;
 }
 
+std::string format_ipv4_address(std::uint32_t address) {
+    ::in_addr addr{};
+    addr.s_addr = htonl(address);
+    char buf[INET_ADDRSTRLEN] = {};
+    ::inet_ntop(AF_INET, &addr, buf, sizeof(buf));
+    return buf;
+}
+
 bool default_ipv4_address(std::uint32_t& address) {
     ifaddrs* addrs = NULL;
     if (::getifaddrs(&addrs) != 0) {
