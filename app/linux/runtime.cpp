@@ -30,15 +30,6 @@ int run_runtime() {
     aplay::protocol::mdns::ResponderConfig config;
     config.host_name = receiver_name + ".local";
 
-    std::array<std::uint8_t, 16> ipv6{};
-    if (aplay::core::network::default_ipv6_address(ipv6)) {
-        config.ipv6_address = ipv6;
-        LOGI("APlayReceiver", "detected IPv6: %s",
-             aplay::core::network::format_ipv6_address(ipv6).c_str());
-    } else {
-        LOGW("APlayReceiver", "no IPv6 multicast interface found");
-    }
-
     std::uint32_t ipv4 = 0;
     if (aplay::core::network::default_ipv4_address(ipv4)) {
         config.ipv4_address = ipv4;
@@ -73,6 +64,15 @@ int run_runtime() {
     if (responder.start() != 0) {
         LOGE("APlayReceiver", "failed to start mDNS responder on UDP 5353");
         return 1;
+    }
+
+    const auto& active_config = responder.config();
+    const std::array<std::uint8_t, 16> empty_ipv6{};
+    if (active_config.ipv6_address != empty_ipv6) {
+        LOGI("APlayReceiver", "detected IPv6: %s",
+             aplay::core::network::format_ipv6_address(active_config.ipv6_address).c_str());
+    } else {
+        LOGW("APlayReceiver", "no IPv6 multicast interface found");
     }
 
     std::signal(SIGINT, handle_signal);

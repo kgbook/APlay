@@ -16,6 +16,10 @@
 - `core` owns common reusable C/C++ code.
 - `osal` currently owns platform codec/render modules and native binding submodules.
 - 
+## Workflow Constraints
+
+- Do not push to remote unless explicitly asked. Only commit locally and wait for user verification before pushing.
+
 ## Implementation Rules
 
 - Follow `docs/code-style.md`
