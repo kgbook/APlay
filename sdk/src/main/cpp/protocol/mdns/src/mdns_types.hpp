@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "mdns_service.hpp"
+
 #include <array>
 #include <cstdint>
 #include <string>
@@ -22,6 +24,21 @@
 namespace aplay {
 namespace protocol {
 namespace mdns {
+
+struct ResponderConfig {
+    std::string host_name = "APlay.local";
+    std::uint32_t ipv4_address = 0; // Host byte order.
+    std::vector<std::uint32_t> ipv4_addresses; // Host byte order.
+    std::array<std::uint8_t, 16> ipv6_address{};
+    Service airplay;
+    Service raop;
+};
+
+struct QuestionSummary {
+    std::string name;
+    std::uint16_t type = 0;
+    std::uint16_t dns_class = 0;
+};
 
 struct RecordSummary {
     std::string name;
@@ -34,6 +51,20 @@ struct RecordSummary {
     std::uint32_t ipv4_address = 0; // Network byte order.
     std::array<std::uint8_t, 16> ipv6_address{};
     std::vector<std::string> txt;
+};
+
+struct PacketSummary {
+    std::uint16_t flags = 0;
+    std::vector<QuestionSummary> questions;
+    std::vector<RecordSummary> answers;
+};
+
+struct ResponsePlan {
+    std::vector<std::vector<std::uint8_t> > packets;
+    bool include_airplay = false;
+    bool include_raop = false;
+    bool include_host = false;
+    bool wants_unicast = false;
 };
 
 } // namespace mdns

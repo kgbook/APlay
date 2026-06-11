@@ -1,0 +1,5 @@
+include(${CLEAR_VARS})
+set(LOCAL_MODULE binary)
+set(LOCAL_SRC_DIRS src)
+set(LOCAL_EXPORT_C_INCLUDES include)
+include(${BUILD_STATIC_LIBRARY})

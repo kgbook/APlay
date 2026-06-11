@@ -25,9 +25,8 @@ add_subdirectory("${TOP_DIR}/sdk/src/main/cpp" ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 
 include(${CLEAR_VARS})
 set(LOCAL_MODULE APlayReceiver)
-set(LOCAL_SRC_FILES main.cpp runtime.cpp)
+set(LOCAL_SRC_FILES main.cpp)
 set(LOCAL_INTERFACE_LIBRARIES cpp_sdk)
-set(LOCAL_C_INCLUDES include)
 set(LOCAL_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 include(${BUILD_EXECUTABLE})
 

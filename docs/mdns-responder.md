@@ -15,9 +15,9 @@ The mDNS implementation is a small AirPlay receiver responder, not a general DNS
 - Host `AAAA` record for IPv6.
 - Goodbye responses with `TTL=0`.
 
-The DNS responder API is exported from `sdk/src/main/cpp/protocol/mdns/include/mdns.hpp`. The implementation lives under `sdk/src/main/cpp/protocol/mdns/src`. `MdnsResponder` is the single public responder design: it builds offline packets, handles query bytes, and can optionally run the POSIX UDP multicast loop. It uses `core/pattern/singleton` because the UDP 5353 listener is a process-wide service; callers access it through `MdnsResponder::instance()` and update runtime settings with `set_config`. Packet encoding and parsing stay in the mDNS protocol module, while generic IPv4/IPv6 parsing, UDP multicast socket setup, fd polling, and event dispatch live in `core/network/interface`, `core/socket`, `core/poll`, and `core/eventloop`. Project-owned native code uses POSIX APIs and the C++ STL so it remains portable to embedded toolchains with limited C++ support.
+The DNS responder API is exported from `sdk/src/main/cpp/protocol/mdns/include/mdns.hpp`. The implementation lives under `sdk/src/main/cpp/protocol/mdns/src`. `Responder` is the single responder implementation: it builds offline packets, handles query bytes, and can optionally run the POSIX UDP multicast loop. It uses `core/pattern/singleton` because the UDP 5353 listener is a process-wide service; callers access it through `Responder::instance()` and update runtime settings with `set_config`. Packet encoding and parsing stay in the mDNS protocol module, while generic IPv4/IPv6 parsing, UDP multicast socket setup, fd polling, and event dispatch live in `core/network/interface`, `core/socket`, `core/poll`, and `core/eventloop`. Project-owned native code uses POSIX APIs and the C++ STL so it remains portable to embedded toolchains with limited C++ support.
 
-AirPlay and RAOP DNS-SD capability profiles belong to the mDNS protocol module, not to examples. `sdk/src/main/cpp/protocol/mdns/include/mdns_service.hpp` exports `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service`. Those helpers produce `protocol::mdns::Service` records for discovery; future AirPlay video and RAOP audio packet handling should remain in the owning streaming modules instead of moving runtime behavior into `example`.
+AirPlay and RAOP DNS-SD capability profiles belong to the mDNS protocol module, not to examples. `sdk/src/main/cpp/protocol/mdns/src/mdns_service.hpp` declares `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service` for the responder and harness. Those helpers produce `protocol::mdns::Service` records for discovery; future AirPlay video and RAOP audio packet handling should remain in the owning streaming modules instead of moving runtime behavior into `example`.
 
 ## Reference Inputs
 
@@ -68,21 +68,21 @@ This keeps packet encoding simple first, with a conservative size threshold for 
 
 ## Public API
 
-The main DNS responder header is `sdk/src/main/cpp/protocol/mdns/include/mdns.hpp`.
+The SDK entry header is `sdk/src/main/cpp/protocol/mdns/include/mdns.hpp`.
 
 Core types:
 
 - `TxtRecord`: builds DNS-SD TXT payloads from key/value pairs.
 - `Service`: describes one DNS-SD service instance.
 - `ResponderConfig`: host name, IPv4 address, IPv6 address, AirPlay service, and RAOP service.
-- `MdnsResponder`: singleton responder accessed with `MdnsResponder::instance()`; builds `AddressFamily`-specific announcements, goodbye packets, and responses to query bytes; `start`, `stop`, and `announce` run the optional POSIX UDP multicast responder.
-- `MdnsParser`: test/debug parser for generated DNS packets, with static `parse_packet`, `parse_question`, and `parse_record` methods using `bool` returns and output parameters for C++11 compatibility.
+- `Responder`: singleton responder accessed with `Responder::instance()`; builds `AddressFamily`-specific announcements, goodbye packets, and responses to query bytes; `start`, `stop`, and `announce` run the optional POSIX UDP multicast responder.
+- `PacketParser`: test/debug parser declared with packet helpers in `protocol/mdns/src/mdns_packet.hpp`.
 
 The IPv4 value is stored in host byte order. `core::network::parse_ipv4_address("127.0.0.1", address)` fills the expected value for the Linux harness packet encoding path. The IPv6 value is stored as 16 network-order bytes and can be filled with `core::network::parse_ipv6_address("::1", address)`.
 
-DNS-SD service profile helpers:
+Internal service profile helpers:
 
-- `protocol/mdns/include/mdns_service.hpp`: `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service`.
+- `protocol/mdns/src/mdns_service.hpp`: `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service`.
 - `streaming/airplay/include/airplay.hpp` and `streaming/raop/include/raop.hpp`: compatibility aliases and inline forwarding helpers for existing callers.
 - Harness utilities may set validation-specific profile fields, but they must not hand-build AirPlay or RAOP TXT records.
 

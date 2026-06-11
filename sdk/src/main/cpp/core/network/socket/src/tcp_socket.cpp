@@ -12,7 +12,7 @@
  *  Lesser General Public License for more details.
  */
 
-#include "impl/tcp_socket.hpp"
+#include "tcp_socket.hpp"
 #include "socket_internal.hpp"
 
 #include <sys/socket.h>
@@ -51,14 +51,14 @@ bool TcpSocket::valid() const {
 }
 
 void TcpSocket::close() {
-    internal::close_fd(fd_);
+    close_fd(fd_);
 }
 
 bool TcpSocket::connect_to(const Ipv4Endpoint& endpoint) {
     if (!valid()) {
         return false;
     }
-    const sockaddr_in addr = internal::to_sockaddr(endpoint);
+    const sockaddr_in addr = to_sockaddr(endpoint);
     return ::connect(fd_, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) == 0;
 }
 

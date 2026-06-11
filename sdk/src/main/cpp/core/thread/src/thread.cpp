@@ -3,19 +3,16 @@
 
 namespace aplay {
 namespace core {
-namespace {
 
-const std::size_t kMaxThreadNameLength = 15;
+static const std::size_t kMaxThreadNameLength = 15;
 
-std::string normalizedName(const std::string& name)
+static std::string normalizedName(const std::string& name)
 {
     if (name.size() <= kMaxThreadNameLength) {
         return name;
     }
     return name.substr(0, kMaxThreadNameLength);
 }
-
-} // namespace
 
 Thread::Thread(const std::string& name)
     : name_(normalizedName(name)),

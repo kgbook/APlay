@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "binary_io.hpp"
 #include "mdns_types.hpp"
 
 #include <cstddef>
@@ -25,7 +26,11 @@ namespace aplay {
 namespace protocol {
 namespace mdns {
 
-class MdnsParser {
+const std::size_t kMaxPacketSize = 1500;
+
+bool put_name(core::binary::Writer& packet, const std::string& name);
+
+class PacketParser {
 public:
     static bool parse_packet(const std::uint8_t* bytes, std::size_t length,
                              PacketSummary& summary);
@@ -36,6 +41,7 @@ public:
 };
 
 bool parse_packet(const std::uint8_t* bytes, std::size_t length, PacketSummary& summary);
+
 std::vector<std::uint8_t> build_ptr_query(const std::vector<std::string>& names,
                                           bool request_unicast);
 

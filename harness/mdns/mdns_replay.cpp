@@ -12,7 +12,8 @@
  *  Lesser General Public License for more details.
  */
 
-#include "mdns.hpp"
+#include "mdns_packet.hpp"
+#include "mdns_responder.hpp"
 #include "network_interface.hpp"
 
 #include "ALog.h"
@@ -25,10 +26,8 @@
 #include <string>
 #include <vector>
 
-namespace {
-
 using aplay::protocol::mdns::RecordSummary;
-using aplay::protocol::mdns::MdnsResponder;
+using aplay::protocol::mdns::Responder;
 using aplay::protocol::mdns::ResponderConfig;
 
 const char kDefaultReceiverName[] = "APlayHarness";
@@ -130,7 +129,7 @@ bool pcap_contains_dns_record_type(const std::vector<unsigned char>& pcap,
     return pcap_contains_bytes(pcap, pattern);
 }
 
-bool validate_generated_response_for_family(MdnsResponder& responder,
+bool validate_generated_response_for_family(Responder& responder,
                                             const ResponderConfig& config,
                                             const std::vector<std::uint8_t>& query,
                                             aplay::protocol::mdns::AddressFamily family,
@@ -146,7 +145,7 @@ bool validate_generated_response_for_family(MdnsResponder& responder,
     }
 
     aplay::protocol::mdns::PacketSummary summary;
-    if (!require(aplay::protocol::mdns::MdnsParser::parse_packet(
+    if (!require(aplay::protocol::mdns::PacketParser::parse_packet(
                      plan.packets[0].data(), plan.packets[0].size(), summary),
                  "generated response must parse") ||
         !require(summary.answers.size() == 9,
@@ -200,7 +199,7 @@ bool validate_generated_response_for_family(MdnsResponder& responder,
 }
 
 bool validate_generated_response() {
-    MdnsResponder& responder = MdnsResponder::instance();
+    Responder& responder = Responder::instance();
     const ResponderConfig config = make_config(kDefaultReceiverName, kDefaultDeviceId);
     responder.set_config(config);
     const std::vector<std::uint8_t> query =
@@ -216,7 +215,7 @@ bool validate_generated_response() {
 
     const std::vector<std::uint8_t> goodbye = responder.build_goodbye(responder.config().airplay);
     aplay::protocol::mdns::PacketSummary goodbye_summary;
-    return require(aplay::protocol::mdns::MdnsParser::parse_packet(
+    return require(aplay::protocol::mdns::PacketParser::parse_packet(
                        goodbye.data(), goodbye.size(), goodbye_summary),
                    "goodbye response must parse") &&
            require(!goodbye_summary.answers.empty(), "goodbye response must have answers") &&
@@ -271,8 +270,6 @@ bool validate_pcap_capture(const char* path, const std::string& receiver_name,
                                                 aplay::protocol::mdns::kTypeAaaa),
                    "pcap is missing receiver host AAAA record");
 }
-
-} // namespace
 
 int main(int argc, char** argv) {
     if (argc < 2 || argc > 5) {

@@ -12,7 +12,7 @@
  *  Lesser General Public License for more details.
  */
 
-#include "impl/udp_socket.hpp"
+#include "udp_socket.hpp"
 #include "network_interface.hpp"
 #include "socket_internal.hpp"
 
@@ -56,7 +56,7 @@ bool UdpSocket::valid() const {
 }
 
 void UdpSocket::close() {
-    internal::close_fd(fd_);
+    close_fd(fd_);
 }
 
 bool UdpSocket::send_to(const std::uint8_t* bytes, std::size_t length,
@@ -64,7 +64,7 @@ bool UdpSocket::send_to(const std::uint8_t* bytes, std::size_t length,
     if (!valid() || bytes == NULL || length == 0) {
         return false;
     }
-    const sockaddr_in addr = internal::to_sockaddr(endpoint);
+    const sockaddr_in addr = to_sockaddr(endpoint);
     return ::sendto(fd(), bytes, length, 0, reinterpret_cast<const sockaddr*>(&addr),
                     sizeof(addr)) == static_cast<ssize_t>(length);
 }
@@ -74,7 +74,7 @@ bool UdpSocket::send_to(const std::uint8_t* bytes, std::size_t length,
     if (!valid() || bytes == NULL || length == 0) {
         return false;
     }
-    const sockaddr_in6 addr = internal::to_sockaddr(endpoint);
+    const sockaddr_in6 addr = to_sockaddr(endpoint);
     return ::sendto(fd(), bytes, length, 0, reinterpret_cast<const sockaddr*>(&addr),
                     sizeof(addr)) == static_cast<ssize_t>(length);
 }
@@ -92,7 +92,7 @@ int UdpSocket::receive_from(std::uint8_t* bytes, std::size_t length,
     if (received < 0) {
         return -1;
     }
-    endpoint = internal::from_sockaddr(from);
+    endpoint = from_sockaddr(from);
     return static_cast<int>(received);
 }
 
@@ -109,7 +109,7 @@ int UdpSocket::receive_from(std::uint8_t* bytes, std::size_t length,
     if (received < 0) {
         return -1;
     }
-    endpoint = internal::from_sockaddr(from);
+    endpoint = from_sockaddr(from);
     return static_cast<int>(received);
 }
 
@@ -122,6 +122,14 @@ bool UdpSocket::set_ipv4_multicast_interface(std::uint32_t interface_address) co
     std::memset(&iface, 0, sizeof(iface));
     iface.s_addr = htonl(interface_address);
     return ::setsockopt(fd(), IPPROTO_IP, IP_MULTICAST_IF, &iface, sizeof(iface)) == 0;
+}
+
+bool UdpSocket::set_ipv6_multicast_interface(unsigned int interface_index) const {
+    if (!valid()) {
+        return false;
+    }
+    return ::setsockopt(fd(), IPPROTO_IPV6, IPV6_MULTICAST_IF, &interface_index,
+                        sizeof(interface_index)) == 0;
 }
 
 UdpSocket open_ipv4_udp_multicast_socket(std::uint16_t port,
@@ -155,14 +163,14 @@ UdpSocket open_ipv4_udp_multicast_socket(std::uint16_t port,
     bind_addr.sin_port = htons(port);
     bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     if (::bind(fd, reinterpret_cast<sockaddr*>(&bind_addr), sizeof(bind_addr)) == -1) {
-        internal::close_fd(fd);
+        close_fd(fd);
         return UdpSocket();
     }
 
     in_addr multicast_addr;
     std::memset(&multicast_addr, 0, sizeof(multicast_addr));
     if (::inet_pton(AF_INET, multicast_address.c_str(), &multicast_addr) != 1) {
-        internal::close_fd(fd);
+        close_fd(fd);
         return UdpSocket();
     }
 
@@ -190,7 +198,7 @@ UdpSocket open_ipv4_udp_multicast_socket(std::uint16_t port,
         mreq.imr_multiaddr = multicast_addr;
         mreq.imr_interface.s_addr = htonl(INADDR_ANY);
         if (::setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1) {
-            internal::close_fd(fd);
+            close_fd(fd);
             return UdpSocket();
         }
     }
@@ -222,14 +230,14 @@ UdpSocket open_ipv6_udp_multicast_socket(std::uint16_t port,
     bind_addr.sin6_port = htons(port);
     bind_addr.sin6_addr = in6addr_any;
     if (::bind(fd, reinterpret_cast<sockaddr*>(&bind_addr), sizeof(bind_addr)) == -1) {
-        internal::close_fd(fd);
+        close_fd(fd);
         return UdpSocket();
     }
 
     in6_addr multicast_addr;
     std::memset(&multicast_addr, 0, sizeof(multicast_addr));
     if (::inet_pton(AF_INET6, multicast_address.c_str(), &multicast_addr) != 1) {
-        internal::close_fd(fd);
+        close_fd(fd);
         return UdpSocket();
     }
 
@@ -251,7 +259,7 @@ UdpSocket open_ipv6_udp_multicast_socket(std::uint16_t port,
         mreq.ipv6mr_multiaddr = multicast_addr;
         mreq.ipv6mr_interface = 0;
         if (::setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, &mreq, sizeof(mreq)) == -1) {
-            internal::close_fd(fd);
+            close_fd(fd);
             return UdpSocket();
         }
     }

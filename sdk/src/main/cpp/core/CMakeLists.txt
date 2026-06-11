@@ -3,6 +3,7 @@ include(${ALL_SUBDIR_CMAKELISTS})
 include(${CLEAR_VARS})
 set(LOCAL_MODULE core)
 set(LOCAL_INTERFACE_LIBRARIES
+    binary
     pattern
     eventloop
     network

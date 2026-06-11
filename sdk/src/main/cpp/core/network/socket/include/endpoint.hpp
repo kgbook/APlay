@@ -12,28 +12,34 @@
  *  Lesser General Public License for more details.
  */
 
-#pragma once
-
-#include "mdns_service.hpp"
+#ifndef APLAY_CORE_SOCKET_ENDPOINT_HPP
+#define APLAY_CORE_SOCKET_ENDPOINT_HPP
 
 #include <array>
 #include <cstdint>
 #include <string>
-#include <vector>
 
 namespace aplay {
-namespace protocol {
-namespace mdns {
+namespace core {
+namespace socket {
 
-struct ResponderConfig {
-    std::string host_name = "APlay.local";
-    std::uint32_t ipv4_address = 0; // Host byte order.
-    std::vector<std::uint32_t> ipv4_addresses; // Host byte order.
-    std::array<std::uint8_t, 16> ipv6_address{};
-    Service airplay;
-    Service raop;
+struct Ipv4Endpoint {
+    std::uint32_t address = 0; // Host byte order.
+    std::uint16_t port = 0;
 };
 
-} // namespace mdns
-} // namespace protocol
+struct Ipv6Endpoint {
+    std::array<std::uint8_t, 16> address{};
+    std::uint16_t port = 0;
+    std::uint32_t scope_id = 0;
+};
+
+Ipv4Endpoint make_ipv4_endpoint(const std::string& address, std::uint16_t port);
+Ipv6Endpoint make_ipv6_endpoint(const std::string& address, std::uint16_t port,
+                                std::uint32_t scope_id);
+
+} // namespace socket
+} // namespace core
 } // namespace aplay
+
+#endif // APLAY_CORE_SOCKET_ENDPOINT_HPP

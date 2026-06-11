@@ -17,17 +17,13 @@
 namespace aplay {
 namespace core {
 
-namespace {
-
-Poller::Impl* create_poller_impl() {
+static Poller::Impl* create_poller_impl() {
 #if defined(__linux__) || defined(__ANDROID__)
     return create_epoll_poller_impl();
 #else
     return create_poll_poller_impl();
 #endif
 }
-
-} // namespace
 
 Poller::Poller() : impl_(create_poller_impl()) {}
 

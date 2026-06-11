@@ -23,9 +23,8 @@
 
 namespace aplay {
 namespace core {
-namespace {
 
-std::uint32_t to_native_events(std::uint32_t events) {
+static std::uint32_t to_native_events(std::uint32_t events) {
     std::uint32_t native = 0;
     if ((events & kPollReadable) != 0) {
         native |= EPOLLIN;
@@ -36,7 +35,7 @@ std::uint32_t to_native_events(std::uint32_t events) {
     return native;
 }
 
-std::uint32_t from_native_events(std::uint32_t events) {
+static std::uint32_t from_native_events(std::uint32_t events) {
     std::uint32_t out = 0;
     if ((events & EPOLLIN) != 0) {
         out |= kPollReadable;
@@ -110,8 +109,6 @@ public:
 private:
     int epoll_fd_;
 };
-
-} // namespace
 
 Poller::Impl* create_epoll_poller_impl() {
     return new EpollPollerImpl();

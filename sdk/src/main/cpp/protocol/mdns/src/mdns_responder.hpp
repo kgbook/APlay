@@ -26,7 +26,7 @@ namespace aplay {
 namespace protocol {
 namespace mdns {
 
-class MdnsResponder : public core::Singleton<MdnsResponder> {
+class Responder : public core::Singleton<Responder> {
 public:
     void set_config(ResponderConfig config);
     const ResponderConfig& config() const;
@@ -42,16 +42,23 @@ public:
     void announce(std::uint32_t ttl = kServiceTtl);
 
 private:
-    friend class core::Singleton<MdnsResponder>;
+    friend class core::Singleton<Responder>;
 
-    MdnsResponder();
-    ~MdnsResponder();
+    Responder();
+    ~Responder();
 
     ResponderConfig config_;
 
     std::vector<std::vector<std::uint8_t>> build_response_packets(
         bool include_airplay, bool include_raop, bool include_host, std::uint32_t ttl,
         AddressFamily family, std::uint32_t ipv4_address) const;
+    std::vector<std::vector<std::uint8_t>> build_response_packets(
+        const ResponderConfig& config, bool include_airplay, bool include_raop,
+        bool include_host, std::uint32_t ttl, AddressFamily family,
+        std::uint32_t ipv4_address) const;
+    ResponsePlan handle_query(const ResponderConfig& config, const std::uint8_t* bytes,
+                              std::size_t length, AddressFamily family,
+                              std::uint32_t ipv4_address) const;
 
     class Impl;
     Impl* impl_;

@@ -22,7 +22,6 @@
 namespace aplay {
 namespace core {
 namespace socket {
-namespace internal {
 
 void close_fd(int& fd) {
     if (fd != -1) {
@@ -65,7 +64,6 @@ Ipv6Endpoint from_sockaddr(const sockaddr_in6& addr) {
     return endpoint;
 }
 
-} // namespace internal
 } // namespace socket
 } // namespace core
 } // namespace aplay

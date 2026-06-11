@@ -24,16 +24,13 @@
 
 namespace aplay {
 namespace core {
-namespace {
 
-void set_nonblocking(int fd) {
+static void set_nonblocking(int fd) {
     const int flags = ::fcntl(fd, F_GETFL, 0);
     if (flags != -1) {
         ::fcntl(fd, F_SETFL, flags | O_NONBLOCK);
     }
 }
-
-} // namespace
 
 class EventLoop::Impl {
 public:

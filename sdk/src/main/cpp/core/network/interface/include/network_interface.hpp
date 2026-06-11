@@ -24,6 +24,11 @@ namespace aplay {
 namespace core {
 namespace network {
 
+struct Ipv6MulticastInterface {
+    std::array<std::uint8_t, 16> address{};
+    unsigned int index = 0;
+};
+
 bool parse_ipv4_address(const std::string& text, std::uint32_t& address);
 bool parse_ipv6_address(const std::string& text, std::array<std::uint8_t, 16>& address);
 
@@ -33,7 +38,15 @@ std::string format_ipv6_address(const std::array<std::uint8_t, 16>& address);
 bool default_ipv4_address(std::uint32_t& address);
 bool default_ipv6_address(std::array<std::uint8_t, 16>& address);
 
+bool local_ipv4_address_for_peer(std::uint32_t peer_address, std::uint16_t peer_port,
+                                 std::uint32_t& address);
+bool local_ipv6_address_for_peer(const std::array<std::uint8_t, 16>& peer_address,
+                                 std::uint32_t peer_scope_id, std::uint16_t peer_port,
+                                 std::array<std::uint8_t, 16>& address,
+                                 std::uint32_t& scope_id);
+
 std::vector<std::uint32_t> ipv4_multicast_interface_addresses();
+std::vector<Ipv6MulticastInterface> ipv6_multicast_interfaces();
 std::vector<unsigned int> ipv6_multicast_interface_indices();
 
 } // namespace network

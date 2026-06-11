@@ -14,21 +14,35 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
 namespace aplay {
-namespace protocol {
-namespace mdns {
+namespace core {
+namespace binary {
 
-struct ResponsePlan {
-    std::vector<std::vector<std::uint8_t>> packets;
-    bool include_airplay = false;
-    bool include_raop = false;
-    bool include_host = false;
-    bool wants_unicast = false;
+std::uint16_t read_u16_be(const std::uint8_t* bytes);
+std::uint32_t read_u32_be(const std::uint8_t* bytes);
+
+class Writer {
+public:
+    explicit Writer(std::size_t max_size);
+
+    bool put_u8(std::uint8_t value);
+    bool put_u16_be(std::uint16_t value);
+    bool put_u32_be(std::uint32_t value);
+    bool put_bytes(const std::uint8_t* data, std::size_t length);
+
+    std::size_t size() const;
+    std::uint8_t& operator[](std::size_t pos);
+    std::vector<std::uint8_t> take();
+
+private:
+    std::size_t max_size_;
+    std::vector<std::uint8_t> bytes_;
 };
 
-} // namespace mdns
-} // namespace protocol
+} // namespace binary
+} // namespace core
 } // namespace aplay

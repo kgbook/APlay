@@ -7,7 +7,8 @@
  *  version 2.1 of the License, or (at your option) any later version.
  */
 
-#include "mdns.hpp"
+#include "mdns_packet.hpp"
+#include "mdns_responder.hpp"
 #include "network_interface.hpp"
 
 #include "ALog.h"
@@ -20,15 +21,11 @@
 #include <thread>
 #include <vector>
 
-namespace {
+static volatile std::sig_atomic_t g_should_stop = 0;
 
-volatile std::sig_atomic_t g_should_stop = 0;
-
-void handle_signal(int) {
+static void handle_signal(int) {
     g_should_stop = 1;
 }
-
-} // namespace
 
 int main(int argc, char** argv) {
     bool once = false;
@@ -50,8 +47,19 @@ int main(int argc, char** argv) {
 
     aplay::protocol::mdns::ResponderConfig config;
     config.host_name = receiver_name + ".local";
-    aplay::core::network::parse_ipv4_address("127.0.0.1", config.ipv4_address);
-    aplay::core::network::parse_ipv6_address("::1", config.ipv6_address);
+    config.ipv4_addresses = aplay::core::network::ipv4_multicast_interface_addresses();
+    if (!config.ipv4_addresses.empty()) {
+        config.ipv4_address = config.ipv4_addresses[0];
+    } else {
+        aplay::core::network::parse_ipv4_address("127.0.0.1", config.ipv4_address);
+    }
+    const std::vector<aplay::core::network::Ipv6MulticastInterface> ipv6_interfaces =
+        aplay::core::network::ipv6_multicast_interfaces();
+    if (!ipv6_interfaces.empty()) {
+        config.ipv6_address = ipv6_interfaces[0].address;
+    } else {
+        aplay::core::network::default_ipv6_address(config.ipv6_address);
+    }
 
     aplay::protocol::mdns::AirPlayServiceProfile airplay_profile;
     airplay_profile.receiver_name = receiver_name;
@@ -62,8 +70,8 @@ int main(int argc, char** argv) {
     raop_profile.receiver_name = receiver_name;
     config.raop = aplay::protocol::mdns::make_raop_service(raop_profile);
 
-    aplay::protocol::mdns::MdnsResponder& responder =
-        aplay::protocol::mdns::MdnsResponder::instance();
+    aplay::protocol::mdns::Responder& responder =
+        aplay::protocol::mdns::Responder::instance();
     responder.set_config(config);
     std::vector<std::vector<std::uint8_t> > packets =
         responder.build_announcement(aplay::protocol::mdns::kServiceTtl,
@@ -77,8 +85,8 @@ int main(int argc, char** argv) {
               << '\n';
     for (std::size_t i = 0; i < packets.size(); ++i) {
         aplay::protocol::mdns::PacketSummary summary;
-        if (!aplay::protocol::mdns::MdnsParser::parse_packet(packets[i].data(),
-                                                             packets[i].size(), summary)) {
+        if (!aplay::protocol::mdns::PacketParser::parse_packet(
+                packets[i].data(), packets[i].size(), summary)) {
             LOGE("mdns_announce", "failed to parse generated mDNS packet");
             return 1;
         }

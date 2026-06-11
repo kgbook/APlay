@@ -23,9 +23,8 @@
 
 namespace aplay {
 namespace core {
-namespace {
 
-short to_poll_events(std::uint32_t events) {
+static short to_poll_events(std::uint32_t events) {
     short native = 0;
     if ((events & kPollReadable) != 0) {
         native = static_cast<short>(native | POLLIN);
@@ -36,7 +35,7 @@ short to_poll_events(std::uint32_t events) {
     return native;
 }
 
-std::uint32_t from_poll_events(short events) {
+static std::uint32_t from_poll_events(short events) {
     std::uint32_t out = 0;
     if ((events & POLLIN) != 0) {
         out |= kPollReadable;
@@ -109,8 +108,6 @@ public:
 private:
     std::vector<pollfd> poll_fds_;
 };
-
-} // namespace
 
 Poller::Impl* create_poll_poller_impl() {
     return new PollPollerImpl();

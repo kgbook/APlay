@@ -15,7 +15,7 @@
 #ifndef APLAY_CORE_TCP_SOCKET_HPP
 #define APLAY_CORE_TCP_SOCKET_HPP
 
-#include "ipv4or6_endpoint.hpp"
+#include "endpoint.hpp"
 
 #include <cstddef>
 #include <cstdint>

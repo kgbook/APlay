@@ -12,7 +12,7 @@
  *  Lesser General Public License for more details.
  */
 
-#include "impl/ipv4or6_endpoint.hpp"
+#include "endpoint.hpp"
 #include "socket_internal.hpp"
 
 #include <arpa/inet.h>

@@ -10,14 +10,17 @@
 
 ## File Layout
 
-- One cohesive area per file; helpers near the class they serve
-- Public headers under module's `include/`, private headers under `src/`
-- Each SDK C++ module may keep only one public entry header directly under its
-  `include/` directory. The entry header should use the module directory name
-  where practical, such as `mdns/include/mdns.hpp`.
-- Headers needed by that entry header but not intended as the module entrypoint
-  must live under `include/impl/` or `include/internal/`; implementation-only
-  headers stay under `src/`.
+- One cohesive area per file; helpers near the class they serve.
+- Public headers belong directly under the owning module's `include/`
+  directory. Keep this set as small as possible, and give each public header a
+  single responsibility that matches a real consumer-facing API surface.
+- Do not expose `include/impl/` or `include/internal/` public-header trees.
+  Types, helpers, and adapters that are not part of the consumer contract must
+  live under `src/`.
+- Prefer a small number of focused public headers over a broad aggregate header,
+  but do not couple peer APIs just to share a type. For example, the socket
+  module exposes `endpoint.hpp`, `tcp_socket.hpp`, and `udp_socket.hpp`
+  directly instead of a catch-all `socket.hpp` or nested implementation headers.
 
 ## Module Design
 
@@ -46,6 +49,11 @@
 - C++11 compatible
 - Logs: `ALog.h` only
 - POSIX APIs + STL; no platform APIs outside platform modules
+- Namespaces follow the owning module path for public APIs, such as
+  `aplay::protocol::mdns` or `aplay::core::network`. Do not add implementation
+  namespace layers such as `internal` or `impl`; private implementation helpers
+  must live in `src/` files under the module namespace.
+- Do not use anonymous namespaces.
 - Define one primary C++ class per source file, third-party code is exempt.
   When a module needs multiple implementations of the same abstraction, keep
   each concrete implementation in its own `lower_snake_case` source file and

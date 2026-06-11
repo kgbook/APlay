@@ -12,7 +12,44 @@
  *  Lesser General Public License for more details.
  */
 
-#pragma once
+#ifndef APLAY_CORE_POLL_HPP
+#define APLAY_CORE_POLL_HPP
 
-#include "impl/poll_event.hpp"
-#include "impl/poller.hpp"
+#include <cstdint>
+#include <vector>
+
+namespace aplay {
+namespace core {
+
+static const std::uint32_t kPollReadable = 0x01;
+static const std::uint32_t kPollWritable = 0x02;
+static const std::uint32_t kPollError = 0x04;
+
+struct PollEvent {
+    int fd = -1;
+    std::uint32_t events = 0;
+};
+
+class Poller {
+public:
+    class Impl;
+
+    Poller();
+    ~Poller();
+
+    Poller(const Poller&) = delete;
+    Poller& operator=(const Poller&) = delete;
+
+    bool add(int fd, std::uint32_t events);
+    bool update(int fd, std::uint32_t events);
+    void remove(int fd);
+    int wait(std::vector<PollEvent>& events, int timeout_ms);
+
+private:
+    Impl* impl_;
+};
+
+} // namespace core
+} // namespace aplay
+
+#endif // APLAY_CORE_POLL_HPP

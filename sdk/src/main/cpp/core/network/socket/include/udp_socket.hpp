@@ -15,12 +15,11 @@
 #ifndef APLAY_CORE_UDP_SOCKET_HPP
 #define APLAY_CORE_UDP_SOCKET_HPP
 
-#include "ipv4or6_endpoint.hpp"
+#include "endpoint.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include <vector>
 
 namespace aplay {
 namespace core {
@@ -48,6 +47,7 @@ public:
     int receive_from(std::uint8_t* bytes, std::size_t length, Ipv4Endpoint& endpoint) const;
     int receive_from(std::uint8_t* bytes, std::size_t length, Ipv6Endpoint& endpoint) const;
     bool set_ipv4_multicast_interface(std::uint32_t interface_address) const;
+    bool set_ipv6_multicast_interface(unsigned int interface_index) const;
 
 private:
     int fd_;
@@ -58,6 +58,7 @@ UdpSocket open_ipv4_udp_multicast_socket(std::uint16_t port,
                                          std::uint32_t interface_address);
 UdpSocket open_ipv6_udp_multicast_socket(std::uint16_t port,
                                          const std::string& multicast_address);
+
 } // namespace socket
 } // namespace core
 } // namespace aplay

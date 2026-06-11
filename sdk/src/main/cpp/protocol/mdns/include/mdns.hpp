@@ -14,8 +14,21 @@
 
 #pragma once
 
-#include "impl/mdns_constants.hpp"
-#include "impl/mdns_parser.hpp"
-#include "impl/mdns_responder.hpp"
-#include "impl/mdns_types.hpp"
-#include "impl/mdns_service.hpp"
+namespace aplay {
+namespace protocol {
+namespace mdns {
+
+class DNSServiceDiscovery {
+public:
+    static int start();
+    static void stop();
+
+private:
+    DNSServiceDiscovery() = delete;
+    DNSServiceDiscovery(const DNSServiceDiscovery&) = delete;
+    DNSServiceDiscovery& operator=(const DNSServiceDiscovery&) = delete;
+};
+
+} // namespace mdns
+} // namespace protocol
+} // namespace aplay
