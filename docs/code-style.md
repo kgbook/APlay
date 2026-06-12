@@ -14,8 +14,7 @@
 - Public headers belong directly under the owning module's `include/`
   directory. Keep this set as small as possible, and give each public header a
   single responsibility that matches a real consumer-facing API surface.
-- Do not expose `include/impl/` or `include/internal/` public-header trees.
-  Types, helpers, and adapters that are not part of the consumer contract must
+- Types, helpers, and adapters that are not part of the consumer contract must
   live under `src/`.
 - Prefer a small number of focused public headers over a broad aggregate header,
   but do not couple peer APIs just to share a type. For example, the socket
@@ -49,26 +48,11 @@
 - Keep logs actionable and bounded. Avoid per-packet, per-frame, or tight-loop
   logs unless they are explicitly gated behind debug-only diagnostics.
 
-## CMake
-
-- CMake code must use `cmake/CMakeHelper` target declarations instead of direct
-  target creation helpers such as `add_library`, `add_executable`,
-  `target_include_directories`, or `target_link_libraries`.
-- Use the Android.mk-style `CMakeHelper` flow: `include(${CLEAR_VARS})`, set the relevant `LOCAL_*` variables, then include the matching `BUILD_*` file.                                                     
-- SDK C++ module targets must use the module directory name as `LOCAL_MODULE`;
-  do not prefix target names with product or parent-directory names. Third-party
-  submodules are exempt.
-- Export public include directories from the owning target with `LOCAL_EXPORT_C_INCLUDES`.
-- Keep private include directories on the compiling target with `LOCAL_C_INCLUDES`.
-- Model module coupling with target dependencies. Do not compensate for missing
-  dependencies by adding broad include directories to unrelated targets.
-- CMake exceptions are limited to third-party submodules and the `cmake/CMakeHelper` implementation itself.
-
 ## C/C++
 
 - C++11 compatible
 - Logs: `ALog.h` only
-- POSIX APIs + STL; no platform APIs outside platform modules
+- POSIX APIs + STL; platform APIs only allowed in `osal` and `app` modules.
 - Namespaces follow the owning module path for public APIs, such as
   `aplay::protocol::mdns` or `aplay::core::network`. Do not add implementation
   namespace layers such as `internal` or `impl`; private implementation helpers

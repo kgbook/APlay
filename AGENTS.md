@@ -14,21 +14,17 @@
 - `sdk` owns CPP/Java/ETS SDK APIs and their packaging.
 - `core` owns common reusable C/C++ code.
 - `osal` currently owns platform codec/render modules and native binding submodules.
-- 
-## Workflow Constraints
-
-- Do not push to remote unless explicitly asked. Only commit locally and wait for user verification before pushing.
 
 ## Implementation Rules
 
 - Follow `docs/AGENTS.md` for documentation-driven implementation and acceptance requirements.
-- Use `docs/airplay-spec` as the local AirPlay protocol reference. When implementing AirPlay, RAOP, RTSP, HTTP, mDNS/DNS-SD, pairing, FairPlay, RTP, NTP, or related capability fields, map behavior back to the corresponding spec section before coding.
+- Follow `cmake/CMakeHelper/AGENTS.mdd` for CMake code implementation.
+- Follow `docs/airplay-spec/AGENTS.md`, and Implement all protocol, streaming, cryptography, and interaction logic strictly.
 - After changing third-party submodule paths, run `git submodule sync --recursive` and `git submodule update --init --recursive`.
-- BLE service discovery is TODO and should not be implemented in the first baseline.
 
 ## Validation
 
-- Protocol validation must include checks against `docs/airplay-spec` for any implemented or changed module behavior. At minimum, verify advertised service names, TXT keys, feature/status values, request paths, response status codes, and payload fields against the relevant spec section.
+- Validate, review, and correct all code against `docs/airplay-spec` before submission. Any implementation that does not comply with the specification must be fixed.
 
 ### Build validation
 - Linux build: `./scripts/linux_build.sh`.
