@@ -21,11 +21,14 @@
 
 ## Implementation Rules
 
-- Follow `docs/code-style.md`
+- Follow `docs/AGENTS.md` for documentation-driven implementation and acceptance requirements.
+- Use `docs/airplay-spec` as the local AirPlay protocol reference. When implementing AirPlay, RAOP, RTSP, HTTP, mDNS/DNS-SD, pairing, FairPlay, RTP, NTP, or related capability fields, map behavior back to the corresponding spec section before coding.
 - After changing third-party submodule paths, run `git submodule sync --recursive` and `git submodule update --init --recursive`.
 - BLE service discovery is TODO and should not be implemented in the first baseline.
 
 ## Validation
+
+- Protocol validation must include checks against `docs/airplay-spec` for any implemented or changed module behavior. At minimum, verify advertised service names, TXT keys, feature/status values, request paths, response status codes, and payload fields against the relevant spec section.
 
 ### Build validation
 - Linux build: `./scripts/linux_build.sh`.

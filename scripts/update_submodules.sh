@@ -7,6 +7,10 @@ ROOT_DIR=${1:-$(CDPATH= cd -- "${SCRIPT_DIR}/.." && pwd)}
 echo "=== Syncing submodule URLs ==="
 git -C "${ROOT_DIR}" submodule sync --recursive
 
+echo "=== Submodules configured in this repository ==="
+git -C "${ROOT_DIR}" config --file .gitmodules --get-regexp 'submodule\..*\.path' |
+    sed 's/^submodule\.\(.*\)\.path /\1 -> /'
+
 SUBMODULE_STATUS=$(git -C "${ROOT_DIR}" submodule status --recursive)
 if printf '%s\n' "${SUBMODULE_STATUS}" | grep -q '^-'; then
     echo "=== Initializing and updating submodules from remote ==="
