@@ -4,7 +4,6 @@
 
 - `app` is a consumer entrypoint according to the target os.
 - `sdk` is the shared SDK module, including C++, Java and ETS SDK.
-- `example` owns manually runnable example source code and binaries for humans to validate implemented behavior before confirming.
 
 ## Platform Responsibilities
 
@@ -18,13 +17,13 @@
 ## Implementation Rules
 
 - Follow `docs/AGENTS.md` for documentation-driven implementation and acceptance requirements.
-- Follow `cmake/CMakeHelper/AGENTS.mdd` for CMake code implementation.
+- Follow `cmake/CMakeHelper/AGENTS.md` for CMake code implementation.
 - Follow `docs/airplay-spec/AGENTS.md`, and Implement all protocol, streaming, cryptography, and interaction logic strictly.
 - After changing third-party submodule paths, run `git submodule sync --recursive` and `git submodule update --init --recursive`.
 
 ## Validation
 
-- Validate, review, and correct all code against `docs/airplay-spec` before submission. Any implementation that does not comply with the specification must be fixed.
+Validate, review, and correct all code against `docs/airplay-spec` before submission. Any implementation that does not comply with the specification must be fixed.
 
 ### Build validation
 - Linux build: `./scripts/linux_build.sh`.
