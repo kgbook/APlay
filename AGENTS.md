@@ -4,8 +4,6 @@
 
 - `app` is a consumer entrypoint according to the target os.
 - `sdk` is the shared SDK module, including C++, Java and ETS SDK.
-- `scripts/harness` owns agent/CI validation orchestration only; module-specific
-  harness implementation lives inside the owning module behind compile macros.
 - `example` owns manually runnable example source code and binaries for humans to validate implemented behavior before confirming.
 
 ## Platform Responsibilities
@@ -30,7 +28,6 @@
 ## Validation
 
 ### Build validation
-- Linux build: `./scripts/app/linux_build.sh`.
-- Linux mDNS harness: `./scripts/harness/verify_mdns.sh`
-- Android app: `./scripts/app/android_build.sh`.
-- Harmony HAP: `./scripts/app/harmony_build.sh`.
+- Linux build: `./scripts/linux_build.sh`.
+- Android app: `./scripts/android_build.sh`.
+- Harmony HAP: `./scripts/harmony_build.sh`.

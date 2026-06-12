@@ -18,7 +18,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/sdk-cpp)
 
-option(APLAY_BUILD_HARNESS "Build APlay harness validation tools" ON)
 set(APLAY_BUILD_LINUX ON CACHE BOOL "Build Linux platform native modules")
 
 add_subdirectory("${TOP_DIR}/sdk/src/main/cpp" ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
@@ -29,7 +28,3 @@ set(LOCAL_SRC_FILES main.cpp)
 set(LOCAL_INTERFACE_LIBRARIES cpp_sdk)
 set(LOCAL_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 include(${BUILD_EXECUTABLE})
-
-if(APLAY_BUILD_HARNESS)
-    enable_testing()
-endif()

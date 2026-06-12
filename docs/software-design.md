@@ -4,7 +4,7 @@
 
 - 协议解析与业务状态分离。
 - C++ 对象拥有明确生命周期，禁止裸全局状态承载会话逻辑。
-- 加密和 RTP 处理可被 harness 离线调用。
+- 加密和 RTP 处理保持模块内聚，避免依赖平台 UI 生命周期。
 - Linux/Android/Harmony 的 UI 与生命周期差异存在于 `app/linux`、`app/android` 和后续 `app/harmony`。
 - SDK facade 位于 `sdk`：C++ SDK 公共 runtime 实现在 `sdk/src/main/cpp/core/runtime` 并由 core 导出，Linux 输出 `aplay_sdk` 共享库，Android/Harmony 链接 `aplay_cpp_sdk` facade；JNI binding 在 `sdk/src/main/cpp/osal/android/jni` 并为 Android 打包输出 `libaplay_sdk.so`，NAPI binding 在 `sdk/src/main/cpp/osal/harmony/napi`，Harmony NAPI 类型声明包在 `sdk/src/main/ets/libaplay_napi`，Java SDK 在 `sdk/src/main/java` 并输出 `aplay-sdk` AAR，ETS SDK facade 在 `sdk/src/main/ets/com/kgbook/aplay`，Harmony HAR module 配置位于 `sdk` 根目录并输出 `aplay_sdk` HAR。
 - `core` 当前承载通用可复用 C/C++ 实现和 STL-based 的跨平台辅助能力，例如 `network/interface`、`socket`、`poll`、`eventloop`、`thread`；`core/pattern` 承载可复用设计模式模板，例如 process-wide SDK 对象使用的 singleton；不再单独设置 `utils` 模块。
@@ -241,7 +241,7 @@
 - 提供 codec/render 能力抽象。
 - Linux 实现使用 GStreamer。
 - Android 实现使用 MediaCodec、AudioTrack、Surface。
-- harness 实现使用 mock render/codec，记录事件并生成 golden summary。
+- 调试或示例实现可以使用 mock render/codec 记录事件，但不作为 SDK 对外接口。
 
 OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flush/frame 事件。
 
@@ -250,7 +250,7 @@ OSAL render/codec 不参与协议决策，只接受 start/stop/pause/resume/flus
 - 参数错误：返回 usage error。
 - 协议错误：生成可解释响应并记录 request summary。
 - 加密错误：session 进入 `Error`，关闭相关通道。
-- RTP 缺包：记录 gap，触发 resend 或在 harness summary 中暴露。
+- RTP 缺包：记录 gap，并按协议状态触发 resend 或上报错误。
 - Renderer 错误：向 Runtime 上报，Runtime 决定 reset 或退出。
 
 ## App 与 OSAL 平台边界

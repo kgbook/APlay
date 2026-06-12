@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 sh "${ROOT_DIR}/scripts/update_submodules.sh" "${ROOT_DIR}"
 
@@ -14,12 +14,11 @@ cmake \
     -S "${ROOT_DIR}/app/linux" \
     -B "${BUILD_DIR}" \
     -G "${GENERATOR}" \
-    -DAPLAY_BUILD_HARNESS=ON \
     -DAPLAY_BUILD_LINUX=ON \
     -DAPLAY_BUILD_ANDROID=OFF \
     -DAPLAY_BUILD_HARMONY=OFF
 cmake --build "${BUILD_DIR}"
 
-SDK_LIBRARY="$(find "${BUILD_DIR}/sdk-cpp" -maxdepth 1 -type f \( -name 'libaplay-sdk.so' -o -name 'libaplay-sdk.dylib' \) -print -quit)"
+SDK_LIBRARY="$(find "${BUILD_DIR}/sdk-cpp" -maxdepth 1 -type f \( -name 'libaplay_sdk.so' -o -name 'libaplay_sdk.dylib' \) -print -quit)"
 echo "Linux SDK library: ${SDK_LIBRARY}"
 echo "Linux executable: ${BUILD_DIR}/APlayReceiver"

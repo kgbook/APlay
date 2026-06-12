@@ -11,7 +11,6 @@ component "protocol\nRTSP / HTTP / mDNS" as Protocol
 component "streaming\nRAOP / mirror / HLS / timing" as Streaming
 component "crypto\nAES / FairPlay / SRP / Ed25519" as Crypto
 component "osal\ncodec / render / bindings" as Osal
-component "harness\nreplay / vectors / smoke" as Harness
 
 LinuxApp --> Protocol
 LinuxApp --> Streaming
@@ -26,10 +25,6 @@ Protocol --> Streaming
 Protocol --> Osal
 Streaming --> Crypto
 Streaming --> Osal
-Harness --> Protocol
-Harness --> Streaming
-Harness --> Crypto
-Harness --> Osal
 
 note right of Protocol
 BLE discovery is TODO.

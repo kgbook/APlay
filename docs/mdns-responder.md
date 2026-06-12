@@ -17,13 +17,11 @@ The mDNS implementation is a small AirPlay receiver responder, not a general DNS
 
 The DNS responder API is exported from `sdk/src/main/cpp/protocol/mdns/include/mdns.hpp`. The implementation lives under `sdk/src/main/cpp/protocol/mdns/src`. `Responder` is the single responder implementation: it builds offline packets, handles query bytes, and can optionally run the POSIX UDP multicast loop. It uses `core/pattern/singleton` because the UDP 5353 listener is a process-wide service; callers access it through `Responder::instance()` and update runtime settings with `set_config`. Packet encoding and parsing stay in the mDNS protocol module, while generic IPv4/IPv6 parsing, UDP multicast socket setup, fd polling, and event dispatch live in `core/network/interface`, `core/socket`, `core/poll`, and `core/eventloop`. Project-owned native code uses POSIX APIs and the C++ STL so it remains portable to embedded toolchains with limited C++ support.
 
-AirPlay and RAOP DNS-SD capability profiles belong to the mDNS protocol module, not to examples. `sdk/src/main/cpp/protocol/mdns/src/mdns_service.hpp` declares `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service` for the responder and harness. Those helpers produce `protocol::mdns::Service` records for discovery; future AirPlay video and RAOP audio packet handling should remain in the owning streaming modules instead of moving runtime behavior into `example`.
+AirPlay and RAOP DNS-SD capability profiles belong to the mDNS protocol module, not to examples. `sdk/src/main/cpp/protocol/mdns/src/mdns_service.hpp` declares `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service` for the responder. Those helpers produce `protocol::mdns::Service` records for discovery; future AirPlay video and RAOP audio packet handling should remain in the owning streaming modules instead of moving runtime behavior into `example`.
 
 ## Reference Inputs
 
-The behavior is validated against APlay-owned generated packets, live Linux harness captures, and reference captures that contain both IPv4 mDNS (`224.0.0.251`) and IPv6 mDNS (`ff02::fb`). Packet analysis notes may inform protocol understanding, but harness checks use APlay service profiles and do not depend on external project naming.
-
-The Linux harness writes its live mDNS capture to `resources/pcap/mdns_announce.pcapng` by default. Replay scans that capture for AirPlay and RAOP DNS-SD names emitted by the announcer.
+Reference captures that contain both IPv4 mDNS (`224.0.0.251`) and IPv6 mDNS (`ff02::fb`) can inform protocol behavior. Project code should use APlay service profiles and must not depend on external project naming.
 
 ## DNS-SD Records
 
@@ -76,48 +74,20 @@ Core types:
 - `Service`: describes one DNS-SD service instance.
 - `ResponderConfig`: host name, IPv4 address, IPv6 address, AirPlay service, and RAOP service.
 - `Responder`: singleton responder accessed with `Responder::instance()`; builds `AddressFamily`-specific announcements, goodbye packets, and responses to query bytes; `start`, `stop`, and `announce` run the optional POSIX UDP multicast responder.
-- `PacketParser`: test/debug parser declared with packet helpers in `protocol/mdns/src/mdns_packet.hpp`.
+- Internal packet parser and packet helpers stay in `protocol/mdns/src` and are not exported by the SDK API.
 
-The IPv4 value is stored in host byte order. `core::network::parse_ipv4_address("127.0.0.1", address)` fills the expected value for the Linux harness packet encoding path. The IPv6 value is stored as 16 network-order bytes and can be filled with `core::network::parse_ipv6_address("::1", address)`.
+The IPv4 value is stored in host byte order. `core::network::parse_ipv4_address("127.0.0.1", address)` fills the expected value for packet encoding. The IPv6 value is stored as 16 network-order bytes and can be filled with `core::network::parse_ipv6_address("::1", address)`.
 
 Internal service profile helpers:
 
 - `protocol/mdns/src/mdns_service.hpp`: `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service`.
 - `streaming/connection/include/connection.hpp`: connection classification and dispatch boundary for HTTP/HLS/RTSP control connections.
 - `streaming/airplay/include/airplay.hpp` and `streaming/raop/include/raop.hpp`: media-stream ownership boundaries for video mirror and RAOP audio processing.
-- Harness utilities may set validation-specific profile fields, but they must not hand-build AirPlay or RAOP TXT records.
 
-## Harness Coverage
-
-`sdk/src/main/cpp/protocol/mdns/src/mdns_harness.cpp` validates the responder offline and analyzes pcap captures behind `APLAY_MDNS_HARNESS`:
-
-- Builds a dual `_airplay` + `_raop` QU query.
-- Verifies that one combined response is generated per address family.
-- Parses generated IPv4 and IPv6 responses, checks expected PTR/SRV/TXT records, requires `A` only in IPv4 responses, and requires `AAAA` only in IPv6 responses.
-- Verifies cache-flush behavior for unique records and no cache-flush on PTR records.
-- Verifies AirPlay goodbye records use `TTL=0`.
-- Scans a pcap file for IPv4 and IPv6 mDNS multicast addresses and DNS-encoded AirPlay/RAOP names used by the capture.
-- Accepts optional receiver name, device id, and host name arguments so live harness captures and external reference captures can be checked against their actual identity.
-
-Agent/CI validation:
-
-```sh
-./scripts/harness/verify_mdns.sh
-```
-
-mDNS harness announcer:
-
-```sh
-./scripts/app/linux_build.sh
-build/linux/scripts/harness/mdns/aplay_harness_mdns_announce APlayHarness
-```
-
-By default the announcer starts the POSIX UDP 5353 multicast responder and keeps sending announcement packets until `SIGINT` or `SIGTERM`. Add `--once` to generate and parse announcement packets offline without opening UDP 5353.
-
-`./scripts/harness/verify_mdns.sh` captures live UDP 5353 traffic to `resources/pcap/mdns_announce.pcapng` by default, then runs replay against that capture.
+Validation or examples should use the public SDK entrypoints. They must not hand-build AirPlay or RAOP TXT records or expose internal packet helpers as public API.
 
 The project Linux build script also validates the SDK shared library path:
 
 ```sh
-./scripts/app/linux_build.sh
+./scripts/linux_build.sh
 ```

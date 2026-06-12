@@ -6,7 +6,7 @@ APlay 目标是以现代 C++ 分期实现 AirPlay 接收能力。APlay 首版以
 
 ## Legacy Baseline
 
-历史基线实现包含以下能力，需要在 APlay 中按模块重新实现并纳入 harness 验收：
+历史基线实现包含以下能力，需要在 APlay 中按模块重新实现：
 
 - `uxplay.cpp`：CLI、全局配置、生命周期、回调桥接、GStreamer/DBus 集成。
 - `lib/raop.c`：连接分类、RTSP/HTTP/HLS 分发、RAOP 会话上下文。
@@ -37,7 +37,6 @@ APlay 采用边界清晰的分层架构：
 - `crypto`：AES、FairPlay、Ed25519/X25519、SRP、digest auth、hash/base64。
 - `core`：通用可复用 C/C++ 实现，承载 STL-based 的跨平台辅助能力，例如 socket/thread/poll，并在 `core/pattern` 承载可复用设计模式模板；不再单独设置 `utils` 模块。
 - `osal`：平台能力抽象层，当前负责 codec/render 平台模块和平台 native binding 子模块选择，不承载 UI 或业务流程。
-- `harness`：离线回放、golden 对比、smoke run、真机增强验收。
 
 关键边界：
 
@@ -45,9 +44,8 @@ APlay 采用边界清晰的分层架构：
 - C++ SDK 位于 `sdk/src/main/cpp`，Linux app、Android Java SDK AAR 和 Harmony ETS SDK HAR 都从这里复用 native 能力。
 - JNI 与 NAPI 是独立 C++ binding 子模块，通过 CMake option 条件编译，不把 Java/ETS 绑定逻辑混入核心 C++ SDK。
 - Harmony NAPI `.so` 的 ArkTS 可见接口由 `sdk/src/main/ets/<library>` 下的 native module `.d.ts` 包声明，并通过 HAR module 的 `oh-package.json5` 引用。
-- `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议和流媒体核心跨平台，且可被 harness 离线驱动。
+- `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议和流媒体核心跨平台。
 - `osal` 不主动调用业务逻辑，只提供平台能力；当前落地范围是 codec/render 和平台 native binding，Linux 的 GStreamer render/codec 与 Android 的 MediaCodec/AudioTrack/Surface 属于后续 OSAL 实现方向。
-- `harness` 使用 mock protocol、streaming、OSAL 等能力验收协议和数据流，不依赖真实 UI。
 
 ## 核心数据流
 
@@ -58,7 +56,6 @@ APlay 采用边界清晰的分层架构：
 5. SETUP 建立音频 RTP、镜像视频或 HLS 通道。
 6. `streaming/raop` 处理音频流，`streaming/airplay` 处理视频镜像流，其他连接控制面由 `streaming/connection` 分发到对应后续模块。
 7. `streaming` 通过 `osal` 的 render/codec 抽象解码并渲染显示媒体帧。
-8. `harness` 可在无真机环境中回放相同步骤并比对结果。
 
 ## 线程模型
 

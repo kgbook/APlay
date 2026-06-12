@@ -6,7 +6,7 @@
 
 - 生成架构和详细设计文档。
 - 建立 PlantUML 图源和渲染产物。
-- 建立平台化构建入口、`aplay` 最小运行入口和 harness 目标。
+- 建立平台化构建入口和 `aplay` 最小运行入口。
 - 建立 `sdk` module，作为 C++ `.so`、Java AAR、ETS HAR 和共享 C/C++ 代码归档位置。
 - 建立 CTest 门禁。
 
@@ -38,7 +38,7 @@
 验收：
 
 - Linux 服务可启动监听本地端口。
-- smoke harness 能检查端口、发送最小请求、干净退出。
+- Linux 服务能检查端口、发送最小请求、干净退出。
 - C++ SDK `.so` 可由 CMake 构建。
 - JNI binding `.so` 可由 Android AAR 构建。
 - NAPI binding 保留 C++ 条件编译入口，由 Harmony HAR native 构建开启。
@@ -115,11 +115,11 @@
 
 验收：
 
-- 每项功能独立 feature flag、独立 harness、独立 golden。
+- 每项功能独立 feature flag，并保留可人工复现的验证输入。
 
 ## 风险
 
-- AirPlay legacy 协议依赖非公开行为，必须以抓包和 harness 验收为行为基线。
+- AirPlay legacy 协议依赖非公开行为，必须以抓包和可复现验证输入为行为基线。
 - FairPlay/Pairing 迁移风险高，必须先固定 vectors。
 - GStreamer 生命周期容易与协议 reset 耦合，必须通过 OSAL render/codec 抽象隔离。
 - 真机验收不可完全自动化，因此离线 pcap/fixtures 是硬性门禁。
