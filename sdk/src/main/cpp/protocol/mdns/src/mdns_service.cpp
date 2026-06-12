@@ -73,6 +73,8 @@ Service make_airplay_service(const AirPlayServiceProfile& profile) {
     }
     add_txt(service.txt, "flags", profile.flags, "airplay", "AirPlay");
     add_txt(service.txt, "model", profile.model, "airplay", "AirPlay");
+    add_txt(service.txt, "pk", profile.public_key, "airplay", "AirPlay");
+    add_txt(service.txt, "pi", profile.pair_id, "airplay", "AirPlay");
     add_txt(service.txt, "srcvers", profile.source_version, "airplay", "AirPlay");
     add_txt(service.txt, "vv", profile.protocol_version, "airplay", "AirPlay");
     return service;
@@ -96,19 +98,26 @@ Service make_raop_service(const RaopServiceProfile& profile) {
 
     add_txt(service.txt, "ch", profile.channels, "raop", "RAOP");
     add_txt(service.txt, "cn", profile.codecs, "raop", "RAOP");
+    add_txt(service.txt, "da", profile.device_auth, "raop", "RAOP");
     add_txt(service.txt, "et", profile.encryption_types, "raop", "RAOP");
     add_txt(service.txt, "ft", profile.features, "raop", "RAOP");
+    add_txt(service.txt, "am", profile.model, "raop", "RAOP");
     add_txt(service.txt, "md", profile.metadata_types, "raop", "RAOP");
+    add_txt(service.txt, "rhd", profile.raw_header_data, "raop", "RAOP");
     if (profile.include_password_required) {
         add_txt(service.txt, "pw", bool_text(profile.password_required), "raop",
                 "RAOP");
     }
     add_txt(service.txt, "sr", profile.sample_rate, "raop", "RAOP");
     add_txt(service.txt, "ss", profile.sample_size, "raop", "RAOP");
+    add_txt(service.txt, "sf", profile.status_flags, "raop", "RAOP");
+    add_txt(service.txt, "sv", profile.server_version, "raop", "RAOP");
     add_txt(service.txt, "tp", profile.transport, "raop", "RAOP");
     add_txt(service.txt, "txtvers", profile.txt_version, "raop", "RAOP");
     add_txt(service.txt, "vs", profile.source_version, "raop", "RAOP");
+    add_txt(service.txt, "vn", profile.variant, "raop", "RAOP");
     add_txt(service.txt, "vv", profile.protocol_version, "raop", "RAOP");
+    add_txt(service.txt, "pk", profile.public_key, "raop", "RAOP");
     return service;
 }
 

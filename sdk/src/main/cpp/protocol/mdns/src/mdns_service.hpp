@@ -39,14 +39,17 @@ struct Service {
 struct AirPlayServiceProfile {
     std::string receiver_name = "APlay";
     std::string device_id = "02:00:00:00:00:01";
-    std::string features = "0x527FFEE6,0x0";
+    std::string features = "0x5A7FFEE6,0x0";
     std::string flags = "0x4";
-    std::string model = "AppleTV6,2";
+    std::string model = "AppleTV3,2";
+    std::string public_key =
+        "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF";
+    std::string pair_id = "2e388006-13ba-4041-9a67-25dd4a43d536";
     std::string source_version = "220.68";
     std::string protocol_version = "2";
     bool password_required = false;
-    bool include_password_required = false;
-    std::uint16_t port = 7000;
+    bool include_password_required = true;
+    std::uint16_t port = 0;
 };
 
 struct RaopServiceProfile {
@@ -54,18 +57,26 @@ struct RaopServiceProfile {
     std::string device_id = "02:00:00:00:00:01";
     std::string channels = "2";
     std::string codecs = "0,1,2,3";
+    std::string device_auth = "true";
     std::string encryption_types = "0,3,5";
-    std::string features = "0x527FFEE6,0x0";
+    std::string features = "0x5A7FFEE6,0x0";
+    std::string model = "AppleTV3,2";
     std::string metadata_types = "0,1,2";
+    std::string public_key =
+        "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF";
+    std::string raw_header_data = "0x0";
     std::string sample_rate = "44100";
     std::string sample_size = "16";
+    std::string status_flags = "0x4";
+    std::string server_version = "false";
     std::string transport = "UDP";
     std::string txt_version = "1";
     std::string source_version = "220.68";
+    std::string variant = "65537";
     std::string protocol_version = "2";
     bool password_required = false;
-    bool include_password_required = false;
-    std::uint16_t port = 7000;
+    bool include_password_required = true;
+    std::uint16_t port = 0;
 };
 
 Service make_airplay_service(const AirPlayServiceProfile& profile);

@@ -31,7 +31,7 @@ const char* const kReceiverName = "APlayReceiver";
 
 class DNSServiceDiscoveryRuntime : public aplay::core::Singleton<DNSServiceDiscoveryRuntime> {
 public:
-    int start() {
+    int start(const ServicePorts& ports) {
         if (started_) {
             return 0;
         }
@@ -55,10 +55,12 @@ public:
 
         AirPlayServiceProfile airplay_profile;
         airplay_profile.receiver_name = kReceiverName;
+        airplay_profile.port = ports.airplay;
         config.airplay = make_airplay_service(airplay_profile);
 
         RaopServiceProfile raop_profile;
         raop_profile.receiver_name = kReceiverName;
+        raop_profile.port = ports.raop;
         config.raop = make_raop_service(raop_profile);
 
         LOGI(kLogTag, "registered AirPlay service: instance=%s type=%s port=%u",
@@ -109,8 +111,10 @@ private:
     bool started_ = false;
 };
 
-int DNSServiceDiscovery::start() {
-    return DNSServiceDiscoveryRuntime::instance().start();
+ServicePorts::ServicePorts() : airplay(0), raop(0) {}
+
+int DNSServiceDiscovery::start(const ServicePorts& ports) {
+    return DNSServiceDiscoveryRuntime::instance().start(ports);
 }
 
 void DNSServiceDiscovery::stop() {

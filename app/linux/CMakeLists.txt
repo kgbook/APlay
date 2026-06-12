@@ -32,7 +32,4 @@ include(${BUILD_EXECUTABLE})
 
 if(APLAY_BUILD_HARNESS)
     enable_testing()
-    set(LOCAL_PATH "${TOP_DIR}/harness")
-    include(${ALL_CMAKELISTS_UNDER})
-    unset(LOCAL_PATH)
 endif()

@@ -29,6 +29,26 @@
 - Keep reusable helpers in `core/`
 - SDK-facing API only in public headers; internal details stay private
 
+## Logging
+
+- Critical nodes and key state changes must emit necessary logs. This includes
+  startup and shutdown, configuration load or validation, permission and
+  lifecycle transitions, service discovery and publishing, connection/session
+  open and close, request or stream start and finish, retry/fallback paths, and
+  unrecoverable errors.
+- Critical logs must carry enough context to debug the event without reproducing
+  it: component name, action, stable request/session/device identifier when
+  available, endpoint or service name when relevant, result/status, error code
+  or errno, and elapsed time or byte/count metrics for bounded operations.
+- Log at ownership boundaries where control transfers between modules or
+  threads. Avoid duplicating the same event in both caller and callee unless the
+  two logs add different context.
+- Do not log secrets, credentials, raw media payloads, full tokens, or
+  personally identifying data. Mask or omit values that could leak user or
+  device privacy.
+- Keep logs actionable and bounded. Avoid per-packet, per-frame, or tight-loop
+  logs unless they are explicitly gated behind debug-only diagnostics.
+
 ## CMake
 
 - CMake code must use `cmake/CMakeHelper` target declarations instead of direct

@@ -83,12 +83,13 @@ The IPv4 value is stored in host byte order. `core::network::parse_ipv4_address(
 Internal service profile helpers:
 
 - `protocol/mdns/src/mdns_service.hpp`: `AirPlayServiceProfile`, `RaopServiceProfile`, `make_airplay_service`, and `make_raop_service`.
-- `streaming/airplay/include/airplay.hpp` and `streaming/raop/include/raop.hpp`: compatibility aliases and inline forwarding helpers for existing callers.
+- `streaming/connection/include/connection.hpp`: connection classification and dispatch boundary for HTTP/HLS/RTSP control connections.
+- `streaming/airplay/include/airplay.hpp` and `streaming/raop/include/raop.hpp`: media-stream ownership boundaries for video mirror and RAOP audio processing.
 - Harness utilities may set validation-specific profile fields, but they must not hand-build AirPlay or RAOP TXT records.
 
 ## Harness Coverage
 
-`harness/mdns/mdns_replay.cpp` validates the responder offline and analyzes pcap captures:
+`sdk/src/main/cpp/protocol/mdns/src/mdns_harness.cpp` validates the responder offline and analyzes pcap captures behind `APLAY_MDNS_HARNESS`:
 
 - Builds a dual `_airplay` + `_raop` QU query.
 - Verifies that one combined response is generated per address family.
@@ -101,22 +102,22 @@ Internal service profile helpers:
 Agent/CI validation:
 
 ```sh
-./harness/verify_mdns.sh
+./scripts/harness/verify_mdns.sh
 ```
 
 mDNS harness announcer:
 
 ```sh
-./scripts/linux_build.sh
-build/linux/harness/mdns/aplay_harness_mdns_announce APlayHarness
+./scripts/app/linux_build.sh
+build/linux/scripts/harness/mdns/aplay_harness_mdns_announce APlayHarness
 ```
 
 By default the announcer starts the POSIX UDP 5353 multicast responder and keeps sending announcement packets until `SIGINT` or `SIGTERM`. Add `--once` to generate and parse announcement packets offline without opening UDP 5353.
 
-`./harness/verify_mdns.sh` captures live UDP 5353 traffic to `resources/pcap/mdns_announce.pcapng` by default, then runs replay against that capture.
+`./scripts/harness/verify_mdns.sh` captures live UDP 5353 traffic to `resources/pcap/mdns_announce.pcapng` by default, then runs replay against that capture.
 
 The project Linux build script also validates the SDK shared library path:
 
 ```sh
-./scripts/linux_build.sh
+./scripts/app/linux_build.sh
 ```

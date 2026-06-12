@@ -15,6 +15,7 @@
 #include "tcp_socket.hpp"
 #include "socket_internal.hpp"
 
+#include <fcntl.h>
 #include <sys/socket.h>
 
 namespace aplay {
@@ -52,6 +53,73 @@ bool TcpSocket::valid() const {
 
 void TcpSocket::close() {
     close_fd(fd_);
+}
+
+bool TcpSocket::set_reuse_address(bool enabled) const {
+    if (!valid()) {
+        return false;
+    }
+    const int value = enabled ? 1 : 0;
+    return ::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) == 0;
+}
+
+bool TcpSocket::set_nonblocking(bool enabled) const {
+    if (!valid()) {
+        return false;
+    }
+    const int flags = ::fcntl(fd_, F_GETFL, 0);
+    if (flags == -1) {
+        return false;
+    }
+    const int updated = enabled ? (flags | O_NONBLOCK) : (flags & ~O_NONBLOCK);
+    return ::fcntl(fd_, F_SETFL, updated) == 0;
+}
+
+bool TcpSocket::bind_to(const Ipv4Endpoint& endpoint) const {
+    if (!valid()) {
+        return false;
+    }
+    const sockaddr_in addr = to_sockaddr(endpoint);
+    return ::bind(fd_, reinterpret_cast<const sockaddr*>(&addr), sizeof(addr)) == 0;
+}
+
+bool TcpSocket::local_endpoint(Ipv4Endpoint* endpoint) const {
+    if (!valid() || endpoint == NULL) {
+        return false;
+    }
+
+    sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
+    if (::getsockname(fd_, reinterpret_cast<sockaddr*>(&addr), &addr_len) != 0) {
+        return false;
+    }
+    *endpoint = from_sockaddr(addr);
+    return true;
+}
+
+bool TcpSocket::listen(int backlog) const {
+    if (!valid()) {
+        return false;
+    }
+    return ::listen(fd_, backlog) == 0;
+}
+
+TcpSocket TcpSocket::accept(Ipv4Endpoint* peer) const {
+    if (!valid()) {
+        return TcpSocket();
+    }
+
+    sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
+    const int client_fd =
+        ::accept(fd_, reinterpret_cast<sockaddr*>(&addr), &addr_len);
+    if (client_fd == -1) {
+        return TcpSocket();
+    }
+    if (peer != NULL) {
+        *peer = from_sockaddr(addr);
+    }
+    return TcpSocket(client_fd);
 }
 
 bool TcpSocket::connect_to(const Ipv4Endpoint& endpoint) {

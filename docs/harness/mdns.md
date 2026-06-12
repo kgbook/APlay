@@ -5,7 +5,7 @@
 Run:
 
 ```sh
-./harness/verify_mdns.sh
+./scripts/harness/verify_mdns.sh
 ```
 
 The script performs these steps:
@@ -17,13 +17,15 @@ The script performs these steps:
 - Uses unprivileged capture only. The script does not request sudo or read sudo passwords.
 - Starts `aplay_harness_mdns_announce` with receiver name `APlayHarness`.
 - Stores the captured packets at `resources/pcap/mdns_announce.pcapng` by default.
+- Writes task progress to `resources/pcap/mdns_verify_progress.md` by default.
 - Runs `aplay_harness_mdns_replay resources/pcap/mdns_announce.pcapng APlayHarness 02:00:00:00:00:01 APlayHarness.local`.
 
 Override knobs:
 
 ```sh
-APLAY_CAPTURE_IFACE=wlan0 ./harness/verify_mdns.sh
-APLAY_PCAP_CAPTURE=/tmp/aplay-mdns.pcap ./harness/verify_mdns.sh
+APLAY_CAPTURE_IFACE=wlan0 ./scripts/harness/verify_mdns.sh
+APLAY_PCAP_CAPTURE=/tmp/aplay-mdns.pcap ./scripts/harness/verify_mdns.sh
+APLAY_MDNS_PROGRESS=/tmp/aplay-mdns-progress.md ./scripts/harness/verify_mdns.sh
 ```
 
 ## Capture Permissions
@@ -59,14 +61,14 @@ dumpcap: Promiscuous mode not supported on the "any" device.
 
 `verify_mdns.sh` starts both `dumpcap` and `tcpdump` with `-p` to disable promiscuous mode. This keeps the default `APLAY_CAPTURE_IFACE=any` path compatible with Linux while still capturing UDP 5353 multicast traffic visible to the host.
 
-If this message still appears, check that the script being run is the current `harness/verify_mdns.sh` and that no local wrapper removes `-p` from the capture command.
+If this message still appears, check that the script being run is the current `scripts/harness/verify_mdns.sh` and that no local wrapper removes `-p` from the capture command.
 
 ## Announce
 
-`build/linux/harness/mdns/aplay_harness_mdns_announce` defaults to live behavior:
+`build/linux/scripts/harness/mdns/aplay_harness_mdns_announce` defaults to live behavior:
 
 ```sh
-build/linux/harness/mdns/aplay_harness_mdns_announce APlayHarness
+build/linux/scripts/harness/mdns/aplay_harness_mdns_announce APlayHarness
 ```
 
 It starts the POSIX mDNS responder on UDP 5353 and keeps broadcasting AirPlay/RAOP announcement packets until it receives `SIGINT` or `SIGTERM`. The responder attempts both IPv4 `224.0.0.251:5353` and IPv6 `ff02::fb:5353` listeners and keeps running if at least one opens; IPv4 packets include host `A` records and IPv6 packets include host `AAAA` records.
@@ -78,12 +80,16 @@ Useful options:
 
 ## Replay
 
-`build/linux/harness/mdns/aplay_harness_mdns_replay` validates generated responder output and scans a pcap file for DNS-encoded mDNS service names:
+`build/linux/scripts/harness/mdns/aplay_harness_mdns_replay` validates generated responder output and scans a pcap file for DNS-encoded mDNS service names:
 
 ```sh
-build/linux/harness/mdns/aplay_harness_mdns_replay <pcap-file> [receiver-name] [device-id] [host-name]
+build/linux/scripts/harness/mdns/aplay_harness_mdns_replay <pcap-file> [receiver-name] [device-id] [host-name]
 ```
 
 When receiver name, device id, and host name are omitted, replay uses the APlay harness defaults: `APlayHarness`, `02:00:00:00:00:01`, and `APlayHarness.local`. The Linux harness passes those values explicitly so the live capture is checked against the packet names that `announce` actually emits. External reference captures can pass a different host name when the DNS-SD instance name and SRV target differ.
 
 Replay checks generated packet semantics and pcap contents. Generated IPv4 packets must include PTR/SRV/TXT plus host `A` records and no host `AAAA` records; generated IPv6 packets must include PTR/SRV/TXT plus host `AAAA` records and no host `A` records. Pcap scans require both IPv4 mDNS multicast (`224.0.0.251`) and IPv6 mDNS multicast (`ff02::fb`) traffic, plus receiver AirPlay/RAOP DNS-SD names and family-specific host address records.
+
+The replay executable is only a harness entrypoint. The generated packet checks
+live in the mDNS module behind `APLAY_MDNS_HARNESS`, so harness validation can
+exercise module internals without adding public SDK/API surface.

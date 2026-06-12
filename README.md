@@ -8,15 +8,16 @@ APlay is a cross-platform AirPlay receiver that enables seamless media casting a
 ## Linux Build
 
 `app/linux/CMakeLists.txt` is the Linux entrypoint. It imports shared native modules from `sdk/src/main/cpp` with `APLAY_BUILD_LINUX=ON` and builds the `APlayReceiver` executable and `aplay-sdk` shared library.
+At runtime, `APlayReceiver` uses an OS-assigned receiver service port and advertises that AirPlay/RAOP service port through mDNS for the initial control endpoints.
 
 ```sh
-./scripts/linux_build.sh
+./scripts/app/linux_build.sh
 ```
 
 Agent validation:
 
 ```sh
-./harness/verify_mdns.sh
+./scripts/harness/verify_mdns.sh
 ```
 
 This captures live UDP 5353 mDNS packets to `resources/pcap/mdns_announce.pcapng` by default, then analyzes the capture with `aplay_harness_mdns_replay`. Use `APLAY_CAPTURE_IFACE` to choose the capture interface and `APLAY_PCAP_CAPTURE` to choose the output file.
@@ -24,7 +25,7 @@ This captures live UDP 5353 mDNS packets to `resources/pcap/mdns_announce.pcapng
 mDNS harness announcer after build:
 
 ```sh
-build/linux/harness/mdns/aplay_harness_mdns_announce APlayHarness
+build/linux/scripts/harness/mdns/aplay_harness_mdns_announce APlayHarness
 ```
 
 By default it starts the UDP 5353 multicast responder and keeps sending AirPlay/RAOP announcement packets until `SIGINT` or `SIGTERM`. Add `--once` to only build and parse announcement packets offline.
@@ -36,7 +37,7 @@ By default it starts the UDP 5353 multicast responder and keeps sending AirPlay/
 The Android build uses `APLAY_BUILD_ANDROID=ON`.
 
 ```sh
-./scripts/android_build.sh
+./scripts/app/android_build.sh
 ```
 
 Debug AAR output:
@@ -56,7 +57,7 @@ Build requires Harmony toolchain. Two options:
 **Option 2 — Command Line Tools** (macOS/Linux/Windows): Download [Command Line Tools for HMOS](https://developer.huawei.com/consumer/cn/download/command-line-tools-for-hmos) and extract.
 
 ```sh
-./scripts/harmony_build.sh
+./scripts/app/harmony_build.sh
 ```
 
 ## Submodules

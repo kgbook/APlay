@@ -52,7 +52,8 @@
 - 实现 request/response 模型。
 - 实现 RTSP OPTIONS、GET /info、POST /pair-*、POST /fp-setup、SETUP、RECORD、FLUSH、TEARDOWN 骨架。
 - 实现 HTTP /server-info、/reverse、/playback-info 骨架。
-- 实现连接类型分类和 session 状态机。
+- 在 `streaming/connection` 实现连接类型分类和分发，不把分发逻辑放进 `streaming/airplay` 或 `streaming/raop`。
+- 建立 session 状态机骨架。
 
 验收：
 

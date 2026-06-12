@@ -138,14 +138,52 @@
 
 - TCP accept 和连接管理。
 - HTTP/RTSP parser 封装。
-- 连接类型识别：RAOP、AirPlay、reverse HTTP、HLS。
-- 将请求转交给 `SessionController`。
+- 承载 httpd 生命周期和请求/响应读写。
+- 将首包或已解析请求交给 `streaming/connection` 做类型识别和分发。
 
 关键规则：
 
 - Header 数量、字段长度和值长度必须有限制。
 - CSeq 只接受非负整数并原样规范化返回。
 - 未识别请求返回明确错误或记录 unhandled，不允许静默改变会话状态。
+
+### StreamingConnection
+
+职责：
+
+- 识别连接首行和目标路径，将连接分类为 HTTP、HLS、RTSP 或 Unknown。
+- 分发控制面请求到后续 session/controller 骨架。
+- 保持连接分类逻辑独立于具体媒体流模块。
+
+边界：
+
+- 不处理 AirPlay mirror 视频 payload。
+- 不处理 RAOP audio RTP payload。
+- 不直接实现 codec/render。
+
+### AirPlayStreaming
+
+职责：
+
+- 处理 AirPlay 视频镜像数据流。
+- 后续承载 mirror TCP/RTP、解密、H264/H265 NAL 输出和视频渲染衔接。
+
+边界：
+
+- 不负责 HTTP/RTSP/HLS 连接分类或通用分发。
+- 不承载 RAOP 音频流处理。
+
+### RaopStreaming
+
+职责：
+
+- 处理 RAOP 音频投屏数据流。
+- 后续承载音频 RTP、控制/重传、metadata、cover art 和音频渲染衔接。
+
+边界：
+
+- 不负责 HTTP/RTSP/HLS 连接分类或通用分发。
+- 不承载 AirPlay 视频镜像流处理。
 
 ### SessionController
 

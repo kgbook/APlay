@@ -14,29 +14,15 @@
 
 #pragma once
 
-#include <cstdint>
+#include <string>
 
 namespace aplay {
 namespace protocol {
 namespace mdns {
 
-struct ServicePorts {
-    std::uint16_t airplay;
-    std::uint16_t raop;
-
-    ServicePorts();
-};
-
-class DNSServiceDiscovery {
-public:
-    static int start(const ServicePorts& ports);
-    static void stop();
-
-private:
-    DNSServiceDiscovery() = delete;
-    DNSServiceDiscovery(const DNSServiceDiscovery&) = delete;
-    DNSServiceDiscovery& operator=(const DNSServiceDiscovery&) = delete;
-};
+bool validate_harness_replay(const char* path, const std::string& receiver_name,
+                             const std::string& device_id,
+                             const std::string& host_name);
 
 } // namespace mdns
 } // namespace protocol

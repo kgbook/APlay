@@ -5,6 +5,11 @@
  *  modify it under the terms of the GNU Lesser General Public
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  */
 
 #include "mdns_packet.hpp"
@@ -70,8 +75,7 @@ int main(int argc, char** argv) {
     raop_profile.receiver_name = receiver_name;
     config.raop = aplay::protocol::mdns::make_raop_service(raop_profile);
 
-    aplay::protocol::mdns::Responder& responder =
-        aplay::protocol::mdns::Responder::instance();
+    aplay::protocol::mdns::Responder& responder = aplay::protocol::mdns::Responder::instance();
     responder.set_config(config);
     std::vector<std::vector<std::uint8_t> > packets =
         responder.build_announcement(aplay::protocol::mdns::kServiceTtl,

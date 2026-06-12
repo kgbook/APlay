@@ -29,8 +29,11 @@ APlay 采用边界清晰的分层架构：
 - `sdk`：共享 SDK module。`sdk/src/main/cpp` 提供 C++ SDK，Linux 输出 `libaplay-sdk.so`；`sdk/src/main/cpp/osal/android/jni` 提供 Java SDK native binding 并为 Android 打包输出 `libaplay-sdk.so`；`sdk/src/main/cpp/osal/harmony/napi` 提供 ETS SDK native binding，`sdk/src/main/java` 提供 Java SDK 并对外输出 `aplay-sdk` Android AAR，`sdk` 根目录提供本地 `aplay-sdk` Harmony HAR module 配置，`sdk/src/main/ets/com/kgbook/aplay` 提供 ETS SDK 门面，`sdk/src/main/ets/libaplay_napi` 提供 Harmony native module 类型声明包。
 - `app/android`：Android 平台 UI/业务逻辑，包括前台服务、Activity/Service 生命周期、权限申请、网络/投屏状态展示、Android 媒体会话集成；Gradle root 命名为 `APlayReceiver`，输出 `APlayReceiver` APK。它通过 `:aplay-sdk` 使用 Java SDK，不直接持有 C/C++ 代码。
 - `app/harmony`：HarmonyOS/DevEco Studio 导入入口，构建 `APlayReceiver` HAP target，依赖 `sdk` 本地 `aplay-sdk` ETS SDK HAR target；电视、机顶盒等大屏业务适配仍为 TODO。
-- `protocol`：RTSP、HTTP、reverse HTTP、mDNS/DNS-SD、请求/响应模型和协议状态机。
-- `streaming`：RAOP 音频 RTP、AirPlay mirror video、HLS、jitter buffer、NTP 时间同步。
+- `protocol`：RTSP、HTTP、reverse HTTP、mDNS/DNS-SD、请求/响应模型和 httpd 等协议编解码基础能力。
+- `streaming/connection`：连接首包识别、HTTP/HLS/RTSP 分类和分发，不承载具体音频或视频流处理。
+- `streaming/airplay`：AirPlay 视频镜像数据流处理，包括 mirror TCP/RTP、解密后的视频 NAL 输出和后续视频渲染衔接。
+- `streaming/raop`：RAOP 音频投屏数据流处理，包括音频 RTP、控制/重传、metadata、cover art 和后续音频渲染衔接。
+- `streaming`：聚合 connection、airplay、raop、HLS、jitter buffer、NTP 时间同步等流媒体子模块。
 - `crypto`：AES、FairPlay、Ed25519/X25519、SRP、digest auth、hash/base64。
 - `core`：通用可复用 C/C++ 实现，承载 STL-based 的跨平台辅助能力，例如 socket/thread/poll，并在 `core/pattern` 承载可复用设计模式模板；不再单独设置 `utils` 模块。
 - `osal`：平台能力抽象层，当前负责 codec/render 平台模块和平台 native binding 子模块选择，不承载 UI 或业务流程。
@@ -42,18 +45,18 @@ APlay 采用边界清晰的分层架构：
 - C++ SDK 位于 `sdk/src/main/cpp`，Linux app、Android Java SDK AAR 和 Harmony ETS SDK HAR 都从这里复用 native 能力。
 - JNI 与 NAPI 是独立 C++ binding 子模块，通过 CMake option 条件编译，不把 Java/ETS 绑定逻辑混入核心 C++ SDK。
 - Harmony NAPI `.so` 的 ArkTS 可见接口由 `sdk/src/main/ets/<library>` 下的 native module `.d.ts` 包声明，并通过 HAR module 的 `oh-package.json5` 引用。
-- `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议核心跨平台，且可被 harness 离线驱动。
+- `protocol`、`streaming`、`crypto` 不依赖 `app/*`，保证协议和流媒体核心跨平台，且可被 harness 离线驱动。
 - `osal` 不主动调用业务逻辑，只提供平台能力；当前落地范围是 codec/render 和平台 native binding，Linux 的 GStreamer render/codec 与 Android 的 MediaCodec/AudioTrack/Surface 属于后续 OSAL 实现方向。
-- `harness` 使用 mock protocol、straming、OSAL等能力验收协议和数据流，不依赖真实 UI。
+- `harness` 使用 mock protocol、streaming、OSAL 等能力验收协议和数据流，不依赖真实 UI。
 
 ## 核心数据流
 
 1. Client 通过 mDNS/DNS-SD 发现 APlay。
 2. Client 建立 RTSP/HTTP 连接。
-3. `protocol` 将连接分类为 RAOP、AirPlay、reverse HTTP 或 HLS。
+3. `protocol/http` 或 `protocol/rtsp` 完成请求编解码，`streaming/connection` 将连接分类为 HTTP、HLS 或 RTSP 并分发。
 4. Pairing/FairPlay 生成会话密钥。
 5. SETUP 建立音频 RTP、镜像视频或 HLS 通道。
-6. `streaming` 解密、排序、同步并输出媒体帧。
+6. `streaming/raop` 处理音频流，`streaming/airplay` 处理视频镜像流，其他连接控制面由 `streaming/connection` 分发到对应后续模块。
 7. `streaming` 通过 `osal` 的 render/codec 抽象解码并渲染显示媒体帧。
 8. `harness` 可在无真机环境中回放相同步骤并比对结果。
 

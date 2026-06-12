@@ -4,6 +4,7 @@ include(${CLEAR_VARS})
 set(LOCAL_MODULE streaming)
 set(LOCAL_INTERFACE_LIBRARIES
     airplay
+    connection
     hls
     jitterbuffer
     raop)

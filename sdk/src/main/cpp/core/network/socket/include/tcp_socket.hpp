@@ -39,6 +39,12 @@ public:
     bool valid() const;
     void close();
 
+    bool set_reuse_address(bool enabled) const;
+    bool set_nonblocking(bool enabled) const;
+    bool bind_to(const Ipv4Endpoint& endpoint) const;
+    bool local_endpoint(Ipv4Endpoint* endpoint) const;
+    bool listen(int backlog) const;
+    TcpSocket accept(Ipv4Endpoint* peer) const;
     bool connect_to(const Ipv4Endpoint& endpoint);
     int send(const std::uint8_t* bytes, std::size_t length) const;
     int receive(std::uint8_t* bytes, std::size_t length) const;

@@ -2,7 +2,7 @@
 
 ## Scope
 
-`harness` owns agent validation orchestration. It builds the relevant targets, runs validation utilities, manages shared resources, and makes pass/fail decisions.
+`scripts/harness` owns agent validation orchestration. It builds the relevant targets, runs validation utilities, manages shared resources, and makes pass/fail decisions.
 
 ## Modules
 
@@ -12,8 +12,11 @@
 - [mDNS](mdns.md)
   Validates the Linux mDNS responder by capturing live UDP 5353 announcement traffic and replaying the capture through the automated analyzer.
 
+- [Tasks](tasks.md)
+  Defines harness task status, progress, and acceptance records for agent/CI validation runs.
+
 ## Boundaries
 
-- `harness/` owns validation scripts, target selection, fixture/resource paths, execution order, and pass/fail behavior.
-- `harness/mdns/` owns mDNS validation utilities, including live announcement and replay binaries.
+- `scripts/harness/` owns validation scripts, target selection, fixture/resource paths, execution order, and pass/fail behavior.
+- Module-specific harness source lives inside the owning module behind compile macros; mDNS harness entrypoints are under `sdk/src/main/cpp/protocol/mdns/harness`.
 - `resources/pcap/` owns shared packet capture inputs produced or consumed by harness validation.
